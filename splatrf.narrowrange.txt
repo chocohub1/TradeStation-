@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.narrowrange
+Description	: Is the specified bar a narrow range bar?
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RangeLength(Numeric),
+	Index(Numeric);
+
+splatrf.narrowrange = False;
+If Range[Index] < Lowest(Range, RangeLength - 1)[Index + 1] Then
+	splatrf.narrowrange = True;

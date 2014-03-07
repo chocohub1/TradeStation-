@@ -1,0 +1,49 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.BizDayWeek
+Description	: Get the ordinal business day of the week
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	FirstDay(TrueFalseRef),
+	LastDay(TrueFalseRef);
+
+Variables:
+	dw(0),
+	GYear(0),
+	GMonth(0),
+	GDay(0),
+	id(0),
+	hd(0),
+	Holidays(0),
+	ih(0);
+
+Arrays:
+	Holiday[20](0),
+	HolidayName[20]("");	
+
+FirstDay = False;
+LastDay = False;
+dw = splatrf.dayofweek(RDate);
+
+Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+hd = 0;
+Value1 = RDate - dw;
+For id = Value1+1 To Value1+5 Begin
+	For ih = 0 To Holidays-1 Begin
+		If id = Holiday[ih] Then
+			hd = id - Value1;
+	End;
+End;
+If dw = 1 or (dw = 2 and hd = 1) Then
+	FirstDay = True;
+If dw = 5 or (dw = 4 and hd = 5) Then
+	LastDay = True;
+If hd > 0 and hd < dw Then
+	dw = dw - 1;
+splatrf.bizdayweek = dw;

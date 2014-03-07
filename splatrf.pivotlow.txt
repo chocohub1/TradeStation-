@@ -1,0 +1,34 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.pivotlow
+Description	: Find the lowest pivot 
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	PM[MaxSize1, MaxSize2](NumericArrayRef),
+	PStart(NumericSimple),
+	PEnd(NumericSimple),
+	MinStrength(NumericSimple);
+
+Variables:
+	ip(0),
+	lp(0),
+	TheLow(0.0);
+
+splatrf.pivotlow = 0;
+If Pivots >= 1 and MinStrength >= 1 Then Begin
+	lp = -1;
+	TheLow = 999999.0;
+	For ip = PStart to PEnd Begin
+		If PM[ip, 1] = -1 Then Begin
+			If Low[PM[ip, 0]] < TheLow and PM[ip, 2] >= MinStrength Then Begin
+				TheLow = Low[PM[ip, 0]];
+				lp = ip;
+			End;
+		End;
+	End;
+	splatrf.pivotlow = lp;
+End;

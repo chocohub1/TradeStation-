@@ -1,0 +1,27 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.narrowrangepercent
+Description	: Display a narrow range bar by percentage
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	RangeLength(10),
+	RangeFactor(0.65);
+
+Variables:
+	ATR(0.0);
+
+ATR = Average(Range, RangeLength);
+If Range <= RangeFactor * ATR Then Begin
+ 	PlotPaintBar(High, Low, "NR%");
+	Alert("NR% Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+
+

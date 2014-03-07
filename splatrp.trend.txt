@@ -1,0 +1,29 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.trend
+Description	: Show Trend
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	UpColor(Cyan),
+	DownColor(Magenta);
+
+Variables:
+	Trend(0);
+
+Condition1 = High > High[1] and Close < Close[1];
+Condition2 = Low < Low[1] and Close > Close[1];
+
+If Condition1 Then
+	Trend = -1;
+
+If Condition2 Then
+	Trend = 1;
+
+If Trend = 1 Then
+	PlotPaintBar(High, Low, "Trend", UpColor);
+
+If Trend = -1 Then
+	PlotPaintBar(High, Low, "Trend", DownColor);

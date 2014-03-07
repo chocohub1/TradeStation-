@@ -1,0 +1,68 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.plotexittargets
+Description	: Plot the stop loss points and profit targets
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	SystemID(String),
+	StopLoss(Numeric),
+	ProfitTarget1(Numeric),
+	ProfitTarget2(Numeric);
+
+Variables:
+	PlotColor(Black),
+	SLLine(-1),
+	PT1Line(-1),
+	PT2Line(-1),
+	SLString(""),
+	SLText(-1),
+	PT1String(""),
+	PT1Text(-1),
+	PT2String(""),
+	PT2Text(-1);
+
+splatrf.plotexittargets = False;
+
+If LastBarOnChart Then Begin
+	If MarketPosition = 1 Then Begin
+		SLString = " LX " + SystemID + "- ";
+		PT1String = " LX " + SystemID + "+ ";
+		PT2String = " LX " + SystemID + "++ ";
+	End;
+	If MarketPosition = -1 Then Begin
+		SLString = " SX " + SystemID + "- ";
+		PT1String = " SX " + SystemID + "+ ";
+		PT2String = " SX " + SystemID + "++ ";
+	End;
+	If GetBackGroundColor = 1 Then
+		PlotColor = White;
+	SLLine = TL_New(Date[0], Time[0], StopLoss, Date[1], Time[1], StopLoss);
+	If SLLine >= 0 Then Begin
+		TL_SetColor(SLLine, PlotColor);
+		TL_SetSize(SLLine, 1);
+		TL_SetExtRight(SLLine, True);
+		SLText = Text_New(Date, Time, StopLoss, SLString);
+		Text_SetColor(SLText, PlotColor);
+	End;
+	PT1Line = TL_New(Date[0], Time[0], ProfitTarget1, Date[1], Time[1], ProfitTarget1);
+	If PT1Line >= 0 Then Begin
+		TL_SetColor(PT1Line, PlotColor);
+		TL_SetSize(PT1Line, 1);
+		TL_SetExtRight(PT1Line, True);
+		PT1Text = Text_New(Date, Time, ProfitTarget1, PT1String);
+		Text_SetColor(PT1Text, PlotColor);
+	End;
+	PT2Line = TL_New(Date[0], Time[0], ProfitTarget2, Date[1], Time[1], ProfitTarget2);
+	If PT2Line >= 0 Then Begin
+		TL_SetColor(PT2Line, PlotColor);
+		TL_SetSize(PT2Line, 1);
+		TL_SetExtRight(PT2Line, True);
+		PT2Text = Text_New(Date, Time, ProfitTarget2, PT2String);
+		Text_SetColor(PT2Text, PlotColor);
+	End;
+End;
+
+splatrf.plotexittargets = True;

@@ -1,0 +1,57 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.rectangle
+Description	: Draw a rectangle
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RectangleLength(4),
+	RangeLength(13),
+	RangeFactor(1),
+	RangeRatioLimit(0.35),
+	Lookback(20),
+	Color(Yellow);
+
+Variables:
+	RectangleHigh(0.0),
+	RectangleLow(0.0),
+	InRectangle(False),
+	XRectangle(False),
+	UpperLine(-1),
+	LowerLine(-1);
+
+XRectangle = False;
+If InRectangle Then
+	If High <= RectangleHigh and Low >= RectangleLow Then
+		XRectangle = True;
+InRectangle = splatrf.rectangular(RectangleLength,
+								  RangeLength,
+								  RangeFactor,
+								  RangeRatioLimit,
+								  Lookback);
+If InRectangle or XRectangle Then Begin
+	If InRectangle Then Begin
+		RectangleHigh = Highest(High, RectangleLength);
+		RectangleLow = Lowest(Low, RectangleLength);
+	End;
+	UpperLine = TL_New(Date[RectangleLength-1], Time[RectangleLength-1], RectangleHigh, Date[0], Time[0], RectangleHigh);
+	If UpperLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(UpperLine, Color)
+		Else
+			TL_SetColor(UpperLine, Black);
+		TL_SetSize(UpperLine, 1);
+	End;
+	LowerLine = TL_New(Date[RectangleLength-1], Time[RectangleLength-1], RectangleLow, Date[0], Time[0], RectangleLow);
+	If LowerLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(LowerLine, Color)
+		Else
+			TL_SetColor(LowerLine, Black);
+		TL_SetSize(LowerLine, 1);
+	End;
+	Plot1(RectangleLength, "Length");
+End;
+

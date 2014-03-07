@@ -1,0 +1,200 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.multiplepatterns
+Description	: Look for multiple combinations of market patterns
+Provided By	: SplatR (c) Copyright 2013
+
+1. Cobra (C)
+2. Hook (H)
+3. Inside Day 2 (I)
+4. Tail (L)
+5. Harami (M)
+6. 1-2-3 Pullback (P)
+7. Test (T)
+8. V Zone (V)
+
+Qualifiers
+
+1. Moving Average (A)
+2. Narrow Range (N)
+
+********************************************************************}
+
+Inputs:
+	{M Parameters}
+	MinimumPatterns(3),
+	{Filter Parameters}
+	FiltersOn(True),
+	FilterLength(14),
+	MinimumPrice(0),
+	MinimumATR(0.5),
+	{Position Parameters}
+	Equity(1000000),
+	RiskModel(3),
+	RiskPercent(1),
+	RiskATR(1),
+	EntryFactor(0.1),
+	DrawTargets(False);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	ATRLength(20),
+	TradeFilter(True),
+	BuyStop(0.0),
+	ShortStop(0.0),
+	{M Variables}
+	PatternString(""),
+	LongString(""),
+	ShortString(""),
+	ReturnValue(0),
+	ALength(50),
+	ACondition(False),
+	CPercent(0.333),
+	CRangeFactor(0.8),
+	HLength(1),
+	HPercent(0.2),
+	LPercent(0.3),
+	LLength(7),
+	PADX(25),
+	PLength(14),
+	TLength(20),
+	TBars(7),
+	TFactor(0.5),
+	VFactor(1.5),
+	NRFactor(0.7),
+	NLength1(5),
+	NLength2(10),
+	NLength3(4),
+	MRange(5),
+	MRangePercent(0.4),
+	InsideDay(False);
+
+ATR = Volatility(ATRLength);
+BuyStop = High + (EntryFactor * ATR);
+ShortStop = Low - (EntryFactor * ATR);
+InsideDay = Low > Low[1] and High < High[1];
+
+{Run trade filters}
+
+If FiltersOn Then
+	TradeFilter = Close > MinimumPrice and
+				  ATR >= MinimumATR;
+
+If TradeFilter Then Begin
+
+	PatternString = "";
+	LongString = "";
+	ShortString = "";
+
+	ReturnValue = splatrf.cobra(CPercent, CRangeFactor);
+	If ReturnValue > 0 Then Begin
+		PatternString = "C";
+		If ReturnValue = 1 Then
+			LongString = LongString + PatternString
+		Else
+			ShortString = ShortString + PatternString;
+	End;
+
+	PatternString = "H";
+	If splatrf.hookup(ATR) Then
+		LongString = LongString + PatternString;
+	If splatrf.hookdown(ATR) Then
+		ShortString = ShortString + PatternString;
+
+	If splatrf.insideday2 Then Begin
+		PatternString = "I";
+		LongString = LongString + PatternString;
+		ShortString = ShortString + PatternString;
+	End;
+
+	ReturnValue = splatrf.tail(LPercent, LLength);
+	If ReturnValue > 0 Then Begin
+		PatternString = "L";
+		If ReturnValue = 1 Then
+			LongString = LongString + PatternString
+		Else
+			ShortString = ShortString + PatternString;
+	End;
+
+	ReturnValue = splatrf.harami;
+	If ReturnValue > 0 Then Begin
+		PatternString = "M";
+		If ReturnValue = 1 Then
+			LongString = LongString + PatternString
+		Else
+			ShortString = ShortString + PatternString;
+	End;
+
+	ReturnValue = splatrf.pullback(PADX, PLength);
+	If ReturnValue > 0 Then Begin
+		PatternString = "P";
+		If ReturnValue = 1 Then
+			LongString = LongString + PatternString
+		Else
+			ShortString = ShortString + PatternString;
+	End;
+
+	PatternString = "T";
+	If splatrf.testlow(TLength, TBars, TFactor) > 0 Then
+		LongString = LongString + PatternString;
+	If splatrf.testhigh(TLength, TBars, TFactor) > 0 Then
+		ShortString = ShortString + PatternString;
+
+	PatternString = "V";
+	If High >= splatrf.vhigh(VFactor, FilterLength) Then
+		ShortString = ShortString + PatternString;
+	If Low <= splatrf.vlow(VFactor, FilterLength) Then
+		LongString = LongString + PatternString;
+
+	{Pattern Qualifiers}
+
+	ACondition = splatrf.onaverage(ALength);
+	If ACondition Then Begin
+		PatternString = "A";
+		LongString = LongString + PatternString;
+		ShortString = ShortString + PatternString;
+	End;
+
+	Condition1 = splatrf.narrowrange(NLength1, 1) and splatrf.narrowrange(NLength1, 0)[1];
+	Condition2 = Low > Low[1] and High < High[1] and Low[1] > Low[2] and High[1] < High[2];
+	Condition3 = splatrf.narrowrange(NLength2, 0);
+	Condition4 = splatrf.insidedaynarrowrange(NLength3, 0);
+	Condition5 = Range <= NRFactor * ATR;
+	If (Condition1 or Condition2 or Condition3 or Condition4 or Condition5) Then Begin
+		PatternString = "N";
+		If StrLen(LongString) > 0 Then
+			LongString = LongString + PatternString;
+		If StrLen(ShortString) > 0 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	{Calculate shares based on risk model}
+	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 100);
+
+	{Multiple Pattern Buy Signal}
+
+	If StrLen(LongString) >= MinimumPatterns and
+	splatrf.retracedown(MinimumPatterns) and
+	InsideDay = False and
+	High < High[1] and High > Low[1] Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("M", BuyStop, 0, 0, 0);
+		Buy("LE M") N Shares Next Bar on BuyStop Stop;
+	End;
+
+	{Multiple Pattern Sell Signal}
+
+	If StrLen(ShortString) >= MinimumPatterns and
+	splatrf.retraceup(MinimumPatterns) and
+	InsideDay = False and
+	Low > Low[1] and Low < High[1] Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("M", 0, 0, ShortStop, 0);
+		Sell Short("SE M") N Shares Next Bar on ShortStop Stop;
+	End;
+End;
+

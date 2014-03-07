@@ -1,0 +1,24 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.signalup
+Description	: Test for a Signal (S) Bar Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	BarSegments(Numeric);
+
+Variables:
+	RangeDelta(0.0);
+
+splatrf.signalup = False;
+RangeDelta = Range / BarSegments;
+
+If Low < Lowest(Low, Length-1)[1] and
+Open < Close[1] and
+Close > Open and
+Close >= High - RangeDelta and
+Open <= Low + RangeDelta Then
+	splatrf.signalup = True;

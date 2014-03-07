@@ -1,0 +1,80 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.v
+Description	: Look for "V" Bottoms and Tops
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{Position Parameters}
+	Equity(1000000),
+	RiskModel(3),
+	RiskPercent(1.0),
+	RiskATR(1.0),
+	{V Parameters}
+	RegressionBars(5),
+	RetraceFactor(2.0),
+	RangeFactor(1.0),
+	CloseDelta(0.3),
+	SignalDelta(0.1),
+	ShortFlag(False),
+	DrawTargets(False);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	ATRLength(20),
+	MA(0.0),
+	MALength(50),
+	LRValue(0.0),
+	BuyStop(0.0),
+	ShortStop(0.0),
+	GapsDown(0),
+	GapsUp(0);
+
+ATR = Volatility(ATRLength);
+MA = Average(Close, MALength);
+
+{Calculate shares based on risk model}
+N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 1000);
+
+{Long Signal}
+
+LRValue = LinearRegValue(Low, RegressionBars, -1);
+BuyStop = MinList(Close + CloseDelta, High + SignalDelta);
+GapsDown = CountIf(High < Low[1], RegressionBars);
+
+If GapsDown = 0 and
+Low < Lowest(Low, RegressionBars-1)[1] and
+High[RegressionBars-1] - Low >= RetraceFactor * ATR and
+Range <= RangeFactor * ATR and
+Low > LRValue and
+Close > MA and
+MA > MA[1] Then Begin
+	{Draw Entry Targets on the Chart}
+	If DrawTargets Then
+		Condition1 = splatrf.plotentrytargets("V", BuyStop, 0, 0, 0);
+	Buy("LE V") N Shares Next Bar on BuyStop Stop;
+End;
+
+{Short Signal}
+
+LRValue = LinearRegValue(High, RegressionBars, -1);
+ShortStop = MaxList(Close - CloseDelta, Low - SignalDelta);
+GapsUp = CountIf(Low > High[1], RegressionBars);
+
+If GapsUp = 0 and
+High > Highest(High, RegressionBars-1)[1] and
+High - Low[RegressionBars-1] >= RetraceFactor * ATR and
+Range <= RangeFactor * ATR and
+High < LRValue and
+Close < MA and
+AbsValue(Close - MA) <= ATR and
+MA < MA[1] and
+ShortFlag Then Begin
+	{Draw Entry Targets on the Chart}
+	If DrawTargets Then
+		Condition1 = splatrf.plotentrytargets("V", 0, 0, ShortStop, 0);
+	SellShort("SE V") N Shares Next Bar on ShortStop Stop;
+End;

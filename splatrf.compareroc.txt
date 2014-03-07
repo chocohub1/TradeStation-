@@ -1,0 +1,27 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.compareroc
+Description	: Compute the Comparative Relative Strength
+Provided By	: SplatR (C) 2013
+********************************************************************}
+
+Inputs:
+	Price1(NumericSeries),
+	Price2(NumericSeries),
+	ATR1(Numeric),
+	ATR2(Numeric),
+	Length(Numeric);
+
+Variables:
+	ROC1(0.0),
+	ROC2(0.0);
+
+splatrf.compareroc = 0;
+If ATR1 > 0 and ATR2 > 0 Then Begin
+	ROC1 = RateOfChange(Price1, Length);
+	ROC2 = RateOfChange(Price2, Length);
+	splatrf.compareroc = (ROC1 / ATR1) - (ROC2 / ATR2);
+End;
+
+

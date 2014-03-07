@@ -1,0 +1,23 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.floatbars
+Description	: Display the number of bars needed to turn the float
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	AlertBars(2);
+
+Variables:
+	TheFloat(0.0),
+	FloatBars(0);
+
+TheFloat = splatrf.getfloat(GetSymbolName);
+If TheFloat > 0.0 Then Begin
+	FloatBars = splatrf.getfloatbar(TheFloat);
+	If FloatBars > 0 Then Begin
+		Plot1(FloatBars, "Float Bars");
+		Plot2(AlertBars, "Alert Bars");
+	End;
+End;

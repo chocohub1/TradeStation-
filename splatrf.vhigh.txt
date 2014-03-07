@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.vhigh
+Description	: Find the V High Price
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	VolatilityFactor(Numeric),
+	Length(Numeric);
+
+Variables:
+	N(5);
+
+splatrf.vhigh = 0.0;
+If HighW(1) > 0 and
+Volatility(Length) > 0 Then
+	splatrf.vhigh = HighW(1) + (VolatilityFactor * Volatility(Length));
+

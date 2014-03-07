@@ -1,0 +1,23 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.testhigh
+Description	: Search for a High Test Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	SeparationBars(Numeric),
+	ATRFactor(Numeric);
+
+Variables:
+	High2(0);
+
+splatrf.testhigh = -1;
+High2 = NthHighestBar(2, High, Length);
+If High >= Highest(High, Length - 1)[1] and
+High2 >= SeparationBars and
+AbsValue(High - High[High2]) <= ATRFactor * Volatility(Length) and
+Close < High[High2] Then
+	splatrf.testhigh = High2;

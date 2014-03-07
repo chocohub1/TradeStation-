@@ -1,0 +1,29 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.getfloatbar
+Description	: Calculate the number of bars for a float turnover
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	FloatValue(Numeric);
+
+Variables:
+	TotalVolume(0.0),
+	BarIndex(0);
+
+TotalVolume = 0.0;
+BarIndex = 0;
+
+If CurrentBar > 0 Then Begin
+	If FloatValue > 0.0 Then Begin
+		While TotalVolume < FloatValue and BarIndex < MaxBarsBack Begin
+			TotalVolume = TotalVolume + Volume[BarIndex];
+			BarIndex = BarIndex + 1;
+		End;
+	End;
+End;
+
+splatrf.getfloatbar = BarIndex;
+

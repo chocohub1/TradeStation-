@@ -1,0 +1,29 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.trendbar
+Description	: Identify a Trend Bar
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RPO(Numeric),
+	RPC(Numeric),
+	DOpen(NumericSeries),
+	DHigh(NumericSeries),
+	DLow(NumericSeries),
+	DClose(NumericSeries);
+
+Variables:
+	RPOpen(0.0),
+	RPClose(0.0);
+
+splatrf.trendbar = False;
+
+RPOpen = splatrf.rangepct(DOpen, DHigh, DLow);
+RPClose = splatrf.rangepct(DClose, DHigh, DLow);
+Condition1 = RPOpen <= RPO and RPClose >= (1 - RPC);
+Condition2 = RPOpen >= (1 - RPO) and RPClose <= RPC;
+
+If Condition1 or Condition2 Then
+	splatrf.trendbar = True;

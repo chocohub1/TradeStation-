@@ -1,0 +1,16 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.keyreversaldown
+Description	: Test for a Key Reversal (KR) Down
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.keyreversaldown = False;
+
+If Open < Close[1] and
+splatrf.reversaldown(Length) Then
+	splatrf.keyreversaldown = True;

@@ -1,0 +1,41 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.congestion
+Description	: Draw a Congestion Area (CA)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	CALength(10),
+	CAFactor(1.5),
+	Lookback(65);
+
+Variables:
+	CAHigh(0.0),
+	CALow(0.0),
+	UpperLine(-1),
+	LowerLine(-1);
+
+CAHigh = Highest(High, CALength);
+CALow = Lowest(Low, CALength);
+If splatrf.congestion(CALength, CAFactor, Lookback) Then Begin
+	UpperLine = TL_New(Date[CALength-1], Time[CALength-1], CAHigh, Date[0], Time[0], CAHigh);
+	If UpperLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(UpperLine, White)
+		Else
+			TL_SetColor(UpperLine, Black);
+		TL_SetSize(UpperLine, 1);
+	End;
+	LowerLine = TL_New(Date[CALength-1], Time[CALength-1], CALow, Date[0], Time[0], CALow);
+	If LowerLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(LowerLine, White)
+		Else
+			TL_SetColor(LowerLine, Black);
+		TL_SetSize(LowerLine, 1);
+	End;
+End;
+
+

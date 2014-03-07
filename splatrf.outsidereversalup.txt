@@ -1,0 +1,16 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.outsidereversalup
+Description	: Test for an Outside Reversal (OR) Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.outsidereversalup = False;
+
+If splatrf.outsidebar and
+splatrf.reversalup(Length) Then
+	splatrf.outsidereversalup = True;

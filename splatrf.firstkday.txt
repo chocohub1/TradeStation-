@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.firstkday
+Description	: first-kday
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	k(Numeric),
+	GYear(Numeric),
+	GMonth(Numeric),
+	GDay(Numeric);
+
+splatrf.firstkday = splatrf.nthkday(1, k, GYear, GMonth, GDay);
+

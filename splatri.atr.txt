@@ -1,0 +1,92 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.atr
+Description	: ATR Indicator
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RR1(2),
+	RR2(10),
+	VolumeBars(39);
+
+Variables:
+	StartDay(False),
+	DayCount(0),
+	id(0),
+	BarCount(0),
+	ATR1(0.0),
+	ATR2(0.0),
+	ATRTarget(0.0),
+	ATRPercent(0.0),
+	ATRVolume(0.0),
+	RRAve(0.0),
+	CD(0.0),
+	HD(0.0),
+	LD(0.0),
+	TH(0.0),
+	TL(0.0),
+	TR(0.0),
+	TickSumToday(0),
+	TickAveToday(0);
+
+Arrays:
+	TickSum[50, 500](0),
+	TickAve[50, 500](0),
+	RR[50, 500](0);
+
+If Time < Time[1] Then
+	StartDay = True
+Else
+	StartDay = False;
+
+If StartDay Then Begin
+	CD = CloseD(1);
+	DayCount = DayCount + 1;
+	id = Mod(DayCount, RR2);
+	If id = 0 Then id = RR2;
+	BarCount = 1;
+	ATR1 = Average(Range, RR1) of Data3;
+	ATR2 = Average(Range, RR2) of Data3;
+	ATRTarget = IFF(ATR1 > 0, ATR2 / ATR1, 0);
+	TickSumToday = 0;
+End;
+
+If DayCount > 0 and
+ATR1 > 0 and
+ATR2 > 0 Then Begin
+	HD = HighD(0);
+	LD = LowD(0);
+	TH = MaxList(HD, CD);
+    TL = MinList(LD, CD);
+	TR = HD - LD;
+	{ATR Percentage}
+	ATRPercent = IFF(ATR2 > 0, TR / ATR2, 0);
+	Plot1(ATRPercent, "ATR%");
+	{Volume Percentage}
+	TickSumToday = TickSumToday + Volume;
+	TickSum[id, BarCount] = TickSumToday;
+	TickAveToday = 0;
+	For Value1 = 1 to RR2 Begin
+		TickAveToday = TickAveToday + TickSum[Value1, BarCount];
+	End;
+	TickAve[id, BarCount] = IFF(RR2 > 0, TickAveToday / RR2, 0);
+	ATRVolume = IFF(TickAve[id, BarCount] > 0, TickSumToday / TickAve[id, BarCount], 0);
+	Plot2(ATRVolume, "ATRV");
+	{ATR Distribution}
+	RR[id, BarCount] = IFF(ATR2 > 0, (HD - LD) / ATR2, 0);
+	RRAve = 0.0;
+	For Value1 = 1 to RR2 Begin
+		RRAve = RRAve + RR[Value1, BarCount];
+	End;
+	RRAve = IFF(RR2 > 0, RRAve / RR2, 0);
+	Plot3(RRAve, "ATRD");
+	{ATR Projection}
+	Plot4(ATRTarget, "ATRT");
+	{100%}
+	Plot5(1, "One");
+	{Increment Bar Count}
+	BarCount = BarCount + 1;
+End;
+

@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.rdate2gdate
+Description	: Convert an R.D. date to a Gregorian date
+Provided By	: Acme Trader LLC (c) Copyright 2004
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	GYear(NumericRef),
+	GMonth(NumericRef),
+	GDay(NumericRef);
+
+Variables:
+	priordays(0),
+	correction(0);
+
+splatrf.rdate2gdate = False;
+GYear = splatrf.rdate2gyear(RDate);
+priordays = RDate - splatrf.gdate2rdate(GYear, 1, 1);
+Value1 = splatrf.gdate2rdate(GYear, 3, 1);
+If RDate < Value1 Then
+	correction = 0
+Else If RDate >= Value1 and splatrf.gleapyear(GYear) Then
+	correction = 1
+Else
+	correction = 2;
+GMonth = Floor((12 * (priordays + correction) + 373) / 367);
+GDay = RDate - splatrf.gdate2rdate(GYear, GMonth, 1) + 1;
+splatrf.rdate2gdate = True;

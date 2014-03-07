@@ -1,0 +1,24 @@
+{*******************************************************************
+Name		: splatrf.rpzone
+Description	: Convert the Range Percentage to a Zone number
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RP(Numeric),
+	BarSegments(Numeric);
+
+Variables:
+	BarDivision(0.0),
+	lz(0.0),
+	hz(0.0);
+
+splatrf.rpzone = -1;
+BarDivision = IFF(BarSegments > 0, 1.0 / BarSegments, 0);
+
+For Value1 = 1 To BarSegments Begin
+	lz = (Value1 - 1) * BarDivision;
+	hz = Value1 * BarDivision;
+	If RP > lz and RP <= hz Then
+		splatrf.rpzone = Value1 - 1;
+End;

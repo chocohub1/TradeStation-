@@ -1,0 +1,14 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.dayofweek
+Description	: Calculate the day of the week from the fixed date
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric);
+
+splatrf.dayofweek = Mod(RDate, 7);
+

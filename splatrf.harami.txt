@@ -1,0 +1,71 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.harami
+Description	: Search for the Harami Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Variables:
+	RPClose(0.0),
+	RPOpen(0.0),
+	RPLimit(0.45),
+	RRLimit(0.60),
+	Harami1(False),
+	Harami2(False),
+	Harami3(False);
+
+splatrf.harami = 0;
+
+RPClose = splatrf.rangepct(Close, High, Low);
+RPOpen = splatrf.rangepct(Open, High, Low);
+
+If Range[1] > 0 and Range[2] > 0 and Range[3] > 0 Then Begin
+	Condition1 = Low >= Low[1] and High <= High[1];
+	Condition2 = Close > Open;
+	Condition3 = RPClose[1] <= RPLimit and RPOpen[1] >= (1 - RPLimit);
+	Condition4 = (Range / Range[1]) <= RRLimit;
+	Harami1 = Condition1 and Condition2 and Condition3 and Condition4;
+
+	Condition1 = Low >= Low[2] and High <= High[2];
+	Condition2 = Low[1] >= Low[2] and High[1] <= High[2];
+	Condition3 = Close > Open;
+	Condition4 = RPClose[2] <= RPLimit and RPOpen[2] >= (1 - RPLimit);
+	Condition5 = (Range / Range[2]) <= RRLimit;
+	Harami2 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5;
+
+	Condition1 = Low >= Low[3] and High <= High[3];
+	Condition2 = Low[1] >= Low[3] and High[1] <= High[3];
+	Condition3 = Low[2] >= Low[3] and High[2] <= High[3];
+	Condition4 = Close > Open;
+	Condition5 = RPClose[3] <= RPLimit and RPOpen[3] >= (1 - RPLimit);
+	Condition6 = (Range / Range[3]) <= RRLimit;
+	Harami3 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5 and Condition6;
+
+	If Harami1 or Harami2 or Harami3 Then
+		splatrf.harami = 1;
+
+	Condition1 = Low >= Low[1] and High <= High[1];
+	Condition2 = Close < Open;
+	Condition3 = RPOpen[1] <= RPLimit and RPClose[1] >= (1 - RPLimit);
+	Condition4 = (Range / Range[1]) <= RRLimit;
+	Harami1 = Condition1 and Condition2 and Condition3 and Condition4;
+
+	Condition1 = Low >= Low[2] and High <= High[2];
+	Condition2 = Low[1] >= Low[2] and High[1] <= High[2];
+	Condition3 = Close < Open;
+	Condition4 = RPOpen[2] <= RPLimit and RPClose[2] >= (1 - RPLimit);
+	Condition5 = (Range / Range[2]) <= RRLimit;
+	Harami2 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5;
+
+	Condition1 = Low >= Low[3] and High <= High[3];
+	Condition2 = Low[1] >= Low[3] and High[1] <= High[3];
+	Condition3 = Low[2] >= Low[3] and High[2] <= High[3];
+	Condition4 = Close < Open;
+	Condition5 = RPOpen[3] <= RPLimit and RPClose[3] >= (1 - RPLimit);
+	Condition6 = (Range / Range[3]) <= RRLimit;
+	Harami3 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5 and Condition6;
+
+	If Harami1 or Harami2 or Harami3 Then
+		splatrf.harami = 2;
+End;

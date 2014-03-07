@@ -1,0 +1,23 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.180
+Description	: Show 180 patterns 
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	Percent(.45),
+	RangeFactor(1.35),
+	Length(65);
+
+If splatrf.180(Percent, RangeFactor, Length) <> 0 Then Begin
+ 	PlotPaintBar(High, Low, "180");
+	Alert("180 Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+

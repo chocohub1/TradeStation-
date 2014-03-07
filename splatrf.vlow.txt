@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.vlow
+Description	: Find the V Low Price
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	VolatilityFactor(Numeric),
+	Length(Numeric);
+
+splatrf.vlow = 0.0;
+If LowW(1) > 0 and
+Volatility(Length) > 0 Then
+	splatrf.vlow = LowW(1) - (VolatilityFactor * Volatility(Length));
+

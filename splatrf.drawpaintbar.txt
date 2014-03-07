@@ -1,0 +1,27 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.drawpaintbar
+Description	: Paint a bar using trendline functions
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	PBDate(Numeric),
+	PBTime(Numeric),
+	PBHigh(Numeric),
+	PBLow(Numeric),
+	PBColor(Numeric),
+	PBWidth(Numeric);
+
+Variables:
+	TL(-1);
+
+splatrf.drawpaintbar = True;
+TL = TL_New(PBDate, PBTime, PBLow, PBDate, PBTime, PBHigh);
+If TL >= 0 Then Begin
+	TL_SetColor(TL, PBColor);
+	TL_SetStyle(TL, Tool_Solid);
+	TL_SetSize(TL, PBWidth);
+End Else
+	splatrf.drawpaintbar = False;

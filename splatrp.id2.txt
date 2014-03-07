@@ -1,0 +1,19 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.id2
+Description	: Find an inside day within an inside day
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+If Low > Low[1] and High < High[1] and
+Low[1] > Low[2] and High[1] < High[2] Then Begin
+ 	PlotPaintBar(High, Low, "ID2");
+	Alert("ID2 Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+

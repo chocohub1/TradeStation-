@@ -1,0 +1,109 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.setevents
+Description	: Define this month's events
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	GMonth(Numeric),
+	Event[MaxSize1](NumericArrayRef),
+	EventName[MaxSize2](StringArrayRef);
+
+Variables:
+	RMonday(1),
+	RTuesday(2),
+	RWednesday(3),
+	RThursday(4),
+	RFriday(5),
+	IDay(1),
+	ie(0),
+	rd(0),
+	EString(""),
+	FOMCDates(40),
+	ix(0);
+
+Arrays:
+	FOMC[40, 3](0); 
+
+{Monthly Events}
+
+ie = 0;
+rd = splatrf.nthbday(1, GYear, GMonth);
+Event[ie] = rd;
+EventName[ie] = "ISM Report";
+
+ie = ie + 1;
+rd = splatrf.nthkday(1, RFriday, GYear, GMonth, 2);
+Event[ie] = rd;
+EventName[ie] = "Employment Report";
+
+ie = ie + 1;
+rd = splatrf.nthkday(2, RFriday, GYear, GMonth, 1);
+Event[ie] = rd;
+EventName[ie] = "Michigan Consumer Sentiment";
+
+ie = ie + 1;
+rd = splatrf.nthkday(3, RFriday, GYear, GMonth, 1);
+Event[ie] = rd;
+EventName[ie] = "Options Expiration";
+
+{Specific Events}
+
+EString = "FOMC Meeting";
+
+ix = 0;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 01; FOMC[ix, 3] = 28; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 03; FOMC[ix, 3] = 16; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 05; FOMC[ix, 3] = 04; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 06; FOMC[ix, 3] = 30; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 08; FOMC[ix, 3] = 10; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 09; FOMC[ix, 3] = 21; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 11; FOMC[ix, 3] = 10; ix = ix + 1;
+FOMC[ix, 1] = 2004; FOMC[ix, 2] = 12; FOMC[ix, 3] = 14; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 01; FOMC[ix, 3] = 29; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 03; FOMC[ix, 3] = 18; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 05; FOMC[ix, 3] = 06; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 06; FOMC[ix, 3] = 25; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 08; FOMC[ix, 3] = 12; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 09; FOMC[ix, 3] = 16; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 10; FOMC[ix, 3] = 28; ix = ix + 1;
+FOMC[ix, 1] = 2003; FOMC[ix, 2] = 12; FOMC[ix, 3] = 09; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 01; FOMC[ix, 3] = 30; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 03; FOMC[ix, 3] = 19; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 05; FOMC[ix, 3] = 07; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 06; FOMC[ix, 3] = 26; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 08; FOMC[ix, 3] = 13; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 09; FOMC[ix, 3] = 24; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 11; FOMC[ix, 3] = 06; ix = ix + 1;
+FOMC[ix, 1] = 2002; FOMC[ix, 2] = 12; FOMC[ix, 3] = 10; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 01; FOMC[ix, 3] = 31; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 03; FOMC[ix, 3] = 20; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 05; FOMC[ix, 3] = 15; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 06; FOMC[ix, 3] = 27; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 08; FOMC[ix, 3] = 21; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 10; FOMC[ix, 3] = 02; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 11; FOMC[ix, 3] = 06; ix = ix + 1;
+FOMC[ix, 1] = 2001; FOMC[ix, 2] = 12; FOMC[ix, 3] = 11; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 02; FOMC[ix, 3] = 02; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 03; FOMC[ix, 3] = 21; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 05; FOMC[ix, 3] = 16; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 06; FOMC[ix, 3] = 28; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 08; FOMC[ix, 3] = 22; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 10; FOMC[ix, 3] = 03; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 11; FOMC[ix, 3] = 15; ix = ix + 1;
+FOMC[ix, 1] = 2000; FOMC[ix, 2] = 12; FOMC[ix, 3] = 19; ix = ix + 1;
+
+For ix = 0 To FOMCDates-1 Begin
+	ie = ie + 1;
+	rd = splatrf.gdate2rdate(FOMC[ix, 1], FOMC[ix, 2], FOMC[ix, 3]);
+	Event[ie] = rd;
+	EventName[ie] = EString;
+End;
+
+{Return Events}
+
+ie = ie + 1;
+splatrf.setevents = ie;

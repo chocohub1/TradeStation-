@@ -1,0 +1,82 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.pivotmap
+Description	: Find the pivots in a given window
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Window(NumericSimple),
+	Pivots(NumericSimple),
+	PM[MaxSize1, MaxSize2](NumericArrayRef);
+
+Variables:
+	pc(0),
+	ib(0),
+	ip(0),
+	TheHigh(False),
+	TheLow(False),
+	offset(0),
+	p(0),
+	s(0);
+
+splatrf.pivotmap = 0;
+If Window >= 3 and Pivots >= 1 Then Begin
+	{Find pivots}
+	pc = 0;
+	ib = 1;
+	While ib < Window and pc < Pivots Begin
+		If High[ib] >= High[ib-1] and High[ib] > High[ib+1] Then Begin
+			PM[pc, 0] = ib;
+			PM[pc, 1] = 1; {High Pivot}
+			PM[pc, 3] = BarNumber - ib;
+			pc = pc + 1;
+		End;
+		If Low[ib] <= Low[ib-1] and Low[ib] < Low[ib+1] Then Begin
+			PM[pc, 0] = ib;
+			PM[pc, 1] = -1; {Low Pivot}
+			PM[pc, 3] = BarNumber - ib;
+			pc = pc + 1;
+		End;
+		ib = ib + 1;
+	End;
+	{Calculate strength for each pivot}
+	For ip = 0 to pc-1 Begin
+		{Initialize}
+		p = PM[ip, 0];
+		offset = 1;
+		s = 0;
+		{High Pivot}
+		If PM[ip, 1] = 1 Then Begin
+			TheHigh = True;
+			While TheHigh Begin
+				If p-offset >= 0 and p+offset <= Window Then Begin
+					If High[p] >= High[p-offset] and High[p] >= High[p+offset] Then
+						s = s + 1
+					Else
+						TheHigh = False;
+				End Else
+					TheHigh = False;
+				offset = offset + 1;
+			End;
+		End;
+		{Low Pivot}
+		If PM[ip, 1] = -1 Then Begin
+			TheLow = True;
+			While TheLow Begin
+				If p-offset >= 0 and p+offset <= Window Then Begin
+					If Low[p] <= Low[p-offset] and Low[p] <= Low[p+offset] Then
+						s = s + 1
+					Else
+						TheLow = False;
+				End Else
+					TheLow = False;
+				offset = offset + 1;
+			End;
+		End;
+		{Assign strength}
+		PM[ip, 2] = s;
+	End;
+	splatrf.pivotmap = pc;
+End;

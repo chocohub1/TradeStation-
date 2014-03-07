@@ -1,0 +1,19 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.vlowzone
+Description	: Indicate when the V Low Zone is hit
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	VolatilityFactor(1.5),
+	Length(10);
+
+Variables:
+	VLowZone(0.0);
+
+VLowZone = splatrf.vlow(VolatilityFactor, Length);
+If VLowZone > 0.0 and Low <= VLowZone Then
+	PlotPaintBar(High, Low, "V Low Zone");
+

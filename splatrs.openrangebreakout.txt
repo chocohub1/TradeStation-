@@ -1,0 +1,111 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.openrangebreakout
+Description	: Open Range Breakout System
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Equity(2000000),
+	Allocation(1.0),
+	RiskModel(3),
+	RiskPercent(2.0),
+	ORMaximum(.35),
+	RRLength(8),
+	RRMaximum(0.9),
+	MinCount(4),
+	GapMinimum(0.25),
+	EFactor(0.05),
+	PFactor(1.00),
+	StartTime(0950),
+	EndTime(1430),
+	LogTrades(False),
+	LogFile("ORBtrades.txt");
+
+Variables:
+	N(0),
+	ATR(0.0),
+	EDelta(0.0),
+	PDelta(0.0),
+	ORCount(0),
+	CountCondition(False),
+	ORHigh(0.0),
+	ORLow(0.0),
+	ORRange(0.0),
+	ORRatio(0.0),
+	ORCondition(False),
+	RangeRatio1(0.0),
+	RangeRatio2(0.0),
+	RRCondition(False),
+	Gap(0.0),
+	GapRatio(0.0),
+	GapCondition(False),
+	TargetHigh(0.0),
+	TargetLow(0.0);
+
+ATR = Volatility(RRLength) of Data3;
+If ATR > 0 and
+Time = StartTime and
+Date of Data2 > Date[1] of Data2 Then Begin
+	{OR Count}
+	CountCondition = ORCount >= MinCount;
+	ORCount = 0;
+	{Daily Metrics}
+	EDelta = EFactor * ATR;
+	PDelta = PFactor * ATR;
+	{Opening Range}
+	ORHigh = High of Data2;
+	ORLow = Low of Data2;
+	ORRange = ORHigh - ORLow;
+	ORRatio = ORRange / ATR;
+	ORCondition = ORRatio <= ORMaximum;
+	{Range Ratio}
+	RangeRatio1 = splatrf.rangeratio(1, RRLength) of Data3;
+	RangeRatio2 = splatrf.rangeratio(2, RRLength) of Data3;
+	RRCondition = RangeRatio1 <= RRMaximum or RangeRatio2 <= RRMaximum;
+	{Gap Ratio}
+	Gap = AbsValue(OpenD(0) - CloseD(1));
+	GapRatio = Gap / ATR;
+	GapCondition = GapRatio >= GapMinimum;
+	{Set Profit Targets}
+	TargetHigh = ORLow + PDelta;
+	TargetLow = ORHigh - PDelta;
+	N = splatrf.getshares(Equity * Allocation, RiskModel, RiskPercent, 0, RRLength, 1000) of Data3;
+End;
+
+If (Time >= StartTime and Time <= Sess1EndTime) Then Begin
+	If Close[1] > ORHigh and Close < ORHigh Then
+		ORCount = ORCount + 1;
+	If Close[1] < ORLow and Close > ORLow Then
+		ORCount = ORCount + 1;
+	If ORCondition and
+	CountCondition and
+	RRCondition and
+	Time < EndTime Then Begin
+		Buy("LE ORB") N Shares Next Bar at ORHigh + EDelta Stop;
+		SellShort("SE ORB") N Shares Next Bar at ORLow - EDelta Stop;
+	End;
+End;
+
+Sell("LX ORB+") N/2 Shares from Entry("LE ORB") Next Bar at TargetHigh - EDelta Limit;
+BuyToCover("SX ORB+") N/2 Shares from Entry("SE ORB") Next Bar at TargetLow + EDelta Limit;
+
+If Time > EndTime Then Begin
+	Sell("LX ORB-") from Entry("LE ORB") Next Bar at ORHigh + ORRange Stop;
+	BuyToCover("SX ORB-") Next Bar from Entry("SE ORB") at ORLow - ORRange Stop;
+End;
+
+If Time = Sess1EndTime Then Begin
+	If Close <= ORHigh and Close >= ORLow Then
+		ORCount = ORCount + 1;
+End;
+
+If Time >= Sess1EndTime or Date > Date[1] Then Begin
+	Sell("LX ORB") from Entry("LE ORB") This Bar on Close;
+	BuyToCover("SX ORB") from Entry("SE ORB") This Bar on Close;
+End;
+
+If LogTrades Then
+	Condition1 = splatrf.logtrades(LogFile, "ORB");
+

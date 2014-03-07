@@ -1,0 +1,59 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.drawpattern
+Description	: Draw a pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	Pattern[MaxSize1, MaxSize2](NumericArrayRef),
+	Color(NumericSimple),
+	Width(NumericSimple),
+	Code(StringSimple);
+
+Variables:
+	AbsPivots(0),
+	ip(0),
+	b1(0),
+	b2(0),
+	p1(0),
+	p2(0),
+	TL(-1),
+	TB(-1),
+	CodeText(0);
+
+splatrf.drawpattern = False;
+AbsPivots = AbsValue(Pivots);
+For ip = 1 to AbsPivots-1 Begin
+	b1 = Pattern[ip, 0];
+	If Pattern[ip, 1] = 1 Then p1 = High[b1];
+	If Pattern[ip, 1] = -1 Then p1 = Low[b1];
+	b2 = Pattern[ip+1, 0];
+	If Pattern[ip+1, 1] = 1 Then p2 = High[b2];
+	If Pattern[ip+1, 1] = -1 Then p2 = Low[b2];
+	TL = TL_New(Date[b1], Time[b1], p1, Date[b2], Time[b2], p2);
+	If TL >= 0 Then Begin
+		TL_SetColor(TL, Color);
+		TL_SetStyle(TL, Tool_Solid);
+		TL_SetSize(TL, Width);
+	End;
+End;
+If Pivots > 0 Then Begin
+	Value1 = Low;
+	Value2 = High;
+End Else Begin
+	Value1 = High;
+	Value2 = Low;
+End;
+TB = TL_New(Date[b2], Time[b2], p2, Date, Time, Value1);
+If TB >= 0 Then Begin
+	TL_SetColor(TB, Color);
+	TL_SetStyle(TB, Tool_Solid);
+	TL_SetSize(TB, Width);
+End;
+CodeText = Text_New(Date, Time, Value2, Code);
+Text_SetStyle(CodeText, 2, 2);
+Text_SetColor(CodeText, Color);
+splatrf.drawpattern = True;

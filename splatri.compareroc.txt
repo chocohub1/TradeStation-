@@ -1,0 +1,28 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.compareroc
+Description	: Plot the Comparative RS between 2 securities
+Provided By	: SplatR (C) 2013
+
+Requirements
+------------
+
+Data1:	Stock 1
+Data2:	Stock 2
+********************************************************************}
+
+Inputs:
+	Price1(Close of Data1),
+	Price2(Close of Data2),
+	Length(30);
+
+Variables:
+	ATR1(0.0),
+	ATR2(0.0);
+
+ATR1 = Volatility(Length) of Data1;
+ATR2 = Volatility(Length) of Data2;
+Plot1(splatrf.compareroc(Price1, Price2, ATR1, ATR2, Length), "ROC");
+Plot2(0, "Zero");
+

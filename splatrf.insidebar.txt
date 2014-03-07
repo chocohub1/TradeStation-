@@ -1,0 +1,13 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.insidebar
+Description	: Identify an Inside Bar (IB)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+splatrf.insidebar = False;
+
+If Low >= Low[1] and
+High <= High[1] Then
+	splatrf.insidebar = True;

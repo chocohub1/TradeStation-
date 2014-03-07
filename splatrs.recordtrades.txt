@@ -1,0 +1,20 @@
+{*******************************************************************
+Name		: splatrs.recordtrades
+Description	: Record trade data for import into R
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LogTrades(False),
+	LogPrefix("c:\"),
+	LogSuffix("_trades.txt");
+
+Variables:
+	TradeFile("");
+
+{Log Trade Data}
+
+If LogTrades Then Begin
+	TradeFile = LogPrefix + GetSymbolName + LogSuffix;
+	Condition1 = splatrf.logtrades(TradeFile, " ");
+End;

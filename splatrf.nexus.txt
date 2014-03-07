@@ -1,0 +1,28 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.nexus
+Description	: Find a nexus of price and moving averages
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	VolatilityLength(Numeric),
+	VolatilityFactor(Numeric),
+	MALength1(Numeric),
+	MALength2(Numeric);
+
+Variables:
+	ATR(0.0),
+	MA1(0.0),
+	MA2(0.0);
+
+splatrf.nexus = False;
+ATR = Volatility(VolatilityLength) of Data2;
+MA1 = Average(Close, MALength1);
+MA2 = Average(Close, MALength2);
+Condition1 = AbsValue(MA1 - MA2) <= VolatilityFactor * ATR;
+Condition2 = AbsValue(MedianPrice - MA2) <= VolatilityFactor * ATR;
+If Condition1 and
+Condition2 Then
+	splatrf.nexus = True;

@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gannpulldown
+Description	: Test for a Gann PullBack Down
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.gannpulldown = False;
+
+If splatrf.retracedown(Length) Then
+	splatrf.gannpulldown = True;

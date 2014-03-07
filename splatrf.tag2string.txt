@@ -1,0 +1,25 @@
+[LegacyColorValue = true]; 
+
+{*****************************************************************
+Name		: splatrf.tag2string
+Description	: Convert a tag stream to its string equivalent 
+Provided By	: SplatR (c) Copyright 2013
+******************************************************************}
+
+Inputs:
+	Start(Numeric),
+	Length(Numeric),
+	Increment(Numeric),
+	Offset(Numeric),
+	Precision(Numeric),
+	BitmapString[MaxSize](StringArrayRef);
+
+splatrf.tag2string = False;
+
+Value1 = Start;
+For Value2 = Offset To Offset + Length - 1 Begin
+	BitmapString[Value2] = NumToStr(Value1, Precision);
+	Value1 = Value1 + Increment;
+End;
+
+splatrf.tag2string = True;

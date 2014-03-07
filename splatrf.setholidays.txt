@@ -1,0 +1,76 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.setholidays
+Description	: Determine this year's holidays (actual or observed)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	Observed(TrueFalse),
+	Holiday[MaxSize1](NumericArrayRef),
+	HolidayName[MaxSize2](StringArrayRef);
+
+Variables:
+	ih(0),
+	rd(0),
+	HString("");
+
+ih = 0;
+rd = splatrf.newyear(GYear, HString);
+If Observed Then
+	If splatrf.dayofweek(rd) = 0 Then rd = rd + 1;
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.martinlutherking(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.presidents(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.goodfriday(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.memorial(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.independence(GYear, HString);
+If Observed Then Begin
+	If splatrf.dayofweek(rd) = 6 Then rd = rd - 1;
+	If splatrf.dayofweek(rd) = 0 Then rd = rd + 1;
+End;
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.labor(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.thanksgiving(GYear, HString);
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+rd = splatrf.christmas(GYear, HString);
+If Observed Then Begin
+	If splatrf.dayofweek(rd) = 6 Then rd = rd - 1;
+	If splatrf.dayofweek(rd) = 0 Then rd = rd + 1;
+End;
+Holiday[ih] = rd;
+HolidayName[ih] = HString;
+
+ih = ih + 1;
+splatrf.setholidays = ih;

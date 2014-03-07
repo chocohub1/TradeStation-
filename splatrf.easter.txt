@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.easter
+Description	: Easter
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	century(0),
+	epacts(0),
+	epacta(0),
+	GMonth(4),
+	GDay(19),
+	RDate(0),
+	RSunday(0);
+
+HString = "Easter";
+century = Floor(GYear / 100) + 1;
+epacts = Mod(14 + 11 * Mod(GYear, 19) - Floor(3 * century / 4) + Floor((5 + 8 * century) / 25), 30);
+If epacts = 0 or (epacts = 1 and 10 < Mod(GYear, 19)) Then
+	epacta = epacts + 1
+Else
+	epacta = epacts;
+RDate = splatrf.gdate2rdate(GYear, GMonth, GDay) - epacta;
+splatrf.easter = splatrf.kdayafter(RDate, RSunday);
+

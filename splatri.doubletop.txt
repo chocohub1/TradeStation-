@@ -1,0 +1,45 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.doubletop
+Description	: Draw a double top line
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(20),
+	Strength(4),
+	RangeFactor(0.3),
+	DepthFactor(1.0),
+	MALength(50),
+	Color(Black);
+
+Variables:
+	ATR(0.0),
+	DTBar(-1),
+	Depth(0.0),
+	DTLine(-1),
+	AlertString("");
+
+DTBar = splatrf.doubletop(LookbackBars, Strength, RangeFactor);
+If DTBar <> -1 Then Begin
+	ATR = Volatility(LookbackBars);
+	Depth = Highest(High, DTBar) - Lowest(Low, DTBar);
+	If Depth >= DepthFactor * ATR Then Begin
+		DTLine = TL_New(Date[0], Time[0], High[0], Date[DTBar], Time[DTBar], High[DTBar]);
+		If DTLine >= 0 Then Begin
+			TL_SetSize(DTLine, 1);
+			TL_SetColor(DTLine, Color);
+		End;
+		AlertString = "Double Top";
+		If DMIPlus(LookbackBars) > DMIMinus(LookbackBars) Then
+			Condition1 = AbsValue(Low - Average(Close, MALength)) <= RangeFactor * ATR
+		Else
+			Condition1 = AbsValue(High - Average(Close, MALength)) <= RangeFactor * ATR;
+		If Condition1 Then
+			AlertString = AlertString + " Near " + NumToStr(MALength, 0) + " Bar Moving Average";
+		If AlertEnabled or Condition1 Then
+			Alert(AlertString);
+	End;
+End;
+

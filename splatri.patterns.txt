@@ -1,0 +1,172 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.patterns
+Description	: Label Bar Patterns
+Provided By	: SplatR (c) Copyright 2013
+
+1. Cobra (C)
+2. Hook (H)
+3. Inside Day 2 (I)
+4. Tail (L)
+5. Harami (M)
+6. 1-2-3 Pullback (P)
+7. Test (T)
+8. V Zone (V)
+
+Qualifiers
+
+1. Average (A)
+2. Narrow Range (N)
+
+********************************************************************}
+
+Inputs:
+	MinimumPrice(0),
+	Length(10),
+	Color(Yellow);
+
+Variables:
+	PatternString(""),
+	LongString(""),
+	ShortString(""),
+	ReturnValue(0),
+	PriceDelta(0),
+	ADR(0.0),
+	ALength(50),
+	ACondition(False),
+	CPercent(0.333),
+	CRangeFactor(0.8),
+	HLength(1),
+	HPercent(0.2),
+	LPercent(0.3),
+	LRangeLength(10),
+	PADX(25),
+	PLength(14),
+	TLength(20),
+	TBars(7),
+	TFactor(0.5),
+	VFactor(1.5),
+	VHighZone(0.0),
+	VLowZone(0.0),
+	NLength1(5),
+	NLength2(10),
+	NLength3(4),
+	HighText(0),
+	LowText(0);
+
+If DataCompression = 0 and BarInterval <= 5 Then 
+	Commentary("This indicator must be applied to a bar interval larger than 5 ticks.")
+Else
+	If DataCompression = 5 Then 
+		Commentary("This indicator cannot be applied to Point and Figure charts. ") 
+	Else If Close >= MinimumPrice Then Begin
+		PatternString = "";
+		LongString = "";
+		ShortString = "";
+		PriceDelta = Volatility(Length) / 4;
+		ADR = Average(Range, Length);
+
+		ReturnValue = splatrf.cobra(CPercent, CRangeFactor);
+		If ReturnValue > 0 Then Begin
+			PatternString = "C";
+			If ReturnValue = 1 Then
+				LongString = LongString + PatternString
+			Else
+				ShortString = ShortString + PatternString;
+		End;
+
+		PatternString = "H";
+		If splatrf.hookup(ADR) Then
+			LongString = LongString + PatternString;
+		If splatrf.hookdown(ADR) Then
+			ShortString = ShortString + PatternString;
+
+		If splatrf.insideday2 Then Begin
+			PatternString = "I";
+			LongString = LongString + PatternString;
+			ShortString = ShortString + PatternString;
+		End;
+
+		ReturnValue = splatrf.tail(LPercent, LRangeLength);
+		If ReturnValue > 0 Then Begin
+			PatternString = "L";
+			If ReturnValue = 1 Then
+				LongString = LongString + PatternString
+			Else
+				ShortString = ShortString + PatternString;
+		End;
+
+		ReturnValue = splatrf.harami;
+		If ReturnValue > 0 Then Begin
+			PatternString = "M";
+			If ReturnValue = 1 Then
+				LongString = LongString + PatternString
+			Else
+				ShortString = ShortString + PatternString;
+		End;
+
+		ReturnValue = splatrf.pullback(PADX, PLength);
+		If ReturnValue > 0 Then Begin
+			PatternString = "P";
+			If ReturnValue = 1 Then
+				LongString = LongString + PatternString
+			Else
+				ShortString = ShortString + PatternString;
+		End;
+
+		PatternString = "T";
+		If splatrf.testlow(TLength, TBars, TFactor) > 0 Then
+			LongString = LongString + PatternString;
+		If splatrf.testhigh(TLength, TBars, TFactor) > 0 Then
+			ShortString = ShortString + PatternString;
+
+		VHighZone = splatrf.vhigh(VFactor, Length);
+		If High >= VHighZone and VHighZone > 0 Then
+			ShortString = ShortString + "V";
+
+		VLowZone = splatrf.vlow(VFactor, Length);
+		If Low <= VLowZone and VLowZone > 0 Then
+			LongString = LongString + "V";
+
+		{Qualifiers}
+
+		ACondition = splatrf.onaverage(ALength);
+		If ACondition Then Begin
+			PatternString = "A";
+			LongString = LongString + PatternString;
+			ShortString = ShortString + PatternString;
+		End;
+
+		Condition1 = splatrf.narrowrange(NLength1, 1) and splatrf.narrowrange(NLength1, 0)[1];
+		Condition2 = Low > Low[1] and High < High[1] and Low[1] > Low[2] and High[1] < High[2];
+		Condition3 = splatrf.narrowrange(NLength2, 0);
+		Condition4 = splatrf.insidedaynarrowrange(NLength3, 0);
+		Condition5 = Range <= CRangeFactor * ADR;
+		If (Condition1 or Condition2 or Condition3 or Condition4 or Condition5) Then Begin
+			PatternString = "N";
+			If StrLen(LongString) > 0 Then
+				LongString = LongString + PatternString;
+			If StrLen(ShortString) > 0 Then
+				ShortString = ShortString + PatternString;
+		End;
+
+		If LongString <> "" Then Begin
+			HighText = Text_New(Date, Time, High + PriceDelta, LongString);
+			Text_SetStyle(HighText, 2, 2);
+			Text_SetColor(HighText, Color);
+			If AlertEnabled or StrLen(LongString) >= 2 Then
+				Alert("Long " + LongString);
+			Plot1(StrLen(LongString), "Longs");
+		End;
+
+		If ShortString <> "" Then Begin
+			LowText = Text_New(Date, Time, Low - PriceDelta, ShortString);
+			Text_SetColor(LowText, Color);
+			Text_SetStyle(LowText, 2, 0);
+			If AlertEnabled or StrLen(ShortString) >= 2 Then
+				Alert("Short " + ShortString);
+			Plot2(StrLen(ShortString), "Shorts");
+		End;
+	End;
+

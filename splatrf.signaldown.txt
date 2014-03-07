@@ -1,0 +1,24 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.signaldown
+Description	: Test for a Signal (S) Bar Down
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	BarSegments(Numeric);
+
+Variables:
+	RangeDelta(0.0);
+
+splatrf.signaldown = False;
+RangeDelta = Range / BarSegments;
+
+If High > Highest(High, Length-1)[1] and
+Open > Close[1] and
+Close < Open and
+Open >= High - RangeDelta and
+Close <= Low + RangeDelta Then
+	splatrf.signaldown = True;

@@ -1,0 +1,40 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.congestion
+Description	: Determine whether or not we are in congestion
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	CALength(Numeric),
+	CAFactor(Numeric),
+	Lookback(Numeric);
+
+Variables:
+	ATR(0.0),
+	CAHigh(0.0),
+	CALow(0.0),
+	CARange(0.0),
+	ATR1(0.0),
+	CAHigh1(0.0),
+	CALow1(0.0),
+	CARange1(0.0);
+
+splatrf.congestion = False;
+
+ATR = Volatility(Lookback);
+CAHigh = Highest(High, CALength);
+CALow = Lowest(Low, CALength);
+CARange = CAHigh - CALow;
+ATR1 = Volatility(Lookback)[1];
+CAHigh1 = Highest(High, CALength)[1];
+CALow1 = Lowest(Low, CALength)[1];
+CARange1 = CAHigh1 - CALow1;
+
+If CARange > 0 Then Begin
+	Condition1 = CARange <= CAFactor * ATR;
+	Condition2 = CARange1 <= CAFactor * ATR1 and High <= CAHigh1 and Low >= CALow1;
+	If (Condition1 or Condition2) Then
+		splatrf.congestion = True;
+End;

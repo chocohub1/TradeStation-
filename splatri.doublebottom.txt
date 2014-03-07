@@ -1,0 +1,44 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.doublebottom
+Description	: Draw a Double Bottom line
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(20),
+	Strength(4),
+	RangeFactor(0.3),
+	DepthFactor(1.0),
+	MALength(50),
+	Color(Black);
+
+Variables:
+	ATR(0.0),
+	Depth(0.0),
+	DBBar(-1),
+	DBLine(-1),
+	AlertString("");
+
+DBBar = splatrf.doublebottom(LookbackBars, Strength, RangeFactor);
+If DBBar <> -1 Then Begin
+	ATR = Volatility(LookbackBars);
+	Depth = Highest(High, DBBar) - Lowest(Low, DBBar);
+	If Depth >= DepthFactor * ATR Then Begin
+		DBLine = TL_New(Date[0], Time[0], Low[0], Date[DBBar], Time[DBBar], Low[DBBar]);
+		If DBLine >= 0 Then Begin
+			TL_SetSize(DBLine, 1);
+			TL_SetColor(DBLine, Color);
+		End;
+		AlertString = "Double Bottom";
+		If DMIPlus(LookbackBars) > DMIMinus(LookbackBars) Then
+			Condition1 = AbsValue(Low - Average(Close, MALength)) <= RangeFactor * ATR
+		Else
+			Condition1 = AbsValue(High - Average(Close, MALength)) <= RangeFactor * ATR;
+		If Condition1 Then
+			AlertString = AlertString + " Near " + NumToStr(MALength, 0) + " Bar Moving Average";
+		If AlertEnabled or Condition1 Then
+			Alert(AlertString);
+	End;
+End;

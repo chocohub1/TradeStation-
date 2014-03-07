@@ -1,0 +1,25 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.samepattern
+Description	: Compare two patterns to see if they are the same
+Provided By	: SplatR (c) 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	Pattern1[MaxSize1, MaxSize2](NumericArrayRef),
+	Pattern2[MaxSize3, MaxSize4](NumericArrayRef);
+
+Variables:
+	AbsPivots(0),
+	ip(0),
+	Same(False);
+
+Same = True;
+AbsPivots = AbsValue(Pivots);
+For ip = 1 to AbsPivots Begin
+	If Pattern1[ip, 3] <> Pattern2[ip, 3] Then
+		Same = False;
+End;
+splatrf.samepattern = Same;

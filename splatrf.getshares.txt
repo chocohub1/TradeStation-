@@ -1,0 +1,38 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.getshares
+Description	: Calculate the number of shares
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Equity(Numeric),
+	RiskModel(Numeric),
+	RiskPercent(Numeric),
+	RiskATR(Numeric),
+	ATRLength(Numeric),
+	NRound(Numeric);
+
+Variables:
+	RiskShares(0),
+	MaximumShares(0),
+	ERP(0.0),
+	ATR(0.0);
+
+RiskShares = NRound;
+MaximumShares = NRound * IntPortion(Equity / (NRound * Close));
+ERP = Equity * RiskPercent / 100;
+ATR = Volatility(ATRLength);
+
+If RiskModel = 1 and Close > 0 Then
+	RiskShares = MaxList(NRound, MaximumShares);
+
+If RiskModel = 2 and RiskATR > 0 Then
+	RiskShares = MaxList(NRound, NRound * IntPortion(ERP / (NRound * RiskATR)));
+
+If RiskModel = 3 and ATR > 0 Then
+	RiskShares = MaxList(NRound, NRound * IntPortion(ERP / (NRound * ATR)));
+
+splatrf.getshares = MinList(RiskShares, MaximumShares);
+

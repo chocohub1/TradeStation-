@@ -1,0 +1,24 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.snapbackdown
+Description	: Test for a SnapBack Reversal Bar Down
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	BarSegments(Numeric);
+
+Variables:
+	RangeDelta(0.0),
+	RangeDelta1(0.0);
+
+splatrf.snapbackdown = False;
+RangeDelta = Range / BarSegments;
+RangeDelta1 = Range[1] / BarSegments;
+
+If Open >= High - RangeDelta and
+Close <= Low + RangeDelta and
+Open[1] <= Low[1] + RangeDelta1 and
+Close[1] >= High[1] - RangeDelta1 Then
+	splatrf.snapbackdown = True;

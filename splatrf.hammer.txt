@@ -1,0 +1,28 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.hammer
+Description	: Identify a Hammer Candlestick
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	tolerance(Numeric),
+	dopen(NumericSeries),
+	dhigh(NumericSeries),
+	dlow(NumericSeries),
+	dclose(NumericSeries);
+
+Variables:
+	rpopen(0.0),
+	rpclose(0.0);
+
+splatrf.hammer = False;
+
+rpopen = splatrf.rangepct(dopen, dhigh, dlow);
+rpclose = splatrf.rangepct(dclose, dhigh, dlow);
+
+If AbsValue(rpopen - rpclose) <= tolerance and
+rpopen >= (1.0 - tolerance) and
+rpclose >= (1.0 - tolerance) Then
+	splatrf.hammer = True;

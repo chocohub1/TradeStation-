@@ -1,0 +1,25 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.tdate2rdate
+Description	: Convert a TradeStation date (DateTime) to an R.D. date
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	TSDate(Numeric);
+
+Variables:
+	DateString(""),
+	GYear(0),
+	GMonth(0),
+	GDay(0),
+	RFactor(0);
+
+DateString = ELDateToString(TSDate);
+GYear = StrToNum(RightStr(DateString, 4));
+GMonth = StrToNum(LeftStr(DateString, 2));
+GDay = StrToNum(MidStr(DateString, 4, 2));
+
+splatrf.tdate2rdate = splatrf.gdate2rdate(GYear, GMonth, GDay);

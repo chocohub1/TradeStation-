@@ -1,0 +1,46 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.pullback
+Description	: Search for a Gann Pullback Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	ADXLimit(Numeric),
+	Length(Numeric);
+
+Variables:
+	RangeHigh(0.0),
+	RangeLow(0.0),
+	RPClose(0.0),
+	PullbackBars(3),
+	Percent(0.35),
+	RangeLength(5),
+	RangeFactor(0.7);
+
+splatrf.pullback = 0;
+
+RangeHigh = Highest(High, RangeLength);
+RangeLow = Lowest(Low, RangeLength);
+RPClose = splatrf.rangepct(Close, RangeHigh, RangeLow);
+
+Condition1 = splatrf.retracedown(PullbackBars) = True;
+Condition2 = splatrf.tail(Percent, RangeLength) = 1;
+Condition3 = splatrf.cobra(Percent, RangeFactor) = 1;
+
+If ADX(Length) >= ADXLimit and
+DMIPlus(Length) > DMIMinus(Length) and
+RPClose <= Percent and
+(Condition1 or Condition2 or Condition3) Then
+	splatrf.pullback = 1;
+
+Condition1 = splatrf.retraceup(PullbackBars) = True;
+Condition2 = splatrf.tail(Percent, RangeLength) = 2;
+Condition3 = splatrf.cobra(Percent, RangeFactor) = 2;
+
+If ADX(Length) >= ADXLimit and
+DMIMinus(Length) > DMIPlus(Length) and
+RPClose >= (1 - Percent) and
+(Condition1 or Condition2 or Condition3) Then
+	splatrf.pullback = 2;

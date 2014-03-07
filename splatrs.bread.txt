@@ -1,0 +1,1178 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.bread
+Description	: Bread and Butter System
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{Money Management}
+	Equity(5000),
+	Allocation(1),
+	RiskModel(3),
+	RiskPercent(2),
+	NFixed(100),
+	NRound(10),
+	{B Parameters}
+	Lookback(13),
+	AdvLowRatio(0.7),
+	AdvHighRatio(1.0),
+	BigGap(0.6),
+	SmallGap(0.3),
+	EntryFactor(0.36),
+	LunchBegin(1100),
+	LunchEnd(1300),
+	ReversalTime(1430),
+	CloseTime(1600),
+	Close2Time(1615),
+	MALength(65),
+	KLength(5),
+	RLength(4),
+	RRLength(7),
+	RRBreak(0.8),
+	RRFade(1.4),
+	RangeFactor(1.35),
+	Strength(20),
+	{Intraday Parameters}
+	Intraday(False),
+	{Trade Information}
+	LogTrades(False),
+	LogFile("Borders.txt"),
+	LogStats(False),
+	StatsFile("Bstats.txt");
+
+Variables:
+	{Intraday Metrics}
+	OpenOfDay(0.0),
+	HighOfDay(0.0),
+	LowOfDay(0.0),
+	HighOfDay1(0.0),
+	LowOfDay1(0.0),
+	CloseOfDay1(0.0),
+	ATR(0.0),
+	{Position Sizing}
+	N(0),
+	NB(0),
+	NS(0),
+	PreviousPosition(0),
+	{Volume}
+	DayCount(0),
+	BarCount(0),
+	ATRVolume(0.0),
+	TickSumToday(0),
+	TickAveToday(0),
+	{Daily Metrics}
+	NewDay(False),
+	SameDay(False),
+	ATRDaily(0.0),
+	ATRFactor(0.0),
+	LookbackHigh(0.0),
+	LookbackLow(0.0),
+	MADaily(0.0),
+	MADailyLength(50),
+	NDayHigh(0.0),
+	NDayLow(0.0),
+	RSIOversold(False),
+	RSILength(4),
+	RSILimit(20),
+	DRectangle(False),
+	DR1(3),
+	DR2(12),
+	DR3(0.9),
+	{Timing}
+	BuyTime(False),
+	SellTime(False),
+	FirstHour(1030),
+	NotLunch(False),
+	Lunch(False),
+	AfterLunch(False),
+	BeforeLunch(False),
+	AfterReverse(False),
+	BeforeReverse(False),
+	LastTime(False),
+	FridayPM(False),
+	{Blowout Conditions}
+	Blowout(False),
+	BlowoutRatio(1.5),
+	BlowoutDays(0),
+	{Gaps}
+	BGD(False),
+	BGU(False),
+	BGF(False),
+	GapUp(False),
+	GapDown(False),
+	GapAboveMA(False),
+	GapBelowMA(False),
+	GapHigh(False),
+	GapLow(False),
+	GapValue(0.0),
+	GapRatio(0.0),
+	GRSell(False),
+	GRBuy(False),
+	GKSell(False),
+	GKBuy(False),
+	{Advancers}
+	AdvHighest(0),
+	AdvLowest(0),
+	AdvRange(0.0),
+	AdvRatio(0.0),
+	AdvRP(0.0),
+	AdvClose(0.0),
+	AdvHigh(False),
+	AdvLow(False),
+	AdvHighK(False),
+	AdvLowK(False),
+	AdvHighKDown(False),
+	AdvLowKUp(False),
+	AdvHigher(False),
+	AdvLower(False),
+	AdvBottom(False),
+	AdvTop(False),
+	AdvBuy(False),
+	AdvSell(False),
+	{Trends}
+	Uptrend(False),
+	Downtrend(False),
+	MacroUptrend(False),
+	MacroDowntrend(False),
+	TrendCount(3),
+	UpCount(0),
+	DownCount(0),
+	LongUptrend(False),
+	LongDowntrend(False),
+	LongTrendCount(8),
+	BullMode(False),
+	BearMode(False),
+	{Moving Averages}
+	MA(0.0),
+	MAMini(0.0),
+	MADiff(0.0),
+	MAConverge(False),
+	MAConvergeUp(False),
+	MAConvergeDown(False),
+	MACrossUp(False),
+	MACrossDown(False),
+	{Crossovers}
+	XUp(False),
+	XDown(False),
+	XL(2),
+	SOverL(False),
+	LOverS(False),
+	Upturn(False),
+	Downturn(False),
+	{Range Ratio}
+	RR(0.0),
+	RR2(0.0),
+	RRToday(0.0),
+	RRFade2(1.3),
+	{Range Percentage}
+	RPO(0.0),
+	RPC(0.0),
+	RPHL(0.0),
+	RPLL(0.0),
+	RPCL(0.0),
+	RP1(0.10),
+	RP2(0.20),
+	RP3(0.30),
+	RP4(0.40),
+	RP5(0.50),
+	RP6(0.60),
+	RP7(0.70),
+	RP8(0.80),
+	RP9(0.90),
+	{Rectangle}
+	RFactor(1.0),
+	RRatio(0.35),
+	InRectangle(False),
+	RHigh(0.0),
+	RLow(0.0),
+	RToday(False),
+	RCondition(False),
+	{Congestion Area}
+	CFactor(1.99),
+	CLength(13),
+	CToday(False),
+	CCondition(False),
+	CDay(False),
+	{Nexus}
+	Nexus(False),
+	NFactor(0.25),
+	NTime(1500),
+	NToday(False),
+	{Breakouts}
+	BOUp(False),
+	BODown(False),
+	BOTime(1400),
+	{Signal Variables}
+	Congestion(False),
+	SellRE(False),
+	BuyRE(False),
+	BuyO(False),
+	SellO(False),
+	FCondition(False),
+	FRBuy(False),
+	FRSell(False),
+	SellKR(False),
+	BuyKR(False),
+	KRDown(False),
+	KRUp(False),
+	SellKRDay(False),
+	BuyKRDay(False),
+	Sell2B(False),
+	TH(0),
+	Buy2B(False),
+	TL(0),
+	Lookback2B(20),
+	Delta2B(0.5),
+	Width2B(6),
+	Depth(0.0),
+	Depth2B(0.5),
+	Deep2B(False),
+	TPercent(0.3),
+	Sell180(False),
+	Buy180(False),
+	Down180(False),
+	Up180(False),
+	P180(0.55),
+	SellTail(False),
+	BuyTail(False),
+	SellPull(False),
+	BuyPull(False),
+	PullTime(False),
+	BuyBX(False),
+	SellBX(False),
+	BuyBMX(False),
+	SellBMX(False),
+	Oversold(False),
+	BuyT(False),
+	SellT(False),
+	TableTop(False),
+	TableBottom(False),
+	TB(0),
+	TT(0),
+	TLength(5),
+	TCount(3),
+	TFactor(0.5),
+	TBLow(0.0),
+	TBDay(False),
+	TTHigh(0.0),
+	TTDay(False),
+	{Bands}
+	KeltnerSD(0.0),
+	KeltnerSD2(0.0),
+	KeltnerHalf(0.0),
+	KCUpper(0.0),
+	KCLower(0.0),
+	BrokeUpper(False),
+	BrokeLower(False),
+	{Intraday}
+	IPivot(0.0),
+	BLimit(0.0),
+	SLimit(0.0),
+	IntradayBars(0),
+	IntradayRange(0.0),
+	{Holidays & Events}
+	RDate(0),
+	GYear(0),
+	GMonth(0),
+	GDay(0),
+	EDays(0),
+	Events(0),
+	EventIndex(0),
+	Holidays(0),
+	HolidayIndex(0),
+	HDays(0),
+	dw(0),
+	FirstDay(False),
+	LastDay(False),
+	dm(0);
+
+Arrays:
+	TickSum[100](0),
+	TickAve[100](0),
+	Holiday[20](0),
+	HolidayName[20]("");
+
+{Moving Average and Trend}
+MA = Average(Close, MALength);
+Uptrend = MA > MA[Lookback];
+Downtrend = MA < MA[Lookback];
+MAMini = Average(Close, Strength);
+MADiff = AbsValue(MA - MAMini);
+
+{Keltner Channels}
+KCUpper = KeltnerChannel(Close, MALength, KLength);
+KCLower = KeltnerChannel(Close, MALength, -KLength);
+KeltnerSD = KeltnerChannel(Close, MALength, 1) - MA;
+KeltnerSD2 = 2 * KeltnerSD;
+KeltnerHalf = KeltnerSD * KLength / 2;
+If High > KCUpper Then
+	BrokeUpper = True;
+If Low < KCLower Then
+	BrokeLower = True;
+
+{Date and Time}
+NewDay = Time < Time[1];
+SameDay = Date = Date[1];
+NotLunch = Time <= LunchBegin or Time >= LunchEnd;
+Lunch = Time >= LunchBegin and Time <= LunchEnd;
+BeforeLunch = Time < LunchEnd;
+AfterLunch = Time >= LunchEnd;
+BeforeReverse = Time < ReversalTime;
+AfterReverse = Time >= ReversalTime;
+LastTime = Time <= CloseTime;
+FridayPM = LastDay and AfterLunch;
+
+{Start-of-Day Initialization}
+If NewDay Then Begin
+	IntradayBars = 0;
+	{Volume}
+	DayCount = DayCount + 1;
+	BarCount = 1;
+	TickSumToday = 0;
+	TickAveToday = 0;
+	{Holidays}
+	RDate = splatrf.tdate2rdate(ELDateToDateTime(Date));
+	Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+	Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+	HDays = splatrf.nearestholiday(RDate, Holidays, Holiday, HolidayIndex);
+	dw = splatrf.bizdayweek(RDate, FirstDay, LastDay);
+	dm = splatrf.bizdaymonth(RDate);
+	{Daily Metrics}
+	ATRDaily = Volatility(RRLength) of Data2;
+	MADaily = Average(Close, MADailyLength) of Data2;
+	NDayHigh = Highest(High, KLength - 1) of Data2;
+	NDayLow = Lowest(Low, KLength - 1) of Data2;
+	MacroUptrend = Close > MADaily;
+	MacroDowntrend = Close < MADaily;
+	RR = splatrf.rangeratio(1, RRLength) of Data2;
+	RR2 = splatrf.rangeratio(2, RRLength) of Data2;
+	RSIOversold = RSI(Close, RSILength) of Data2 <= RSILimit;
+	DRectangle = splatrf.rectangular(DR1, DR2, DR3, RRatio, Strength) of Data2 or
+				 splatrf.rectangular(RLength, Lookback, RFactor, RRatio, Strength) of Data2;
+	{Gap Conditions}
+	BGD = False;
+	BGU = False;
+	BGF = False;
+	GapUp = False;
+	If Open > High[2] Then
+		GapUp = True;
+	GapDown = False;
+	If Open < Low[2] Then
+		GapDown = True;
+	GapValue = Open - Close[2];
+	GapRatio = IFF(ATRDaily > 0, GapValue / ATRDaily, 0);
+	GapAboveMA = Close[1] <= MA[1] and Close > MA;
+	GapBelowMA = Close[1] >= MA[1] and Close < MA;
+	GRSell = False;
+	GRBuy = False;
+	{Advancers}
+	AdvClose = Close of Data4;
+	AdvBuy = False;
+	AdvSell = False;
+	{Signal Flags}
+	Sell2B = False;
+	Buy2B = False;
+	SellKR = False;
+	BuyKR = False;
+	Sell180 = False;
+	Buy180 = False;
+	SellTail = False;
+	BuyTail = False;
+	SellPull = False;
+	BuyPull = False;
+	SellO = False;
+	BuyO = False;
+	SellBX = False;
+	BuyBX = False;
+	SellBMX = False;
+	BuyBMX = False;
+	Oversold = False;
+	BuyT = False;
+	SellT = False;
+	{Congestion Conditions}
+	RToday = False;
+	CToday = False;
+	NToday = False;
+	{Band Conditions}
+	BrokeUpper = False;
+	BrokeLower = False;
+	{Fade Conditions}
+	FCondition = RR >= RRFade or (RR >= 1 and RR2 >= RRFade2);
+	FRBuy = False;
+	FRSell = False;
+	{Breakout Conditions}
+	BOUp = False;
+	BODown = False;
+	{Table Conditions}
+	TBDay = False;
+	TTDay = False;
+	{Trend Statistics}
+	If MAMini > MA Then Begin
+		UpCount = UpCount + 1;
+		DownCount = 0;
+	End;
+	If MAMini < MA Then Begin
+		DownCount = DownCount + 1;
+		UpCount = 0;
+	End;
+	{Position Sizing}
+	N = splatrf.getshares(Equity * Allocation,
+				  	  	  RiskModel,
+				  	  	  RiskPercent,
+				  	   	  0,
+					  	  KLength,
+				  	  	  NRound) of Data2;
+	NB = NFixed;
+	NS = NFixed;
+End;
+
+{End-of-Day Calculations}
+If Time = Close2Time Then Begin
+	If Blowout Then Begin
+		BlowoutDays = BlowoutDays + 1;
+		If BlowoutDays > TrendCount Then Begin
+			Blowout = False;
+			BlowoutDays = 0;
+		End;
+	End;
+End;
+
+{Intraday Metrics}
+ATR = Volatility(MALength);
+ATRFactor = EntryFactor * ATR;
+OpenOfDay = OpenD(0);
+HighOfDay = HighD(0);
+LowOfDay = LowD(0);
+HighOfDay1 = HighD(1);
+LowOfDay1 = LowD(1);
+CloseOfDay1 = CloseD(1);
+RPO = splatrf.rangepct(Open, High, Low);
+RPC = splatrf.rangepct(Close, High, Low);
+LookbackHigh = Highest(High, Lookback);
+LookbackLow = Lowest(Low, Lookback);
+RPHL = splatrf.rangepct(High, LookbackHigh, LookbackLow);
+RPLL = splatrf.rangepct(Low, LookbackHigh, LookbackLow);
+RPCL = splatrf.rangepct(Close, LookbackHigh, LookbackLow);
+IntradayBars = IntradayBars + 1;
+IntradayRange = AbsValue(HighOfDay - LowOfDay);
+RRToday = IFF(ATRDaily > 0, IntradayRange / ATRDaily, 0);
+
+{Moving Average and Trend Calculations}
+SOverL = MAMini >= MA and MAMini[Strength] < MA[Strength];
+LOverS = MAMini <= MA and MAMini[Strength] > MA[Strength];
+MAConverge = MADiff <= KeltnerSD;
+MAConvergeUp = MAMini > MAMini[1] and MAConverge and DownCount >= TrendCount;
+MAConvergeDown = MAMini < MAMini[1] and MAConverge and UpCount >= TrendCount;
+MACrossUp = OpenOfDay < MA and Close > MA;
+MACrossDown = OpenOfDay > MA and Close < MA;
+XUp = MAMini > MAMini[XL] and MAMini > MA and MA <= MA[XL] and MAMini[XL] < MA[XL];
+XDown = MAMini < MAMini[XL] and MAMini < MA and MA >= MA[XL] and MAMini[XL] > MA[XL];
+Upturn = SOverL or MAConvergeUp or XUp;
+Downturn = LOverS or MAConvergeDown or XDown;
+LongUptrend = UpCount >= LongTrendCount;
+LongDowntrend = DownCount >= LongTrendCount;
+BullMode = MacroUptrend or DownCount >= KLength;
+BearMode = MacroDowntrend or LongUptrend;
+
+{Volume}
+If DayCount > 0 Then Begin
+	TickSum[BarCount] = TickSum[BarCount] + Volume;
+	TickAve[BarCount] = TickSum[BarCount] / DayCount;
+	TickSumToday = TickSumToday + Volume;
+	TickAveToday = TickAveToday + TickAve[BarCount];
+	ATRVolume = IFF(TickAveToday > 0, TickSumToday / TickAveToday, 0);
+	BarCount = BarCount + 1;
+End;
+
+{Advancers Calculations}
+AdvHighest = Highest(High of Data3, MALength)[1];
+AdvLowest = Lowest(High of Data3, MALength)[1];
+AdvRange = AdvHighest - AdvLowest;
+AdvHigh = High of Data3 > Highest(High of Data4, TrendCount-1);
+AdvLow = High of Data3 < Lowest(High of Data4, TrendCount-1);
+AdvHighK = High of Data3 > Highest(High of Data4, KLength-1);
+AdvLowK = High of Data3 < Lowest(High of Data4, KLength-1);
+AdvHighKDown = AdvHighK and Downtrend;
+AdvLowKUp = AdvLowK and Uptrend;
+AdvHigher = High of Data3 > High[1] of Data3;
+AdvLower = High of Data3 <= High[1] of Data3;
+AdvRatio = IFF(AdvClose > 0, Close of Data3 / AdvClose, 0);
+AdvBottom = AdvRatio <= AdvLowRatio;
+AdvTop = AdvRatio >= AdvHighRatio;
+AdvRP = IFF(AdvRange > 0, (High of Data3 - AdvLowest) / AdvRange, 0);
+
+{Rectangle}
+InRectangle = splatrf.rectangular(RLength, Lookback, RFactor, RRatio, Strength);
+If InRectangle Then Begin
+	RHigh = Highest(High, RLength);
+	RLow = Lowest(Low, RLength);
+	RToday = True;
+End;
+
+{Congestion Area}
+CCondition = splatrf.congestion(CLength, CFactor, MALength);
+If CCondition or CToday Then
+	CToday = True;
+
+If Time = Close2Time Then Begin
+	If CCondition Then
+		CDay = True
+	Else
+		CDay = False;
+End;
+
+{Nexus}
+Nexus = splatrf.nexus(RRLength, NFactor, Strength, MALength);
+If Nexus Then
+	NToday = True;
+
+Congestion = RToday or CToday or NToday or CDay;
+
+{Table}
+TB = splatrf.tablebottom(TLength, TCount, TFactor);
+If TB >= TCount Then Begin
+	TableBottom = True;
+	TBLow = Lowest(Low, TLength);
+	TBDay = True;
+End Else Begin
+	TableBottom = False;
+End;
+
+TT = splatrf.tabletop(TLength, TCount, TFactor);
+If TT >= TCount Then Begin
+	TableTop = True;
+	TTHigh = Highest(High, TLength);
+	TTDay = True;
+End Else Begin
+	TableTop = False;
+End;
+
+{SIGNALS}
+
+{Gap Conditions}
+
+If Blowout = False Then
+BEGIN
+
+{After Hours Moves}
+
+If Time = CloseTime Then Begin
+	If BuyKR = False Then
+		SellShort("SE BAH") NS Shares Next Bar at Close + KeltnerSD2 Limit;
+	If SellKR = False Then
+		Buy("LE BAH") NB Shares Next Bar at Close - KeltnerSD2 Limit;
+End;
+
+{Large Gaps}
+
+If NewDay and
+GapRatio < -BigGap Then
+	BGD = True;
+
+If NewDay and
+GapRatio > BigGap Then
+	BGU = True;
+
+{Reversal Gaps}
+
+GapLow = Open < Low[1];
+GapHigh = Open > High[1];
+
+Condition11 = Close[1] >= KCUpper[1] or BrokeUpper;
+Condition12 = UpCount >= KLength and Close[1] >= KCUpper[1] - KeltnerSD2;
+Condition13 = GapBelowMA;
+
+If (GapDown or GapLow) and
+NewDay and
+(Condition11 or Condition12 or Condition13) and
+CDay = False Then Begin
+	GRSell = True;
+	If Close < Open or Downtrend Then
+		SellShort("SE BGRc") NS Shares This Bar on Close
+	Else
+		SellShort("SE BGRs") NS Shares Next Bar at Low - 1 Point Stop;
+End;
+
+Condition11 = Close[1] <= KCLower[1] or BrokeLower;
+Condition12 = DownCount >= KLength and Close[1] <= KCLower[1] + KeltnerSD2;
+Condition13 = GapAboveMA;
+
+If (GapUp or GapHigh) and
+NewDay and
+(Condition11 or Condition12 or Condition13) and
+CDay = False Then Begin
+	GRBuy = True;
+	If Close > Open or Uptrend Then
+		Buy("LE BGRc") NB Shares This Bar on Close
+	Else
+		Buy("LE BGRs") NB Shares Next Bar at High + 1 Point Stop;
+End;
+
+{Fade Gaps}
+
+Condition1 = DownCount >= KLength or Congestion or GRBuy;
+
+If NewDay and
+GapRatio >= SmallGap and
+High > MA and
+RPCL > RP5 and
+Condition1 = False Then Begin
+	BGF = True;
+	SellShort("SE BGF") NS Shares Next Bar at Low - 1 Point Stop;
+End;
+
+{Keltner Gaps}
+
+If Time >= Close2Time Then Begin
+	GKSell = False;
+	Value11 = MaxList(KCUpper, HighOfDay, Close + KeltnerSD);
+	If UpCount > 1 Then Begin
+		GKSell = True;
+		SellShort("SE BGK") NS Shares Next Bar at Value11 Limit;
+	End;
+	GKBuy = False;
+	Value21 = MinList(KCLower, LowOfDay, Close - KeltnerSD);
+	If DownCount > 1 Then Begin
+		GKBuy = True;
+		Buy("LE BGK") NB Shares Next Bar at Value21 Limit;
+	End;
+End;	
+
+{ATR Gaps}
+
+If Time >= Close2Time Then Begin
+	Value11 = MaxList(KCUpper, Close + ATRDaily);
+	If Upturn = False Then
+		SellShort("SE BGA") NS Shares Next Bar at Value11 Limit;
+	Value21 = MinList(KCLower, Close - ATRDaily);
+	If Downturn = False Then
+		Buy("LE BGA") NB Shares Next Bar at Value21 Limit;
+End;
+
+END; {GAP BLOCK}
+
+{Reversal Conditions}
+
+If Blowout = False and
+(FCondition = False or BrokeUpper or BrokeLower) and
+DRectangle = False Then
+BEGIN
+
+{Key Reversal}
+
+KRDown = splatrf.keyreversaldown(MALength);
+If KRDown and
+(BrokeUpper or UpCount >= KLength) and
+BGU = False and
+LastDay = False and
+LastTime Then Begin
+	SellKR = True;
+	If Close < Open Then
+		SellShort("SE BKR") NS Shares This Bar on Close;
+End;
+
+KRUp = splatrf.keyreversalup(MALength);
+If KRUp and
+(BrokeLower or DownCount >= KLength) and
+BGD = False and
+LastDay = False and
+LastTime Then Begin
+	BuyKR = True;
+	If Close > Open Then
+		Buy("LE BKR") NB Shares This Bar on Close;
+End;
+
+If Time = Close2Time Then Begin
+	If SellKR Then
+		SellKRDay = True
+	Else
+		SellKRDay = False;
+	If BuyKR Then
+		BuyKRDay = True
+	Else
+		BuyKRDay = False;
+End;
+
+{Tail Pattern}
+
+Condition1 = Upturn or BuyKR or Buy180 or BGU or LongDowntrend;
+
+If splatrf.tail(TPercent, Strength) = 2 and
+Range >= RangeFactor * ATR and
+Condition1 = False and
+Close > KCLower and
+LastTime Then Begin
+	SellTail = True;
+	If BrokeUpper Then
+		SellShort("SE BLc") NS Shares This Bar on Close
+	Else
+		SellShort("SE BLs") NS Shares Next Bar on Low - 1 Point Stop;
+End;
+
+Condition1 = Downturn or SellKR or Sell180 or BGD or LongUptrend;
+
+If splatrf.tail(TPercent, Strength) = 1 and
+Range >= RangeFactor * ATR and
+Condition1 = False and
+Close < KCUpper and
+LastTime Then Begin
+	BuyTail = True;
+	If BrokeLower Then
+		Buy("LE BLc") NB Shares This Bar on Close
+	Else
+		Buy("LE BLs") NB Shares Next Bar on High + 1 Point Stop;
+End;
+
+{180 Pattern}
+
+Condition1 = MACrossUp or DownCount >= KLength;
+
+Down180 = splatrf.180(P180, RangeFactor, MALength) = 2;
+If Down180 and
+(Downtrend or LongUptrend) and
+Condition1 = False and
+RPLL >= RP5 and
+NotLunch Then Begin
+	Sell180 = True;
+	SellShort("SE B180") NS Shares Next Bar at Low - 1 Point Stop;
+End;
+
+Condition1 = MACrossDown or LongUptrend;
+
+Up180 = splatrf.180(P180, RangeFactor, MALength) = 1;
+If Up180 and
+(Uptrend or DownCount >= KLength) and
+Condition1 = False and
+RPHL <= RP5 and
+NotLunch Then Begin
+	Buy180 = True;
+	Buy("LE B180") NB Shares Next Bar at High + 1 Point Stop;
+End;
+
+END; {Reversal Conditions}
+
+{Congestion Conditions}
+
+If Blowout = False Then
+BEGIN
+
+{Rectangle Pattern}
+
+If (RToday or CToday or DRectangle) and
+NotLunch and
+LastTime Then Begin
+	{Bearish Rectangle}
+	Condition1 = Downturn or Low > KCLower + KeltnerSD;
+	Condition2 = MACrossUp or BuyKR or BGD or (LastDay and RHigh > MA);
+	Condition3 = DRectangle and GapRatio >= SmallGap;
+	If Condition1 and
+	Condition2 = False and
+	Condition3 = False and
+	Low - ATRFactor > HighOfDay - ATRDaily Then Begin
+		SellShort("SE BR") NS Shares Next Bar at Low - ATRFactor Stop;
+	End;
+	{Bullish Rectangle}
+	Condition1 = Upturn or High < KCUpper - KeltnerSD;
+	Condition2 = MACrossDown or SellKR or BGF or (LastDay and RLow < MA);
+	Condition3 = DRectangle and GapRatio <= -SmallGap;
+	If Condition1 and
+	Condition2 = False and
+	Condition3 = False and
+	High + ATRFactor < LowOfDay + ATRDaily Then Begin
+		Buy("LE BR") NB Shares Next Bar at High + ATRFactor Stop;
+	End;
+End;
+
+{Congestion Area Patterns}
+
+If CDay and
+Time = Close2Time Then Begin
+	If Low > KCLower + KeltnerSD2 Then
+		SellShort("SE BCE") NS Shares Next Bar at Low - 1 Point Stop;
+	If High < KCUpper - KeltnerSD2 Then
+		Buy("LE BCE") NB Shares Next Bar at High + 1 Point Stop;
+End;
+
+END; {Congestion Conditions}
+
+{Narrow Range Day}
+
+If (InRectangle or RToday or RRToday <= RRBreak) and
+LastDay = False and
+Time >= Close2Time Then Begin
+	RCondition = RRToday <= RRBreak or MAConverge;
+	If RCondition Then Begin
+		BuyRE = False;
+		Condition1 = Downtrend and DownCount < TrendCount;
+		Condition2 = SellKRDay or BGD or SellT or AdvTop or AdvSell;
+		If Downturn = False and
+		UpCount < KLength and
+		High < KCUpper - KeltnerHalf and
+		Condition1 = False and
+		Condition2 = False and
+		AdvRP < RP8 Then Begin
+			BuyRE = True;
+			Buy("LE BRE") NB Shares Next Bar at High + 1 Point Stop;
+		End;
+		SellRE = False;
+		Condition1 = Uptrend and UpCount < TrendCount;
+		Condition2 = BuyKRDay or Oversold or BuyT or AdvBottom or AdvBuy;
+		If Upturn = False and
+		DownCount < KLength and
+		Low > KCLower + KeltnerHalf and
+		Condition1 = False and
+		Condition2 = False and
+		AdvRP > RP2 Then Begin
+			SellRE = True;
+			SellShort("SE BRE") NS Shares Next Bar at Low - 1 Point Stop;
+		End;
+	End;
+End;
+
+{Narrow Range Breakout}
+
+If BOUp = False Then
+	BOUp = Range >= RangeFactor * ATR and RPC >= RP7;
+
+If BODown = False Then
+	BODown = Range >= RangeFactor * ATR and RPC <= RP3;
+
+If RR <= RRBreak and
+RRToday <= RP4 and
+NotLunch Then Begin
+	If Downturn = False and
+	GapDown = False and
+	RPCL < RP5 and
+	High < KCUpper - KeltnerSD Then Begin
+		BuyO = True;
+		Buy("LE BO") NB Shares Next Bar at High + ATRFactor Stop;
+	End;
+	If Upturn = False and
+	GapUp = False and
+	RPCL > RP5 and
+	Low > KCLower + KeltnerSD Then Begin
+		SellO = True;
+		SellShort("SE BO") NS Shares Next Bar at Low - ATRFactor Stop;
+	End;
+End;
+
+{Test Conditions}
+
+If Blowout = False and
+FCondition = False Then
+BEGIN
+
+{2B Pattern}
+
+Condition1 = Congestion or BGU or BuyT;
+
+TH = splatrf.testhigh(Lookback2B, Width2B, Delta2B);
+If TH >= Width2B and
+Downtrend and
+TypicalPrice < MA + KeltnerSD and
+Condition1 = False and
+AfterLunch and
+LastTime Then Begin
+	Sell2B = True;
+	SellShort("SE B2B") NS Shares This Bar on Close;
+End;
+
+Condition1 = Congestion or BGD;
+
+TL = splatrf.testlow(Lookback2B, Width2B, Delta2B);
+If TL >= Width2B and
+Uptrend and
+TypicalPrice > MA - KeltnerSD and
+Condition1 = False and
+LastTime Then Begin
+	Buy2B = True;
+	Buy("LE B2B") NB Shares This Bar on Close;
+End;
+
+{2B Fade Pattern}
+
+Condition1 = CDay or CToday or Nexus or BuyO or BGU;
+
+Depth = Highest(High, TH) - Lowest(Low, TH);
+Deep2B = Depth >= Depth2B * ATRDaily;
+If TH >= Width2B and
+(AdvHighK or Deep2B or UpCount >= TrendCount) and
+Condition1 = False and
+High >= MA + KeltnerHalf Then Begin
+	Sell2B = True;
+	If BearMode Then
+		SellShort("SE B2Fc") NS Shares This Bar on Close
+	Else
+		SellShort("SE B2Fs") NS Shares Next Bar at Low - 1 Point Stop;
+End;
+
+Condition1 = CDay or CToday or Nexus or SellO or BGD;
+
+Depth = Highest(High, TL) - Lowest(Low, TL);
+Deep2B = Depth >= Depth2B * ATRDaily;
+If TL >= Width2B and
+(AdvLowK or Deep2B or DownCount >= TrendCount) and
+Condition1 = False and
+High <= MA - KeltnerHalf Then Begin
+	Buy2B = True;
+	If BullMode Then
+		Buy("LE B2Fc") NB Shares This Bar on Close
+	Else
+		Buy("LE B2Fs") NB Shares Next Bar at High + 1 Point Stop;
+End;
+
+END; {Test Conditions}
+
+{Main Breadth Logic based on Advancers}
+
+If Blowout = False and
+Congestion = False and
+FCondition = False and
+LastTime Then Begin
+	{Advancer Bottom}
+	If AdvBottom Then Begin
+		Condition1 = LongUptrend or SellKRDay or SellT or GRSell or BGD;
+		If Uptrend and
+		High > MA and
+		High < KCUpper - KeltnerSD2 and
+		Condition1 = False and
+		NotLunch and
+		LastTime Then Begin
+			AdvBuy = True;
+			Buy("LE BA") NB Shares Next Bar at High + ATRFactor Stop;
+		End;
+	End;
+	{Advancer Top}
+	If AdvTop Then Begin
+		Condition1 = LongDowntrend or BuyKRDay or BuyT or GRBuy or BGU or Oversold;
+		If Downtrend and
+		Low < MA and
+		Low > KCLower + KeltnerSD2 and
+		Condition1 = False and
+		AfterReverse and
+		LastTime Then Begin
+			AdvSell = True;
+			SellShort("SE BA") NS Shares Next Bar at Low - ATRFactor Stop;
+		End;
+	End;
+End;
+
+{Blowout Gap}
+
+If GapRatio <= -BlowoutRatio and
+IntradayRange >= KeltnerHalf and
+Low > Low[1] and
+OpenOfDay < KCLower and
+High >= KCLower Then Begin
+	Blowout = True;
+	BlowoutDays = 0;
+	SellShort("SE Blowout") NS Shares Next Bar at Low - 1 Point Stop;
+End;
+
+{Nexus}
+
+If Blowout = False and
+Nexus and
+RToday = False and
+LastDay = False and
+Time < CloseTime Then Begin
+	Value1 = MaxList(HighOfDay + 1 Point, MA + ATRFactor);
+	If (Uptrend or Upturn or AfterLunch) Then Begin
+		BuyBX = True;
+		Buy("LE BX") NB Shares Next Bar at Value1 Stop;
+	End;
+	Value2 = MinList(LowOfDay - 1 Point, MA - ATRFactor);
+	If (Downtrend or Downturn or AfterLunch) Then Begin
+		SellBX = True;
+		SellShort("SE BX") NS Shares Next Bar at Value2 Stop;
+	End;
+End;
+
+{Moving Average Cross}
+
+Condition1 = FCondition or CDay;
+
+If Blowout = False and
+RRToday <= RP5 and
+Condition1 = False and
+LastTime Then Begin
+	If HighOfDay < MA + ATRFactor Then Begin
+		BuyBMX = True;
+		Buy("LE BMX") NB Shares Next Bar at MA + ATRFactor Stop;
+	End;
+	If LowOfDay > MA - ATRFactor Then Begin
+		SellBMX = True;
+		SellShort("SE BMX") NS Shares Next Bar at MA - ATRFactor Stop;
+	End;
+End;
+
+{Moving Average Double Cross}
+
+If SellBMX and
+EntryDate = Date and
+High < MA + ATRFactor and
+AfterLunch and
+LastTime Then
+	Buy("LE BMX2") NB Shares Next Bar at MA + ATRFactor Stop;
+
+If BuyBMX and
+EntryDate = Date and
+Low > MA - ATRFactor and
+AfterLunch and
+LastTime Then
+	SellShort("SE BMX2") NS Shares Next Bar at MA - ATRFactor Stop;
+
+{Fade After Large Range Days}
+
+If Blowout = False and
+FCondition and
+Congestion = False and
+AbsValue(GapRatio) <= SmallGap and
+LastTime Then Begin
+	{Intraday Signals}
+	If TableBottom and
+	Close > MA Then
+		Buy("LE BF") NB Shares This Bar on Close;
+	If TableTop and
+	Close < MA Then
+		SellShort("SE BF") NS Shares This Bar on Close;
+	{Afternoon Trend}
+	Condition1 = Downturn or LongUptrend or BrokeLower or KRDown or AdvHighKDown or GRSell or SellT;
+	If Time >= BOTime and
+	Condition1 = False and
+	Low < KCUpper Then Begin
+		FRBuy = True;
+		Buy("LE BFR") NB Shares Next Bar at High + ATRFactor Stop;
+	End;
+	Condition2 = Upturn or DownCount >= KLength or BrokeUpper or KRUp or AdvLowKUp or GRBuy or BuyT;
+	If Time >= BOTime and
+	Condition2 = False and
+	High > KCLower Then Begin
+		FRSell = True;
+		SellShort("SE BFR") NS Shares Next Bar at Low - ATRFactor Stop;
+	End;
+	{Closing Position}
+	If Low > MA and
+	RPCL < RP3 and
+	BarsSinceEntry > 0 and
+	Time >= CloseTime Then
+		Buy("LE BFC") NB Shares This Bar on Close;
+	If High < MA and
+	RPCL > RP7 and
+	BarsSinceEntry > 0 and
+	Time >= CloseTime Then
+		SellShort("SE BFC") NS Shares This Bar on Close;
+End;
+
+{PULLBACK BLOCK}
+
+If Blowout = False and
+Congestion = False and
+FCondition = False Then
+BEGIN
+
+{Pullbacks in Trend}
+
+Condition1 = MACrossUp or BuyKRDay or Buy180 or GRBuy;
+
+If Downtrend and
+High >= MA and
+Condition1 = False and
+GapRatio < SmallGap and
+AfterLunch and
+LastTime Then Begin
+	SellPull = True;
+	SellShort("SE BP") NS Shares Next Bar at Low - ATRFactor Stop;
+End;
+
+Condition1 = MACrossDown or SellKRDay or Sell180 or GRSell;
+
+If Uptrend and
+Low <= MA and
+Condition1 = False and
+GapRatio > -SmallGap and
+AfterLunch and
+LastTime Then Begin
+	BuyPull = True;
+	Buy("LE BP") NB Shares Next Bar at High + ATRFactor Stop;
+End;
+
+END; {PULLBACK BLOCK}
+
+{Oversold}
+
+Condition1 = Congestion or BGD or SellO or SellTail or Sell180;
+
+If Blowout = False and
+(RSIOversold or BrokeLower or BullMode) and
+High < KCLower + KeltnerHalf and
+Condition1 = False and
+Time >= BOTime and
+LastTime Then Begin
+	Oversold = True;
+	Buy("LE BOS") NB Shares Next Bar at High + ATRFactor Stop;
+End;
+
+{Table Patterns}
+
+If Blowout = False Then Begin
+	{Table Reversals}
+	If AfterLunch and
+	LastTime Then Begin
+		Condition1 = Low > KCUpper - KeltnerHalf or UpCount > TrendCount;
+		If TableTop and
+		(AdvLower or High >= KCUpper) and
+		Condition1 and
+		TableBottom = False Then Begin
+			SellT = True;
+			SellShort("SE BT") NS Shares Next Bar at Low - ATRFactor Stop;
+		End;
+		Condition1 = High < KCLower + KeltnerHalf or DownCount > TrendCount;
+		If TableBottom and
+		(AdvHigher or Low <= KCLower) and
+		Condition1 and
+		TableTop = False Then Begin
+			BuyT = True;
+			Buy("LE BT") NB Shares Next Bar at High + ATRFactor Stop;
+		End;
+	End;
+End;
+
+{Intraday Logic}
+
+If Intraday Then Begin
+	{Continuation Trade}
+	If Time = Close2Time Then Begin
+		If MarketPosition <> 0 Then
+			PreviousPosition = MarketPosition(0)
+		Else
+			PreviousPosition = MarketPosition(1);
+		BLimit = HighOfDay - RP4 * ATRDaily;
+		Condition1 = CDay or MACrossDown;
+		If PreviousPosition = 1 and
+		Condition1 = False Then
+			Buy("LE BI") NB Shares Next Bar at BLimit Limit;
+		SLimit = LowOfDay + RP4 * ATRDaily;
+		Condition2 = CDay or MACrossUp;
+		If PreviousPosition = -1 and
+		Condition2 = False Then
+			SellShort("SE BI") NS Shares Next Bar at SLimit Limit;
+		{Calculate Pivot}
+		IPivot = (HighOfDay + LowOfDay + Close) / 3;
+	End;
+End;
+
+If Intraday Then
+	SetExitonClose;
+
+{Log trades to spreadsheet}
+
+If LogTrades Then
+	Condition1 = splatrf.logtrades(LogFile, "B");
+
+{Log statistics to spreadsheet}
+
+If LogStats Then
+	Condition2 = splatrf.LogStats(StatsFile, "B");

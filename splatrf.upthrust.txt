@@ -1,0 +1,31 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.upthrust
+Description	: Identify an Upthrust pattern (Crabel)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Strength(Numeric),
+	Length(Numeric);
+
+Variables:
+	PivotBar(0),
+	PivotHigh(0.0),
+	RPClose(0.0);
+
+splatrf.upthrust = False;
+PivotBar = SwingHighBar(1, High, Strength, Length);
+If PivotBar > 0 Then Begin
+	PivotHigh = High[PivotBar];
+	RPClose = splatrf.rangepct(Close, High, Low);
+	If High > PivotHigh and
+	Close < Close[1] and
+	Close < Close[2] and
+	Close < PivotHigh and
+	Close < Open and
+	RPClose < 0.5 and
+	Range > Range[1] Then
+		splatrf.upthrust = True;
+End;

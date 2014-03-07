@@ -1,0 +1,24 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.snapbackup
+Description	: Test for a SnapBack Reversal (SBR) Bar Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	BarSegments(Numeric);
+
+Variables:
+	RangeDelta(0.0),
+	RangeDelta1(0.0);
+
+splatrf.snapbackup = False;
+RangeDelta = Range / BarSegments;
+RangeDelta1 = Range[1] / BarSegments;
+
+If Open <= Low + RangeDelta and
+Close >= High - RangeDelta and
+Open[1] >= High[1] - RangeDelta1 and
+Close[1] <= Low[1] + RangeDelta1 Then
+	splatrf.snapbackup = True;

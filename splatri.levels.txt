@@ -1,0 +1,96 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.levels
+Description	: Identify Key Support and Resistance Levels
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	ATRLength(10),
+	LOn(True),
+	OOn(True),
+	DOn(True),
+	AOn(True),
+	OTime(0950),
+	DTime(1130),
+	CloseTime(1600),
+	LColor(Yellow),
+	OColor(White),
+	DColor(White),
+	AColor(Red),
+	Width(1);
+
+Variables:
+	TodayStarted(False),
+	ATR(0.0),
+	H0(0.0),
+	L0(0.0),
+	R0(0.0),
+	H1(0.0),
+	L1(0.0),
+	H2(0.0),
+	L2(0.0),
+	H3(0.0),
+	L3(0.0),
+	OString(""),
+	DString(""),
+	TheLine(0),
+	Drawn(False),
+	A1Hit(False);
+
+If Time < Time[1] Then Begin
+	TodayStarted = True;
+	A1Hit = False;
+	ATR = Volatility(ATRLength) of Data3;
+End Else Begin
+	TodayStarted = False;
+End;
+
+H0 = HighD(0);
+L0 = LowD(0);
+R0 = IFF(ATR > 0, (H0 - L0) / ATR, 0);
+
+If TodayStarted Then Begin
+	H1 = HighD(1);
+	L1 = LowD(1);
+	H2 = HighD(2);
+	L2 = LowD(2);
+	H3 = HighD(3);
+	L3 = LowD(3);
+	If LOn Then Begin
+		Drawn = splatrf.drawktl(Date, Time, CloseTime, H1, "H1", LColor, Width);
+		Drawn = splatrf.drawktl(Date, Time, CloseTime, L1, "L1", LColor, Width);
+		If H2 > H1 Then
+			Drawn = splatrf.drawktl(Date, Time, CloseTime, H2, "H2", LColor, Width);
+		If L2 < L1 Then
+			Drawn = splatrf.drawktl(Date, Time, CloseTime, L2, "L2", LColor, Width);
+		If H3 > H1 Then
+			Drawn = splatrf.drawktl(Date, Time, CloseTime, H3, "H3", LColor, Width);
+		If L3 < L1 Then
+			Drawn = splatrf.drawktl(Date, Time, CloseTime, L3, "L3", LColor, Width);
+	End;
+End;
+
+If OOn and
+Time = OTime Then Begin
+	OString = "o " + NumToStr(R0, 2);
+	Drawn = splatrf.drawktl(Date, Time, CloseTime, HighD(0), OString, OColor, Width);
+	Drawn = splatrf.drawktl(Date, Time, CloseTime, LowD(0), OString, OColor, Width);
+End;
+
+If DOn and
+Time = DTime Then Begin
+	DString = "H " + NumToStr(R0, 2);
+	Drawn = splatrf.drawktl(Date, Time, CloseTime, HighD(0), DString, DColor, Width);
+	DString = "L " + NumToStr(R0, 2);
+	Drawn = splatrf.drawktl(Date, Time, CloseTime, LowD(0), DString, DColor, Width);
+End;
+
+If AOn and
+A1Hit = False Then Begin
+	If H0 - L0 >= ATR Then Begin
+		A1Hit = True;
+		Drawn = splatrf.drawktl(Date, Time, CloseTime, Close, "A1", AColor, Width);
+	End;
+End;

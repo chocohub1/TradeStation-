@@ -1,0 +1,42 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.expansionwave
+Description	: Draw the Expansion Wave pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(50),
+	Strength(5),
+	BullColor(Green),
+	BearColor(Red),
+	ATRFactor(1.0);
+
+Variables:
+	PivotCount(0),
+	ExpWave(0),
+	Width(1),
+	Drawn(False);
+
+Arrays:
+	PivotMap[50, 4](0),
+	Pattern[5, 4](0),
+	SavedPattern[5, 4](0);
+
+{Find Pivots}
+
+PivotCount = splatrf.pivotmap(Length, 50, PivotMap);
+
+{Expansion Wave}
+
+ExpWave = splatrf.expansionwave(PivotCount, PivotMap, Strength, Pattern, ATRFactor);
+If ExpWave <> 0 Then Begin
+	If splatrf.samepattern(ExpWave, Pattern, SavedPattern) = False Then Begin
+		If ExpWave > 0 Then
+			Drawn = splatrf.drawpattern(ExpWave, Pattern, BullColor, Width, "E")
+		Else
+			Drawn = splatrf.drawpattern(ExpWave, Pattern, BearColor, Width, "E");
+		Condition1 = splatrf.copypattern(ExpWave, Pattern, SavedPattern);
+	End;
+End;

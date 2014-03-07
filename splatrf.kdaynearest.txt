@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.kdaynearest
+Description	: kday-nearest
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	k(Numeric);
+
+splatrf.kdaynearest = splatrf.kdayonbefore(RDate + 3, k);
+

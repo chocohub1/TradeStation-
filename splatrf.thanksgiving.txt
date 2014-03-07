@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.thanksgiving
+Description	: Thanksgiving
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	RThursday(4),
+	IMonth(11),
+	IDay(1);
+
+HString = "Thanksgiving";
+splatrf.thanksgiving = splatrf.nthkday(4, RThursday, GYear, IMonth, IDay);
+

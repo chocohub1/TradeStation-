@@ -1,0 +1,42 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.butterfly
+Description	: Draw the Butterfly pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(50),
+	Strength(5),
+	BullColor(Blue),
+	BearColor(Red),
+	F1(1.272);
+
+Variables:
+	PivotCount(0),
+	Butterfly(0),
+	Width(1),
+	Drawn(False);
+
+Arrays:
+	PivotMap[50, 4](0),
+	Pattern[5, 4](0),
+	SavedPattern[5, 4](0);
+
+{Find Pivots}
+
+PivotCount = splatrf.pivotmap(Length, 50, PivotMap);
+
+{Butterfly}
+
+Butterfly = splatrf.butterfly(PivotCount, PivotMap, Strength, Pattern, F1);
+If Butterfly <> 0 Then Begin
+	If splatrf.samepattern(Butterfly, Pattern, SavedPattern) = False Then Begin
+		If Butterfly > 0 Then
+			Drawn = splatrf.drawpattern(Butterfly, Pattern, BullColor, Width, "B")
+		Else
+			Drawn = splatrf.drawpattern(Butterfly, Pattern, BearColor, Width, "B");
+		Condition1 = splatrf.copypattern(Butterfly, Pattern, SavedPattern);
+	End;
+End;

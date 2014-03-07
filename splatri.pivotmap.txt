@@ -1,0 +1,121 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.pivotmap
+Description	: Display the Pivot Map
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(50),
+	MaxPivots(50),
+	MinStrength(3),
+	ScoreAlert(20),
+	HighColor(Blue),
+	LowColor(Red),
+	PBWidth(2);
+
+Variables:
+	PivotCount(0),
+	SPivotCount(0),
+	dt(0),
+	ip(0),
+	ps(""),
+	ph(0),
+	pl(0),
+	pb(0),
+	Color(0),
+	PHigh(0.0),
+	PLow(0.0),
+	PivotText(0),
+	PivotScore(0.0);
+
+Arrays:
+	PivotMap[50, 4](0);
+
+{Find Pivots}
+
+print(date, PivotCount);
+PivotCount = splatrf.pivotmap(Length, MaxPivots, PivotMap);
+print(date, PivotCount);
+SPivotCount = 0;
+For ip = 0 To PivotCount-1 Begin
+	If PivotMap[ip, 2] >= MinStrength Then
+		SPivotCount = SPivotCount + 1;
+End;	
+
+{Pivot Commentary}
+
+dt = ELDateToDateTime(Date);
+CommentaryCL(NewLine,
+			 NumToStr(MonthFromDateTime(dt), 0), " / ",
+			 NumToStr(DayFromDateTime(dt), 0), " / ",
+			 NumToStr(YearFromDateTime(dt), 0),
+			 NewLine, "Total Pivots: ", NumToStr(PivotCount, 0),
+			 NewLine, "Pivots (Strength ", NumToStr(MinStrength, 0), "): ",
+			 NumToStr(SPivotCount, 0),
+			 NewLine);
+For ip = 0 To PivotCount-1 Begin
+	If PivotMap[ip, 2] >= MinStrength Then Begin
+		dt = ELDateToDateTime(Date[PivotMap[ip, 0]]);
+		If PivotMap[ip, 1] = 1 Then ps = "High";
+		If PivotMap[ip, 1] = -1 Then ps = "Low";
+		CommentaryCL("   ", ps,
+			 		 " Pivot at Bar ", NumToStr(PivotMap[ip, 0], 0),
+			 		 " with Strength ", NumToStr(PivotMap[ip, 2], 0),
+			 		 " on ", NumToStr(MonthFromDateTime(dt), 0), " / ",
+			 		 NumToStr(DayFromDateTime(dt), 0), " / ",
+			 		 NumToStr(YearFromDateTime(dt), 0));
+	End;
+End;
+ph = splatrf.pivothigh(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
+If ph > 0 Then Begin
+	dt = ELDateToDateTime(Date[PivotMap[ph, 0]]);
+	CommentaryCL(NewLine, "Highest",
+			 	 " Pivot at Bar ", NumToStr(PivotMap[ph, 0], 0),
+			 	 " with Strength ", NumToStr(PivotMap[ph, 2], 0),
+			 	 " on ", NumToStr(MonthFromDateTime(dt), 0), " / ",
+			 	 NumToStr(DayFromDateTime(dt), 0), " / ",
+			 	 NumToStr(YearFromDateTime(dt), 0));
+End;
+pl = splatrf.pivotlow(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
+If pl > 0 Then Begin
+	dt = ELDateToDateTime(Date[PivotMap[pl, 0]]);
+	CommentaryCL("Lowest",
+			 	 " Pivot at Bar ", NumToStr(PivotMap[pl, 0], 0),
+			 	 " with Strength ", NumToStr(PivotMap[pl, 2], 0),
+			 	 " on ", NumToStr(MonthFromDateTime(dt), 0), " / ",
+			 	 NumToStr(DayFromDateTime(dt), 0), " / ",
+			 	 NumToStr(YearFromDateTime(dt), 0));
+End;
+
+{Paint the Pivots}
+
+PivotScore = 0.0;
+For ip = 0 To PivotCount-1 Begin
+	If PivotMap[ip, 2] >= MinStrength Then Begin
+		pb = PivotMap[ip, 0];
+		PHigh = High[pb];
+		PLow = Low[pb];
+		If PivotMap[ip, 1] = 1 Then
+			Color = HighColor;
+		If PivotMap[ip, 1] = -1 Then
+			Color = LowColor;
+		Condition1 = splatrf.drawpaintbar(Date[pb], Time[pb], PHigh, PLow, Color, PBWidth);
+		If LastBaronChart Then Begin
+			PivotText = Text_New(Date[pb], Time[pb], PHigh, NumToStr(PivotMap[ip, 2], 0));
+			Text_SetStyle(PivotText, 2, 1);
+			Text_SetColor(PivotText, Color);
+		End;
+		PivotScore = PivotScore + PivotMap[ip, 1] * PivotMap[ip, 2];
+	End;
+End;
+	
+Plot1(PivotScore, "Pivot Score");
+Plot2(0, "Zero Line");
+Plot3(ScoreAlert, "High Score");
+Plot4(-ScoreAlert, "Low Score");
+
+
+
+

@@ -1,0 +1,115 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.floatchannel
+Description	: Plot the float channels based on turnover
+Provided By	: SplatR (c) Copyright 2013
+
+Note		: This is an implementation of the Cumulative-Volume
+			  Channel Indicator described on Page 78 of the book
+			  "The Precision Profit Float Indicator" by Steve Woods
+********************************************************************}
+
+Inputs:
+	FloatFactor(1.0),
+	BaseBars(7),
+	RangeFactor(0.3);
+
+Variables:
+	TheFloat(0.0),
+	{High Parameters}
+	FloatHigh1(0.0),
+	FloatHigh2(0.0),
+	HighBaseCount(1),
+	{Low Parameters}
+	FloatLow1(0.0),
+	FloatLow2(0.0),
+	LowBaseCount(1),
+	{Alert Parameters}
+	AlertString(""),
+	RangeDelta(0.0),
+	PercentLimit(0.25),
+	LookbackBars(20),
+	ADXLimit(20),
+	Strength(3),
+	Length2(0);
+
+If TheFloat = 0.0 Then Begin
+	{Compute the number of base bars based on float turnover}
+
+	TheFloat = FloatFactor * splatrf.getfloat(GetSymbolName);
+
+End Else If TheFloat > 0.0 Then Begin
+	{Compute the channel lines}
+
+	FloatHigh1 = splatrf.floatchannelhigh(TheFloat);
+	Plot1(FloatHigh1, "High");
+
+	FloatLow1 = splatrf.floatchannellow(TheFloat);
+	Plot2(FloatLow1, "Low");
+
+	{Generate alerts}
+	
+	RangeDelta = RangeFactor * Volatility(LookbackBars);
+
+	If (High >= Plot1 or (High + RangeDelta >= Plot1 and
+	splatrf.rangepct(Close, High, Low) >= (1 - PercentLimit))) and
+	HighBaseCount >= BaseBars Then Begin
+		AlertString = "Upper Float Channel Breakout: Long";
+		Alert(AlertString);
+	End;
+
+	If (Low <= Plot2 or (Low - RangeDelta <= Plot2 and
+	splatrf.rangepct(Close, High, Low) <= PercentLimit)) and
+	LowBaseCount >= BaseBars Then Begin
+		AlertString = "Lower Float Channel Breakout: Short";
+		Alert(AlertString);
+	End;
+
+	If High + RangeDelta >= Plot1 and
+	ADX(LookbackBars) >= ADXLimit and
+	DMIMinus(LookbackBars) > DMIPlus(LookbackBars) Then Begin
+		AlertString = "Touch Upper Float Channel in Downtrend: Short";
+		AlertString = AlertString + " (ADX: " + NumToStr(ADX(LookbackBars), 0) + ")";
+		Alert(AlertString);
+	End;
+
+	If Low - RangeDelta <= Plot2 and
+	ADX(LookbackBars) >= ADXLimit and
+	DMIPlus(LookbackBars) > DMIMinus(LookbackBars) Then Begin
+		AlertString = "Touch Lower Float Channel in Uptrend: Long";
+		AlertString = AlertString + " (ADX: " + NumToStr(ADX(LookbackBars), 0) + ")";
+		Alert(AlertString);
+	End;
+
+	Length2 = splatrf.doubletop(LookbackBars, Strength, RangeFactor);
+	If High + RangeDelta >= Plot1 and
+	Length2 > 0 Then Begin
+		AlertString = "Double Top: Short";
+		AlertString = AlertString + " (Length: " + NumToStr(Length2, 0) + ")";
+		Alert(AlertString);
+	End;
+
+	Length2 = splatrf.doublebottom(LookbackBars, Strength, RangeFactor);
+	If Low - RangeDelta <= Plot2 and
+	Length2 > 0 Then Begin
+		AlertString = "Double Bottom: Long";
+		AlertString = AlertString + " (Length: " + NumToStr(Length2, 0) + ")";
+		Alert(AlertString);
+	End;
+
+	{Calculate running base count and changing float channel values}
+
+	If FloatHigh1 - FloatHigh2 = 0 Then
+		HighBaseCount = HighBaseCount + 1
+	Else
+		HighBaseCount = 1;
+	FloatHigh2 = FloatHigh1;
+
+	If FloatLow1 - FloatLow2 = 0 Then
+		LowBaseCount = LowBaseCount + 1
+	Else
+		LowBaseCount = 1;
+	FloatLow2 = FloatLow1;
+End;
+

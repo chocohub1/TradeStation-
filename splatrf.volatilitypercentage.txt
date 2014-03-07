@@ -1,0 +1,12 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.volatilitypercentage
+Description	: Return the Volatility Percentage
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs: 
+    Length(NumericSimple);
+
+splatrf.volatilitypercentage = 100 * XAverageOrig(TrueRange, Length) / Close;

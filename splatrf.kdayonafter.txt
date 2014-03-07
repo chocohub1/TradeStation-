@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.kdayonafter
+Description	: kday-on-or-after
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	k(Numeric);
+
+splatrf.kdayonafter = splatrf.kdayonbefore(RDate + 6, k);
+

@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.insidedaynarrowrange
+Description	: Display Inside Day / Narrow Range Combinations
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	RangeLength(4);
+
+If splatrf.insidedaynarrowrange(RangeLength, 0) Then Begin
+ 	PlotPaintBar(High, Low, "IDNR");
+	Alert("IDNR Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+

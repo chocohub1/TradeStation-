@@ -1,0 +1,14 @@
+{*******************************************************************
+Name		: splatrf.rangepct
+Description	: Calculate the range percentage of the given value
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	price(NumericSeries),
+	rangehigh(Numeric),
+	rangelow(Numeric);
+
+splatrf.rangepct = 0.0;
+If (rangehigh - rangelow) > 0 Then
+	splatrf.rangepct = (price - rangelow) / (rangehigh - rangelow);

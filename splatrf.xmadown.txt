@@ -1,0 +1,29 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.xmadown
+Description	: Find downwards cross of moving average
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RangeFactor(Numeric),
+	Length(Numeric),
+	RPFactor(Numeric);
+
+Variables:
+	ATR(0.0),
+	MA(0.0),
+	RP(0.0);
+
+splatrf.xmadown = False;
+ATR = Volatility(Length);
+MA = Average(Close, Length);
+RP = splatrf.rangepct(Close, High, Low);
+
+If Low < MA and
+High > MA and
+RP <= RPFactor and
+Range >= RangeFactor * ATR Then
+	splatrf.xmadown = True;
+

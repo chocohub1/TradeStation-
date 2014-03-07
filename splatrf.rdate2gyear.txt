@@ -1,0 +1,38 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.rdate2gyear
+Description	: Extract the Gregorian year from the R.D. date
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric);
+
+Variables:
+	d0(0),
+	n400(0),
+	d1(0),
+	n100(0),
+	d2(0),
+	n4(0),
+	d3(0),
+	n1(0),
+	theyear(0);
+
+{Calculations}
+d0 = RDate - 1;
+n400 = Floor(d0 / 146097);
+d1 = Mod(d0, 146097);
+n100 = Floor(d1 / 36524);
+d2 = Mod(d1, 36524);
+n4 = Floor(d2 / 1461);
+d3 = Mod(d2, 1461);
+n1 = Floor(d3 / 365);
+{Gregorian Year}
+theyear = 400 * n400 + 100 * n100 + 4 * n4 + n1;
+If n100 = 4 or n1 = 4 Then
+	splatrf.rdate2gyear = theyear
+Else
+	splatrf.rdate2gyear = theyear + 1;

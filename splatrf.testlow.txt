@@ -1,0 +1,23 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.testlow
+Description	: Search for a Low Test Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	SeparationBars(Numeric),
+	ATRFactor(Numeric);
+
+Variables:
+	Low2(0);
+
+splatrf.testlow = -1;
+Low2 = NthLowestBar(2, Low, Length);
+If Low < Lowest(Low, Length - 1)[1] and
+Low2 >= SeparationBars and
+AbsValue(Low - Low[Low2]) <= ATRFactor * Volatility(Length) and
+Close > Low[Low2] Then
+	splatrf.testlow = Low2;

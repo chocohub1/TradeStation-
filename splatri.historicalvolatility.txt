@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.historicalvolatility
+Description	: Display the Historical Volatility
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	Length(30),
+	Cutoff(0.5);
+
+Plot1(splatrf.volatility(Length), "HV");
+Plot2(Cutoff, "Cutoff");
+

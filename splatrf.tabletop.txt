@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.tabletop
+Description	: Identify a Table Top
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	Count(Numeric),
+	ATRFactor(Numeric);
+
+Variables:
+	HCount(0),
+	HH(0),
+	HDiff(0.0),
+	ih(0);
+
+HCount = 0;
+HH = Highest(High, Length)[1];
+HDiff = ATRFactor * Volatility(Length);
+For ih = 1 To Length-1 Begin
+	If AbsValue(High[ih] - HH) <= HDiff Then
+		HCount = HCount + 1;
+End;
+
+If HCount >= Count and
+AbsValue(High - HH) <= HDiff Then
+	splatrf.tabletop = HCount
+Else
+	splatrf.tabletop = 0;

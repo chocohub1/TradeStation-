@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.sequentialbuy
+Description	: Test for a Sequential Buy Setup
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	Width(Numeric);
+
+Variables:
+	Count(0);
+
+splatrf.sequentialbuy = False;
+
+Count = CountIF(Close < Close[Width], Length);
+If Count = Length Then
+	splatrf.sequentialbuy = True;

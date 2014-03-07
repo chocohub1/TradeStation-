@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.doji
+Description	: Show Doji patterns 
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	Tolerance(0.25);
+
+If splatrf.doji(Tolerance, Open, High, Low, Close) Then Begin
+ 	PlotPaintBar(High, Low, "Doji");
+	Alert("PST Doji Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+

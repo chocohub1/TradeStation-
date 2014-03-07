@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.sequentialsell
+Description	: Test for a Sequential Sell Setup
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	Width(Numeric);
+
+Variables:
+	Count(0);
+
+splatrf.sequentialsell = False;
+
+Count = CountIF(Close > Close[Width], Length);
+If Count = Length Then
+	splatrf.sequentialsell = True;

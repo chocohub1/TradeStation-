@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.narrowrange2
+Description	: Find 2 narrow range bars in a row
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	RangeLength(5);
+
+If splatrf.narrowrange(RangeLength, 0) and
+splatrf.narrowrange(RangeLength, 1) Then Begin
+ 	PlotPaintBar(High, Low, "NR2");
+	Alert("NR2 Alert");
+End Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;

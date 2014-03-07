@@ -1,0 +1,26 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.wedge
+Description	: Determine whether the region is a wedge
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	WedgeLength(Numeric);
+
+Variables:
+	ix(0),
+	AWedge(True);
+
+splatrf.wedge = False;
+
+AWedge = True;
+ix = 0;
+While AWedge and ix < WedgeLength Begin
+	If High[ix] > High[ix+1] or Low[ix] < Low[ix+1] Then
+		AWedge = False;
+	ix = ix + 1;
+End;
+
+splatrf.wedge = AWedge;

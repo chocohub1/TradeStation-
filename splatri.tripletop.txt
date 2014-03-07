@@ -1,0 +1,40 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.tripletop
+Description	: Draw a Triple Top line
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(40),
+	Strength(3),
+	RangeFactor(0.3),
+	MALength(50),
+	Color(Black);
+
+Variables:
+	ATR(0.0),
+	TTBar(-1),
+	TTLine(-1),
+	AlertString("");
+
+TTBar = splatrf.tripletop(LookbackBars, Strength, RangeFactor);
+If TTBar <> -1 Then Begin
+	ATR = Volatility(LookbackBars);
+	TTLine = TL_New(Date[0], Time[0], High[0], Date[TTBar], Time[TTBar], High[TTBar]);
+	If TTLine >= 0 Then Begin
+		TL_SetSize(TTLine, 2);
+		TL_SetColor(TTLine, Color);
+	End;
+	AlertString = "Triple Top";
+	If DMIPlus(LookbackBars) > DMIMinus(LookbackBars) Then
+		Condition1 = AbsValue(Low - Average(Close, MALength)) <= RangeFactor * ATR
+	Else
+		Condition1 = AbsValue(High - Average(Close, MALength)) <= RangeFactor * ATR;
+	If Condition1 Then
+		AlertString = AlertString + " Near " + NumToStr(MALength, 0) + " Bar Moving Average";
+	If AlertEnabled or Condition1 Then
+		Alert(AlertString);
+End;
+

@@ -1,0 +1,47 @@
+{*******************************************************************
+Name		: splatrf.logstats
+Description	: Log price statistics to a file for import into R
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LogFileName(String),
+	Delimiter(String);
+
+Variables:
+	dt(0),
+	TimeString(""),
+	StatsString("");
+
+splatrf.logstats = False;
+
+If CurrentBar >= 1 Then Begin
+	If CurrentBar = 1 Then Begin
+		{Write header}
+		StatsString = "Symbol" + Delimiter +
+			"Date" + Delimiter +
+			"Time" + Delimiter +
+			"Open" + Delimiter +
+			"High" + Delimiter +
+			"Low" + Delimiter +
+			"Close" + Delimiter +
+			"Volume" + NewLine;
+		FileAppend(LogFileName, StatsString);
+	End;
+	{Log prices for each bar of data}
+	dt = ELDateToDateTime(Date);
+	TimeString = NumToStr(Time, 0);
+	StatsString = GetSymbolName + Delimiter +
+		DateToString(dt) + Delimiter +
+		LeftStr(TimeString, StrLen(TimeString) - 2) + ":" + RightStr(TimeString, 2) + ":00" + Delimiter +
+		NumToStr(Open, 4) + Delimiter +
+		NumToStr(High, 4) + Delimiter +
+		NumToStr(Low, 4) + Delimiter +
+		NumToStr(Close, 4) + Delimiter +
+		NumToStr(Volume, 0) +
+		NewLine;
+	FileAppend(LogFileName, StatsString);
+End;
+
+splatrf.logstats = True;
+

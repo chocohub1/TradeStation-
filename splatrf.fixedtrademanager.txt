@@ -1,0 +1,61 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatr.fixedtrademanager
+Description	: Fixed ATR Trade Manager
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	SystemID(""),
+	{Position Management Parameters}
+	ProfitFactor(2),
+	LossFactor(1),
+	HoldBars(3),
+	DrawTargets(False),
+	{Trade Logging}
+	LogTrades(False),
+	LogFile("Orders.txt");
+
+Variables:
+	ATR(0.0),
+	ATRLength(30),
+	Gain(0.0),
+	Loss(0.0),
+	ProfitTarget(0.0),
+	StopLoss(0.0);
+
+ATR = Volatility(ATRLength);
+Gain = ProfitFactor * ATR;
+Loss = LossFactor * ATR;
+
+{Exit position based on multiples of ATR}
+
+SetStopShare;
+SetProfitTarget(Gain);
+SetStopLoss(Loss);
+
+{Exit position after certain number of bars}
+
+If BarsSinceEntry >= HoldBars Then Begin
+	Sell("LX ATR") This Bar on Close;
+	BuyToCover("SX ATR") This Bar on Close;
+End;
+
+{Draw Exit Targets on the Chart}
+
+If DrawTargets and
+MarketPosition <> 0 Then Begin
+	If MarketPosition = 1 Then Begin
+		ProfitTarget = EntryPrice + Gain;
+		StopLoss = EntryPrice - Loss;
+	End Else Begin
+		ProfitTarget = EntryPrice - Gain;
+		StopLoss = EntryPrice + Loss;
+	End;
+	Condition1 = splatrf.plotexittargets(SystemID, StopLoss, ProfitTarget, 0);
+End;
+
+{Log Trades for Spreadsheet Export}
+If LogTrades Then
+	Condition1 = splatrf.logtrades(LogFile, SystemID);

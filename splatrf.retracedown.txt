@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.retracedown
+Description	: Search for an n-bar downwards pullback
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+Variables:
+	InsideDays(0),
+	LowerBars(0);
+
+splatrf.retracedown = False;
+InsideDays = CountIF(Low > Low[1] and High < High[1], Length);
+LowerBars = CountIF(Low < Low[1], Length);
+If (LowerBars = Length or (InsideDays = 1 and LowerBars = Length - 1)) Then
+	splatrf.retracedown = True;

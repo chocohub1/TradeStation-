@@ -1,0 +1,20 @@
+{*******************************************************************
+Name		: splatri.recordprices
+Description	: Record price data for import into R
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LogPrices(False),
+	LogPrefix("c:\"),
+	LogSuffix("_prices.txt");
+
+Variables:
+	PriceFile("");
+
+{Log Price Data}
+
+If LogPrices Then Begin
+	PriceFile = LogPrefix + GetSymbolName + LogSuffix;
+	Condition1 = splatrf.logstats(PriceFile, " ");
+End;

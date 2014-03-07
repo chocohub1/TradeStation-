@@ -1,0 +1,31 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.doubletop
+Description	: Find a double top formation
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(Numeric),
+	Strength(Numeric),
+	RangeFactor(Numeric);
+
+Variables:
+	RangeDelta(0.0),
+	HighPivot(0.0),
+	LowPivot(0.0),
+	HighMinimum(7);
+
+splatrf.doubletop = -1;
+RangeDelta = RangeFactor * Volatility(LookbackBars);
+HighPivot = PivotHighVSBar(1, High, Strength, Strength, LookbackBars);
+LowPivot = PivotLowVSBar(1, Low, Strength, Strength, LookbackBars);
+
+If HighPivot <> -1 and
+LowPivot <> -1 and
+HighPivot >= HighMinimum and
+AbsValue(High - High[HighPivot]) <= RangeDelta and
+AbsValue(High - Highest(High, HighPivot)) <= RangeDelta and
+HighPivot > LowPivot Then
+	splatrf.doubletop = HighPivot;

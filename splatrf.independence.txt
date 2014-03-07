@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.independence
+Description	: independence-day
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	IMonth(7),
+	IDay(4);
+
+HString = "Independence Day";
+splatrf.independence = splatrf.gdate2rdate(GYear, IMonth, IDay);
+

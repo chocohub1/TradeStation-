@@ -1,0 +1,29 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.widestrange
+Description	: Is the current range the widest? 
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RangeLength(Numeric),
+	PeriodLength(Numeric);
+
+Variables:
+	CurrentRange(0.0);
+
+CurrentRange = Highest(High, RangeLength) - Lowest(Low, RangeLength);
+Value1 = 1;
+Condition1 = False;
+
+While Value1 <= PeriodLength and
+Condition1 = False Begin
+	Value2 = Highest(High, RangeLength)[Value1] - Lowest(Low, RangeLength)[Value1];
+	If Value2 > CurrentRange Then
+		Condition1 = True;
+	Value1 = Value1 + 1;
+End;
+
+splatrf.widestrange = Value1 - 1;
+

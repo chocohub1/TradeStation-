@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.tail
+Description	: Show Tail Patterns
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Percent(0.25),
+	RangeFactor(1.35),
+	Length(20);
+
+Variables:
+	ATR(0.0),
+	ATRLength(65);
+
+ATR = Volatility(ATRLength);
+If splatrf.tail(Percent, Length) > 0 and
+Range >= RangeFactor * ATR Then
+	PlotPaintBar(High, Low, "Tail");

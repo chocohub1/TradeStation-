@@ -1,0 +1,106 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.marketmodel
+Description	: Label bars with sentiment indicators
+Provided By	: SplatR (c) Copyright 2013
+
+1. VIX (V)
+2. Advancers (A)
+3. Decliners (D)
+4. Arms Index, or TRIN (T)
+5. Tick (K)
+
+********************************************************************}
+
+Inputs:
+	Length(26),
+	Color(Yellow);
+
+Variables:
+	PatternString(""),
+	LongString(""),
+	ShortString(""),
+	ReturnValue(0),
+	PriceDelta(0),
+	ATR(0.0),
+	HighLow(0),
+	Smooth(4),
+	HighText(0),
+	LowText(0);
+
+If DataCompression = 0 and BarInterval <= 5 Then 
+	Commentary("This indicator must be applied to a bar interval larger than 5 ticks.")
+Else
+	If DataCompression = 5 Then 
+		Commentary("This indicator cannot be applied to Point and Figure charts. ") 
+	Else Begin
+		PatternString = "";
+		LongString = "";
+		ShortString = "";
+		ATR = Volatility(Length);
+		PriceDelta = ATR / 4;
+
+	If Close of Data2 > 0 Then Begin
+		PatternString = "V";
+		HighLow = splatrf.highlowindex(Close of Data2, Length);
+		If HighLow = 1 Then
+			LongString = LongString + PatternString
+		Else If HighLow = 2 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	If Close of Data3 > 0 Then Begin
+		PatternString = "A";
+		HighLow = splatrf.highlowindex(Close of Data3, Length);
+		If HighLow = 2 Then
+			LongString = LongString + PatternString
+		Else If HighLow = 1 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	If Close of Data4 > 0 Then Begin
+		PatternString = "D";
+		HighLow = splatrf.highlowindex(Close of Data4, Length);
+		If HighLow = 1 Then
+			LongString = LongString + PatternString
+		Else If HighLow = 2 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	If Close of Data5 > 0 Then Begin
+		PatternString = "T";
+		HighLow = splatrf.highlowindex(Average(Close of Data5, Smooth),
+		Length);
+		If HighLow = 1 Then
+			LongString = LongString + PatternString
+		Else If HighLow = 2 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	If Close of Data6 > 0 Then Begin
+		PatternString = "K";
+		HighLow = splatrf.highlowindex(Average(Close of Data6, Smooth), Length);
+		If HighLow = 2 Then
+			LongString = LongString + PatternString
+		Else If HighLow = 1 Then
+			ShortString = ShortString + PatternString;
+	End;
+
+	If LongString <> "" Then Begin
+		HighText = Text_New(Date, Time, High + PriceDelta, LongString);
+		Text_SetStyle(HighText, 2, 2);
+		Text_SetColor(HighText, Color);
+		If AlertEnabled or StrLen(LongString) >= 2 Then
+			Alert("Long " + LongString);
+	End;
+
+	If ShortString <> "" Then Begin
+		LowText = Text_New(Date, Time, Low - PriceDelta, ShortString);
+		Text_SetStyle(LowText, 2, 0);
+		Text_SetColor(LowText, Color);
+		If AlertEnabled or StrLen(ShortString) >= 2 Then
+			Alert("Short " + ShortString);
+	End;
+End;
+

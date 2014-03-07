@@ -1,0 +1,76 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.pairs
+Description	: Pairs Trading System
+Provided By	: SplatR (c) Copyright 2013
+
+Requirements
+------------
+
+Data1:	Stock 1 Intraday
+Data2:	Stock 2 Intraday
+Data3:	Stock 1 Daily (hidden)
+Data4:	Stock 2 Daily (hidden)
+********************************************************************}
+
+Inputs:
+	VolatilityFactor(1.5),
+	Length(30),
+	{Position Sizing Parameters}
+	Equity(100000),
+	RiskModel(3),
+	RiskPercent(2.0),
+	RiskATR(1.0),
+	{Trade Logging}
+	LogTrades(False),
+	LogFile("Orders.txt");
+
+Variables:
+	N(0),
+	HV1(0.0),
+	HV2(0.0),
+	CV(0.0),
+	VolatilityBand(0.0),
+	VolatilityConstant(0.0629941),
+	UpperBand(0.0),
+	LowerBand(0.0),
+	Spread(0.0);
+
+If Date <> Date[1] Then Begin
+	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Length, 100) of Data3;
+	HV1 = splatrf.volatility(Length) of Data3;
+	HV2 = splatrf.volatility(Length) of Data4;
+	CV = Correlation(Close[1] of Data3, Close[1] of Data4, Length);
+	VolatilityBand = VolatilityConstant * (HV1 + HV2) * (1 - CV);
+	UpperBand = VolatilityFactor * VolatilityBand;
+	LowerBand = VolatilityFactor * (-VolatilityBand);
+End;
+
+Spread = (Close of Data1 / Close[1] of Data3) - (Close of Data2 / Close[1] of Data4);
+
+If Spread crosses above LowerBand and
+Low <= High[1] Then
+	Buy("P LE") N Shares This Bar on Close;
+
+If Spread crosses above 0 Then
+	Sell("P LX+") This Bar on Close
+Else If Spread <= VolatilityFactor * LowerBand Then
+	Sell("P LX-") This Bar on Close;
+
+If Spread crosses below UpperBand and
+High >= Low[1] Then
+	SellShort("P SE") N Shares This Bar on Close;
+
+If Spread crosses below 0 Then
+	BuytoCover("P SX+") This Bar on Close
+Else If Spread >= VolatilityFactor * UpperBand Then
+	BuytoCover("P SX-") This Bar on Close;
+
+SetExitOnClose;
+
+{Log Trades for Spreadsheet Export}
+If LogTrades Then
+	Condition1 = splatrf.logtrades(LogFile, "P");
+
+

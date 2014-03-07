@@ -1,0 +1,27 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.nthkday
+Description	: nth-kday
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	n(Numeric),
+	k(Numeric),
+	GYear(Numeric),
+	GMonth(Numeric),
+	GDay(Numeric);
+
+Variables:
+	RDate(0),
+	TheDay(0);
+
+RDate = splatrf.gdate2rdate(GYear, GMonth, GDay);
+If n > 0 Then
+	TheDay = 7 * n + splatrf.kdaybefore(RDate, k)
+Else
+	TheDay = 7 * n + splatrf.kdayafter(RDate, k);
+splatrf.nthkday = TheDay;
+

@@ -1,0 +1,122 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.floatpercentage
+Description	: Display the turnover of the float starting from the
+			  breakout of a base
+Provided By	: SplatR (c) Copyright 2013
+
+Note		: This is an implementation of the Cumulative-Volume
+			  Percentage Indicator described on Page 76 of the book
+			  "The Precision Profit Float Indicator" by Steve Woods
+********************************************************************}
+
+Inputs:
+	FloatFactor(1.0),
+	BaseBars(7),
+	PercentAlert(90.0),
+	RangeFactor(0.3);
+
+Variables:
+	TheFloat(0.0),
+	{High Parameters}
+	FloatHigh1(0.0),
+	FloatHigh2(0.0),
+	FoundHighBase(False),
+	HighBaseCount(1),
+	HighBaseVolume(0),
+	HighPercent(0.0),
+	Percent95(95.0),
+	{Low Parameters}
+	FloatLow1(0.0),
+	FloatLow2(0.0),
+	FoundLowBase(False),
+	LowBaseCount(1),
+	LowBaseVolume(0),
+	LowPercent(0.0),
+	{Alert Parameters}
+	AlertString(""),
+	RangeDelta(0.0);
+
+If TheFloat = 0.0 Then Begin
+	TheFloat = FloatFactor * splatrf.getfloat(GetSymbolName);
+End Else If TheFloat > 0 Then Begin
+	{Calculations}
+	FloatHigh1 = splatrf.floatchannelhigh(TheFloat);
+	FloatLow1 = splatrf.floatchannellow(TheFloat);
+	RangeDelta = RangeFactor * Volatility(BaseBars);
+	{High Logic}
+	If HighBaseCount >= BaseBars and High > FloatHigh2 Then Begin
+		FoundHighBase = True;
+		HighBaseVolume = 0;
+	End;
+	If FoundHighBase Then Begin
+		If HighBaseVolume <= TheFloat Then Begin
+			HighBaseVolume = HighBaseVolume + Volume;
+			HighPercent = 100.0 * HighBaseVolume / TheFloat;
+			If HighPercent >= PercentAlert Then
+				Plot1(HighPercent, "High %", DarkBlue)
+			Else
+				Plot1(HighPercent, "High %", Blue);
+			If Plot1 >= PercentAlert Then Begin
+				If High >= (FloatHigh1 - RangeDelta) Then Begin
+					If HighPercent >= Percent95 Then Begin
+						AlertString = "High Break Turnover (" + NumToStr(HighPercent, 0) + "%) at High: Short ";
+						Alert(AlertString);
+					End;
+				End;
+				If Low <= (FloatLow1 + RangeDelta) Then Begin
+					If HighPercent >= Percent95 Then Begin
+						AlertString = "High Break Turnover (" + NumToStr(HighPercent, 0) + "%) at Low: Long ";
+						Alert(AlertString);
+					End;
+				End;
+			End;
+		End Else Begin
+			FoundHighBase = False;
+			HighBaseVolume = 0;
+		End;
+	End;
+	If FloatHigh1 - FloatHigh2 = 0 Then
+		HighBaseCount = HighBaseCount + 1
+	Else
+		HighBaseCount = 1;
+	FloatHigh2 = FloatHigh1;
+	{Low Logic}
+	If LowBaseCount >= BaseBars and Low < FloatLow2 Then Begin
+		FoundLowBase = True;
+		LowBaseVolume = 0;
+	End;
+	If FoundLowBase Then Begin
+		If LowBaseVolume <= TheFloat Then Begin
+			LowBaseVolume = LowBaseVolume + Volume;
+			LowPercent = 100.0 * LowBaseVolume / TheFloat;
+			If LowPercent >= PercentAlert Then
+				Plot2(LowPercent, "Low %", DarkRed)
+			Else
+				Plot2(LowPercent, "Low %", Red);
+			If Plot2 >= PercentAlert Then Begin
+				If Low <= (FloatLow1 + RangeDelta) Then Begin
+					If LowPercent >= Percent95 Then Begin
+						AlertString = "Low Break Turnover (" + NumToStr(LowPercent, 0) + "%) at Low: Long ";
+						Alert(AlertString);
+					End;
+				End;
+				If High >= (FloatHigh1 - RangeDelta) Then Begin
+					If LowPercent >= Percent95 Then Begin
+						AlertString = "Low Break Turnover (" + NumToStr(LowPercent, 0) + "%) at High: Short ";
+						Alert(AlertString);
+					End;
+				End;
+			End;
+		End Else Begin
+			FoundLowBase = False;
+			LowBaseVolume = 0;
+		End;
+	End;
+	If FloatLow1 - FloatLow2 = 0 Then
+		LowBaseCount = LowBaseCount + 1
+	Else
+		LowBaseCount = 1;
+	FloatLow2 = FloatLow1;
+End;

@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.kdayonbefore
+Description	: kday-on-or-before
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	k(Numeric);
+
+splatrf.kdayonbefore = RDate - splatrf.dayofweek(RDate - k);
+

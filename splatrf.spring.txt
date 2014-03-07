@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.spring
+Description	: Identify a Spring pattern (Crabel)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Strength(Numeric),
+	Length(Numeric);
+
+Variables:
+	PivotBar(0),
+	PivotLow(0.0),
+	RPClose(0.0);
+
+splatrf.spring = False;
+PivotBar = SwingLowBar(1, Low, Strength, Length);
+If PivotBar > 0 Then Begin
+	PivotLow = Low[PivotBar];
+	RPClose = splatrf.rangepct(Close, High, Low);
+	If Low < PivotLow and
+	Close > Close[1] and
+	Close > Close[2] and
+	Close > PivotLow and
+	Close > Open and
+	RPClose > 0.5 and
+	Range > Range[1] Then
+		splatrf.spring = True;
+End;
+

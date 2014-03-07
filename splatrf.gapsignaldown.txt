@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gapsignaldown
+Description	: Test for a Gap Signal (GS) Bar Down
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	BarSegments(Numeric);
+
+splatrf.gapsignaldown = False;
+
+If splatrf.signaldown(Length, BarSegments) and
+Low > High[1] Then
+	splatrf.gapsignaldown = True;

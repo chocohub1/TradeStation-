@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.retraceup
+Description	: Search for an n-bar upwards pullback
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+Variables:
+	InsideDays(0),
+	HigherBars(0);
+
+splatrf.retraceup = False;
+InsideDays = CountIF(Low > Low[1] and High < High[1], Length);
+HigherBars = CountIF(High > High[1], Length);
+If (HigherBars = Length or (InsideDays = 1 and HigherBars = Length - 1)) Then
+	splatrf.retraceup = True;

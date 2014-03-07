@@ -1,0 +1,46 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.bizdaymonth
+Description	: Get the ordinal business day of the month
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric);
+
+Variables:
+	GYear(0),
+	GMonth(0),
+	GDay(0),
+	RDate1(0),
+	ib(0),
+	id(0),
+	Holidays(0),
+	ih(0);
+
+Arrays:
+	Holiday[20](0),
+	HolidayName[20]("");	
+
+Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+RDate1 = splatrf.gdate2rdate(GYear, GMonth, 1);
+Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+ib = 0;
+id = RDate1;
+While id <= RDate Begin
+	Value1 = splatrf.dayofweek(id);
+	Condition1 = Value1 >= 1 and Value1 <= 5;
+	If Condition1 Then
+		ib = ib + 1;
+	For ih = 0 To Holidays-1 Begin
+		Value2 = splatrf.dayofweek(Holiday[ih]);
+		Condition2 = Value2 >= 1 and Value2 <= 5;
+		If Holiday[ih] = id and Condition2 Then
+			ib = ib - 1;
+	End;
+	id = id + 1;
+End;
+splatrf.bizdaymonth = ib;
+

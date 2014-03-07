@@ -1,0 +1,24 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.rangeratio
+Description	: Calculate the Range Ratio
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length1(Numeric),
+	Length2(Numeric);
+
+Variables:
+	Range1(0.0),
+	Range2(0.0);
+
+splatrf.rangeratio = 0;
+Range1 = Average(Range, Length1);
+Range2 = Average(Range, Length2);
+If Range1 <> 0 and Range2 <> 0 Then
+	splatrf.rangeratio = Range1 / Range2;
+
+
+

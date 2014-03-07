@@ -1,0 +1,16 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.outsidekeyreversalup
+Description	: Test for an Outside Key Reversal (OKR) Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.outsidekeyreversalup = False;
+
+If splatrf.outsidebar and
+splatrf.keyreversalup(Length) Then
+	splatrf.outsidekeyreversalup = True;

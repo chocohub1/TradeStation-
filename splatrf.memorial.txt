@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.memorial
+Description	: memorial-day
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	RMonday(1),
+	IMonth(5),
+	IDay(31);
+
+HString = "Memorial Day";
+splatrf.memorial = splatrf.lastkday(RMonday, GYear, IMonth, IDay);
+

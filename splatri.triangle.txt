@@ -1,0 +1,84 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.triangle
+Description	: Plot Triangle Formations
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	Length(60),
+	Strength(2),
+	MaximumSlope(2);
+
+Variables:
+	MaximumPivots(10),
+	FoundPivot(False),
+	N(0),
+	SH1(-1),
+	SL1(-1),
+	SH2(-1),
+	SL2(-1),
+	TH1(-1),
+	TH2(-1),
+	TL1(-1),
+	TL2(-1),
+	HighSlope(0.0),
+	LowSlope(0.0);
+
+N = 1;
+SH1 = SwingHighBar(N, High, Strength, Length);
+If SH1 <> -1 Then Begin
+	N = 2;
+	FoundPivot = False;
+	While FoundPivot = False and N <= MaximumPivots Begin
+		SH2 = SwingHighBar(N, High, Strength, Length);
+		If SH2 <> -1 and High[SH1] < High[SH2] Then Begin
+			FoundPivot = True;
+			HighSlope = TLSlopeEasy(High, SH1, SH2);
+			print(date, time, HighSlope);
+			If AbsValue(HighSlope) <= MaximumSlope Then Begin
+				TH1 = TL_New(Date[SH1], Time[SH1], High[SH1], Date[SH2], Time[SH2], High[SH2]);
+				If TH1 >= 0 Then Begin
+					TL_SetColor(TH1, Yellow);
+					TL_SetExtRight(TH1, True);
+					If TH2 <> -1 Then Begin
+						TL_SetEnd(TH2, Date, Time, TL_GetValue(TH2, Date, Time));
+						TL_SetExtRight(TH2, False);
+					End;
+					TH2 = TH1;
+				End;
+			End;
+		End;
+		N = N + 1;
+	End;
+End;
+
+N = 1;
+SL1 = SwingLowBar(N, Low, Strength, Length);
+If SL1 <> -1 Then Begin
+	N = 2;
+	FoundPivot = False;
+	While FoundPivot = False and N <= MaximumPivots Begin
+		SL2 = SwingLowBar(N, Low, Strength, Length);
+		If SL2 <> -1 and Low[SL1] > Low[SL2] Then Begin
+			FoundPivot = True;
+			LowSlope = TLSlopeEasy(Low, SL1, SL2);
+			If AbsValue(LowSlope) <= MaximumSlope Then Begin
+				TL1 = TL_New(Date[SL1], Time[SL1], Low[SL1], Date[SL2], Time[SL2], Low[SL2]);
+				If TL1 >= 0 Then Begin
+					TL_SetColor(TL1, Yellow);
+					TL_SetExtRight(TL1, True);
+					If TL2 <> -1 Then Begin
+						TL_SetEnd(TL2, Date, Time, TL_GetValue(TL2, Date, Time));
+						TL_SetExtRight(TL2, False);
+					End;
+					TL2 = TL1;
+				End;
+			End;
+		End;
+		N = N + 1;
+	End;
+End;
+
+

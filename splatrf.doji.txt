@@ -1,0 +1,26 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.doji
+Description	: Identify a Doji Candlestick
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	tolerance(Numeric),
+	dopen(NumericSeries),
+	dhigh(NumericSeries),
+	dlow(NumericSeries),
+	dclose(NumericSeries);
+
+Variables:
+	rpopen(0.0),
+	rpclose(0.0);
+
+splatrf.doji = False;
+
+rpopen = splatrf.rangepct(dopen, dhigh, dlow);
+rpclose = splatrf.rangepct(dclose, dhigh, dlow);
+
+If AbsValue(rpopen - rpclose) <= tolerance Then
+	splatrf.doji = True;

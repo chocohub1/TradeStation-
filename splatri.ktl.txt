@@ -1,0 +1,173 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.ktl
+Description	: Identify Key Technical Levels
+Provided By	: SplatR (c) Copyright 2013
+
+Daily KTLs
+
+01. Typical Price (TP)
+02. Median Price (MP)
+03. Moving Average 50 (MA 50)
+04. Moving Average 20 (MA 20)
+05. Previous High (PH)
+06. Previous Low (PL)
+07. Rectangle High (RH)
+08. Rectangle Low (RL)
+09. Double Bottom (DB)
+10. Double Top (DT)
+11. Triple Bottom (TB)
+12. Triple Top (TT)
+
+Intraday KTLs
+
+01. Opening Range High (ORH)
+02. Opening Range Low (ORL)
+
+********************************************************************}
+
+Inputs:
+	KTLDs(12),
+	KTLIs(2),
+	Length(10),
+	Width(1),
+	ATRFactor(0.18),
+	StartTime(0945),
+	EndTime(1600);
+
+Variables:
+	ATR(0.0),
+	ix(0),
+	MA1Length(50),
+	MA2Length(20),
+	R11(3),
+	R12(8),
+	R13(0.85),
+	R14(0.333),
+	R21(4),
+	R22(12),
+	R23(1.0),
+	R24(0.333),
+	RLength(0),
+	InRectangle(False),
+	D1(20),
+	D2(3),
+	D3(0.2),
+	DBBar(-1),
+	DTBar(-1),
+	T1(40),
+	T2(4),
+	T3(0.4),
+	TBBar(-1),
+	TTBar(-1),
+	Result(False);
+
+Arrays:
+	KTLDText[50](""),
+	KTLD[50](0.0),
+	KTLDFlag[50](False),
+	KTLIText[50](""),
+	KTLI[50](0.0),
+	KTLIFlag[50](False);
+
+{Daily KTLs using Data3}
+
+If Time = StartTime and
+Date of Data2 > Date[1] of Data2 Then Begin
+	ATR = Volatility(Length) of Data3;
+	KTLDText[01] = "TP";
+	KTLD[01] = TypicalPrice of Data3;
+  	KTLDFlag[01] = True;
+	KTLDText[02] = "MP";
+	KTLD[02] = MedianPrice of Data3;
+ 	KTLDFlag[02] = True;
+	KTLDText[03] = "MA 50";
+	KTLD[03] = Average(Close, MA1Length) of Data3;
+	KTLDFlag[03] = False;
+	If AbsValue(Open - KTLD[03]) <= ATR Then
+ 		KTLDFlag[03] = True;
+	KTLDText[04] = "MA 20";
+	KTLD[04] = Average(Close, MA2Length) of Data3;
+	KTLDFlag[04] = False;
+	If AbsValue(Open - KTLD[04]) <= ATR Then
+ 		KTLDFlag[04] = True;
+	KTLDText[05] = "PH";
+	KTLD[05] = High of Data3;
+ 	KTLDFlag[05] = True;
+	KTLDText[06] = "PL";
+	KTLD[06] = Low of Data3;
+ 	KTLDFlag[06] = True;
+	InRectangle = splatrf.rectangular(R11, R12, R13, R14, MA2Length) of Data3;
+	If InRectangle = False Then Begin
+		InRectangle = splatrf.rectangular(R21, R22, R23, R24, MA2Length) of Data3;
+		If InRectangle Then
+			RLength = R21;
+	End Else
+		RLength = R11;
+	KTLDFlag[07] = False;
+	KTLDFlag[08] = False;
+	If InRectangle Then Begin
+		KTLDFlag[05] = False;
+		KTLDFlag[06] = False;
+		KTLDText[07] = "RH";
+		KTLD[07] = Highest(High, RLength) of Data3;
+ 		KTLDFlag[07] = True;
+		KTLDText[08] = "RL";
+		KTLD[08] = Lowest(Low, RLength) of Data3;
+ 		KTLDFlag[08] = True;
+	End;
+	KTLDFlag[09] = False;
+	DBBar = splatrf.doublebottom(D1, D2, D3) of Data3;
+	If DBBar <> -1 Then Begin
+		KTLDText[09] = "DB";
+		KTLD[09] = Low[DBBar] of Data3;
+		KTLDFlag[09] = True;
+	End;
+	KTLDFlag[10] = False;
+	DTBar = splatrf.doubletop(D1, D2, D3) of Data3;
+	If DTBar <> -1 Then Begin
+		KTLDText[10] = "DT";
+		KTLD[10] = High[DTBar] of Data3;
+		KTLDFlag[10] = True;
+	End;
+	KTLDFlag[11] = False;
+	TBBar = splatrf.triplebottom(T1, T2, T3) of Data3;
+	If TBBar <> -1 Then Begin
+		KTLDText[11] = "TB";
+		KTLD[11] = Low[TBBar] of Data3;
+		KTLDFlag[11] = True;
+	End;
+	KTLDFlag[12] = False;
+	TTBar = splatrf.tripletop(T1, T2, T3) of Data3;
+	If TTBar <> -1 Then Begin
+		KTLDText[12] = "TT";
+		KTLD[12] = High[TTBar] of Data3;
+		KTLDFlag[12] = True;
+	End;
+	For ix = 1 To KTLDs Begin
+		If KTLDFlag[ix] Then Begin
+			Result = splatrf.drawktl(Date, StartTime, EndTime, KTLD[ix], KTLDText[ix], Tool_Magenta, Width);
+		End;
+	End;
+End;
+
+{Intraday KTLs using Data2}
+
+If Time = StartTime and
+Date of Data2 > Date[1] of Data2 Then Begin
+	KTLIText[01] = "ORH";
+	KTLI[01] = High of Data2;
+ 	KTLIFlag[01] = True;
+	KTLIText[02] = "ORL";
+	KTLI[02] = Low of Data2;
+ 	KTLIFlag[02] = True;
+	For ix = 1 To KTLIs Begin
+		If KTLIFlag[ix] Then Begin
+			Result = splatrf.drawktl(Date, StartTime, EndTime, KTLI[ix], KTLIText[ix], Tool_White, Width);
+		End;
+	End;
+End;
+
+
+

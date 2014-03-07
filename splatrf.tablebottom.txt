@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.tablebottom
+Description	: Search for a Table Bottom
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	Count(Numeric),
+	ATRFactor(Numeric);
+
+Variables:
+	LCount(0),
+	LL(0),
+	LDiff(0.0),
+	il(0);
+
+LCount = 0;
+LL = Lowest(Low, Length)[1];
+LDiff = ATRFactor * Volatility(Length);
+For il = 1 To Length-1 Begin
+	If AbsValue(Low[il] - LL) <= LDiff Then
+		LCount = LCount + 1;
+End;
+
+If LCount >= Count and
+AbsValue(Low - LL) <= LDiff Then
+	splatrf.tablebottom = LCount
+Else
+	splatrf.tablebottom = 0;

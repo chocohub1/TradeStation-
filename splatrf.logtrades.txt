@@ -1,0 +1,54 @@
+{*******************************************************************
+Name		: splatrf.logtrades
+Description	: Log trade statistics to a file for import into R
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LogFileName(String),
+	Delimiter(String);
+
+Variables:
+	end1(0),
+	ents(""),
+	exd1(0),
+	exts(""),
+	StatsString("");
+
+splatrf.logtrades = False;
+
+{Log Closed Positions}
+
+If CurrentBar >= 1 Then Begin
+	If CurrentBar = 1 Then Begin
+		{Write header}
+		StatsString = "Symbol" + Delimiter +
+			"EntryDate" + Delimiter +
+			"EntryTime" + Delimiter +
+			"EntryPrice" + Delimiter +
+			"ExitDate" + Delimiter +
+			"ExitTime" + Delimiter +
+			"ExitPrice" + Delimiter +
+			"Profit" + NewLine;
+		FileAppend(LogFileName, StatsString);
+	End;
+	If BarsSinceExit(1) = 1 Then Begin
+		end1 = ELDateToDateTime(EntryDate(1));
+		ents = NumToStr(EntryTime(1), 0);
+		exd1 = ELDateToDateTime(ExitDate(1));
+		exts = NumToStr(ExitTime(1), 0);
+		StatsString = GetSymbolName + Delimiter +
+			DateToString(end1) + Delimiter +
+			LeftStr(ents, StrLen(ents) - 2) + ":" + RightStr(ents, 2) + ":00" + Delimiter +
+			NumToStr(EntryPrice(1), 4) + Delimiter +
+			DateToString(exd1) + Delimiter +
+			LeftStr(exts, StrLen(exts) - 2) + ":" + RightStr(exts, 2) + ":00" + Delimiter +
+			NumToStr(ExitPrice(1), 4) + Delimiter +
+			NumToStr(PositionProfit(1), 2) +
+			NewLine;
+		FileAppend(LogFileName, StatsString);
+	End;
+End;
+
+splatrf.logtrades = True;
+

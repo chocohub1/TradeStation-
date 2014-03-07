@@ -1,0 +1,44 @@
+{*******************************************************************
+Name		: splatrf.tail
+Description	: Search for a Tail Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Percent(Numeric),
+	RangeLength(Numeric);
+
+Variables:
+	RPOpen(0.0),
+	RPClose(0.0),
+	RPAve(0.0),
+	RangeHigh(0.0),
+	RangeLow(0.0),
+	RP25(0.25),
+	RP50(0.50);
+
+splatrf.tail = 0;
+
+RPOpen = splatrf.rangepct(Open, High, Low);
+RPClose = splatrf.rangepct(Close, High, Low);
+RPAve = (RPOpen + RPClose) / 2;
+RangeHigh = Highest(High, RangeLength);
+RangeLow = Lowest(Low, RangeLength);
+
+Condition1 = RPAve >= (1 - Percent);
+Condition2 = RPClose >= (1 - RP25);
+If (Condition1 or Condition2) and
+Low < Lowest(Low, RangeLength - 1)[1] and
+splatrf.rangepct(Low, RangeHigh, RangeLow) <= Percent and
+RPOpen > RP50 and
+RPClose > RP50 Then
+	splatrf.tail = 1;
+
+Condition1 = RPAve <= Percent;
+Condition2 = RPClose <= RP25;
+If (Condition1 or Condition2) and
+High > Highest(High, RangeLength - 1)[1] and
+splatrf.rangepct(High, RangeHigh, RangeLow) >= (1 - Percent) and
+RPOpen < RP50 and
+RPClose < RP50 Then
+	splatrf.tail = 2;

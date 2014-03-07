@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gapsignalup
+Description	: Test for a Gap Signal (GS) Bar Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric),
+	BarSegments(Numeric);
+
+splatrf.gapsignalup = False;
+
+If splatrf.signalup(Length, BarSegments) and
+High < Low[1] Then
+	splatrf.gapsignalup = True;

@@ -1,0 +1,41 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.symmetricpivot
+Description	: Draw the Symmetric Pivot pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(50),
+	Strength(5),
+	BullColor(Blue),
+	BearColor(Red);
+
+Variables:
+	PivotCount(0),
+	SymPivot(0),
+	Width(1),
+	Drawn(False);
+
+Arrays:
+	PivotMap[50, 4](0),
+	Pattern[5, 4](0),
+	SavedPattern[5, 4](0);
+
+{Find Pivots}
+
+PivotCount = splatrf.pivotmap(Length, 50, PivotMap);
+
+{Symmetric Pivot}
+
+SymPivot = splatrf.symmetricpivot(PivotCount, PivotMap, Strength, Pattern);
+If SymPivot <> 0 Then Begin
+	If splatrf.samepattern(SymPivot, Pattern, SavedPattern) = False Then Begin
+		If SymPivot > 0 Then
+			Drawn = splatrf.drawpattern(SymPivot, Pattern, BullColor, Width, "S")
+		Else
+			Drawn = splatrf.drawpattern(SymPivot, Pattern, BearColor, Width, "S");
+		Condition1 = splatrf.copypattern(SymPivot, Pattern, SavedPattern);
+	End;
+End;

@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*****************************************************************
+Name		: splatrf.highlowindex
+Description	: Calculate the High Low Index
+Provided By	: SplatR (c) Copyright 2013
+******************************************************************}
+
+Inputs:
+	Price(Numeric),
+	Length(Numeric);
+
+splatrf.highlowindex = 0;
+
+If Price[1] >= Highest(Price, Length - 1)[2] and
+Price < Price[1] Then
+	splatrf.highlowindex = 1
+Else If Price[1] <= Lowest(Price, Length - 1)[2] and
+Price > Price[1] Then
+	splatrf.highlowindex = 2;

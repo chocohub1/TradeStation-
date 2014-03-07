@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.floatturnover
+Description	: Display the turnover of the float on any given day
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	Threshold(5.0);
+
+Variables:
+	TheFloat(0.0);
+
+If TheFloat = 0.0 Then
+	TheFloat = splatrf.getfloat(GetSymbolName);
+
+If TheFloat > 0 Then Begin
+	Plot1(100 * Volume / TheFloat, "Float");
+	Plot2(Threshold, "FT");
+End;

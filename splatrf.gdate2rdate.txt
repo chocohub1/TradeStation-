@@ -1,0 +1,30 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gdate2rdate
+Description	: Convert a Gregorian date to an R.D. date
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	GMonth(Numeric),
+	GDay(Numeric);
+
+Variables:
+	RFactor(0);
+
+If GMonth <= 2 Then
+	RFactor = 0
+Else If GMonth > 2 and splatrf.gleapyear(GYear) Then
+	RFactor = -1
+Else
+	RFactor = -2;
+
+splatrf.gdate2rdate = 365 * (GYear - 1) +
+					  Floor((GYear - 1) / 4) -
+					  Floor((GYear - 1) / 100) +
+					  Floor((GYear - 1) / 400) +
+					  Floor(((367 * GMonth) - 362) / 12) +
+					  GDay + RFactor;

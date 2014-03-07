@@ -1,0 +1,38 @@
+[LegacyColorValue = true]; 
+
+{*****************************************************************
+Name		: splatrf.dec2binary
+Description	: Convert decimal to binary
+Provided By	: SplatR (c) Copyright 2013
+******************************************************************}
+
+Inputs:
+	Dec(Numeric),
+	OnBit(String),
+	OffBit(String),
+	Pad(Numeric);
+
+Variables:
+	num(0),
+	bin(""),
+	sl(0),
+	ip(0);
+
+num = Dec;
+bin = "";
+
+While num > 0 Begin
+	If Mod(num, 2) > 0 Then
+		bin = OnBit + bin
+	Else
+		bin = OffBit + bin;
+	num = IntPortion(num / 2);
+End;
+
+sl = StrLen(bin);
+For ip = 1 To Pad - sl Begin
+	bin = Offbit + bin;
+End;
+
+splatrf.dec2binary = bin;
+

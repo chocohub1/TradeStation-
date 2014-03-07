@@ -1,0 +1,44 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.nthbday
+Description	: Find the nth business day of the month
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	n(Numeric),
+	GYear(Numeric),
+	GMonth(Numeric);
+
+Variables:
+	RDate1(0),
+	ib(0),
+	id(0),
+	BDay(0),
+	Holidays(0),
+	ih(0);
+
+Arrays:
+	Holiday[20](0),
+	HolidayName[20]("");	
+
+RDate1 = splatrf.gdate2rdate(GYear, GMonth, 1);
+ib = 0;
+id = 0;
+While ib < n Begin
+	Value1 = splatrf.dayofweek(RDate1 + id);
+	If Value1 >= 1 and Value1 <= 5 Then
+		ib = ib + 1;
+	id = id + 1;
+End;
+BDay = RDate1 + id - 1;
+Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+ib = 0;
+For ih = 0 To Holidays-1 Begin
+	If Holiday[ih] >= RDate1 and Holiday[ih] <= BDay Then
+		ib = ib + 1;
+End;
+splatrf.nthbday = BDay + ib;
+

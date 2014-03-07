@@ -1,0 +1,44 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.drawktl
+Description	: Draw a Key Technical Level (KTL) line on an intraday chart
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	KTLDate(Numeric),
+	KTLStartTime(Numeric),
+	KTLEndTime(Numeric),
+	KTL(Numeric),
+	KTLText(String),
+	KTLColor(Numeric),
+	KTLWidth(Numeric);
+
+Variables:
+	KTLCode(0),
+	KTLStyle(0),
+	KTLLine(-1);
+
+splatrf.drawktl = True;
+
+KTLCode = Text_New(KTLDate, KTLStartTime, KTL, KTLText);
+IF KTLCode >= 0 Then Begin
+	KTLStyle = Text_SetStyle(KTLCode, 0, 1);
+	If KTLStyle >= 0 Then Begin
+		Text_SetColor(KTLCode, KTLColor);
+		KTLLine = TL_New(Date, Time, KTL, Date, Time, KTL);
+		If KTLLine >= 0 Then Begin
+			TL_SetEnd(KTLLine, Date, KTLEndTime, KTL);
+			TL_SetColor(KTLLine, KTLColor);
+			TL_SetSize(KTLLine, KTLWidth);
+		End Else Begin
+			splatrf.drawktl = False;
+		End;
+	End Else Begin
+		splatrf.drawktl = False;
+	End;
+End Else Begin
+	splatrf.drawktl = False;
+End;
+

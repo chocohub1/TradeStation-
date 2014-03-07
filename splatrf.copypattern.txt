@@ -1,0 +1,26 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.copypattern
+Description	: Copy a pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	InPattern[MaxSize1, MaxSize2](NumericArrayRef),
+	OutPattern[MaxSize3, MaxSize4](NumericArrayRef);
+
+Variables:
+	AbsPivots(0),
+	ip(0);
+
+splatrf.copypattern = False;
+AbsPivots = AbsValue(Pivots);
+For ip = 1 to AbsPivots Begin
+	OutPattern[ip, 0] = InPattern[ip, 0];
+	OutPattern[ip, 1] = InPattern[ip, 1];
+	OutPattern[ip, 2] = InPattern[ip, 2];
+	OutPattern[ip, 3] = InPattern[ip, 3];
+End;
+splatrf.copypattern = True;

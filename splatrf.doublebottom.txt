@@ -1,0 +1,32 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.doublebottom
+Description	: Find a double bottom formation
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(Numeric),
+	Strength(Numeric),
+	RangeFactor(Numeric);
+
+Variables:
+	RangeDelta(0.0),
+	HighPivot(0.0),
+	LowPivot(0.0),
+	LowMinimum(7);
+
+splatrf.doublebottom = -1;
+RangeDelta = RangeFactor * Volatility(LookbackBars);
+HighPivot = PivotHighVSBar(1, High, Strength, Strength, LookbackBars);
+LowPivot = PivotLowVSBar(1, Low, Strength, Strength, LookbackBars);
+
+If HighPivot <> -1 and
+LowPivot <> -1 and
+LowPivot >= LowMinimum and
+AbsValue(Low - Low[LowPivot]) <= RangeDelta and
+AbsValue(Low - Lowest(Low, LowPivot)) <= RangeDelta and
+HighPivot < LowPivot and
+Low <= Low[1] Then
+	splatrf.doublebottom = LowPivot;

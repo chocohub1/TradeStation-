@@ -1,0 +1,16 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.keyreversalup
+Description	: Test for a Key Reversal (KR) Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.keyreversalup = False;
+
+If Open > Close[1] and
+splatrf.reversalup(Length) Then
+	splatrf.keyreversalup = True;

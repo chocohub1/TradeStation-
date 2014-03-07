@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.martinlutherking
+Description	: Martin Luther King, Jr. Day
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	RMonday(1),
+	IMonth(1),
+	IDay(1);
+
+HString = "Martin Luther King, Jr. Day";
+splatrf.martinlutherking = splatrf.nthkday(3, RMonday, GYear, IMonth, IDay);
+

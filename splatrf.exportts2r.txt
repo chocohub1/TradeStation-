@@ -1,0 +1,912 @@
+{*******************************************************************
+Name		: splatrf.exportts2r
+Provided By	: SplatR (c) Copyright 2013
+Description : Export data from TradeStation for R Analysis
+********************************************************************}
+
+Inputs:
+	DOpen(Open of Data2),
+	DHigh(High of Data2),
+	DLow(Low of Data2),
+	DClose(Close of Data2),
+	DVolume(Volume of Data2),
+	DLength(5),
+	RLength(10),
+	WLength(20),
+	BarSegments(10),
+	PivotStrength(1),
+	Patterns(40),
+	SMALength(65),
+	FMALength(20),
+	KeltnerSD(5),
+	ATRCutoff(0.6),
+	SplitInterval(30),
+	SplitTime(1130),
+	ShowCommentary(False),
+	LogStats(False),
+	LogFile("c:\rdata.txt");
+
+Variables:
+	SN(""),
+	MinsPerHour(60),
+	BarsPerHour(0),
+	BarsInDay(0),
+	BarsPerSplit(0),
+	DayCount(0),
+	id(0),
+	BarCount(0),
+	ib(0),
+	LowBar(0),
+	HighBar(0),
+	SplitIndex(0),
+	SplitTotal(0),
+	iq(0),
+	RDate(0),
+	bdm(0),
+	bdw(0),
+	FirstDay(False),
+	LastDay(False),
+	ATR(0.0),
+	VP(0.0),
+	VPAve(0.0),
+	VPPct(0.0),
+	ADV(0.0),
+	VolPct(0.0),
+	GapRatio(0.0),
+	OpenRP(0.0),
+	RPOpen(0.0),
+	RPClose(0.0),
+	RPOZ(0),
+	RPCZ(0),
+	RPOIntraday(0.0),
+	RPOTZ(0),
+	RPCIntraday(0.0),
+	RPCTZ(0),
+	RPFrac(0.3333),
+	SepToday(0),
+	SMA(0.0),
+	FMA(0.0),
+	MADelta(0.0),
+	SD(0.0),
+	Zone(0.0),
+	UpCount(0),
+	DownCount(0),
+	TrendCount(0),
+	i1(0),
+	i2(0),
+	OD0(0.0),
+	HD0(0.0),
+	LD0(0.0),
+	CD0(0.0),
+	RD0(0.0),
+	OD1(0.0),
+	HD1(0.0),
+	LD1(0.0),
+	CD1(0.0),
+	RD1(0.0),
+	OGC1(False),
+	OLC1(False),
+	C1GO1(False),
+	C1LO1(False),
+	VGVP(False),
+	VLVP(False),
+	BitOn("1"),
+	BitOff("0"),
+	ReturnOC(0.0),
+	BarLength(0.0),
+	OD0Zone(0.0),
+	TLength(10),
+	TBars(2),
+	TFactor(0.5),
+	SSegments(3),
+	GPBLength(3),
+	SeqL(9),
+	SeqW(4),
+	RPDoji(0.3),
+	RPTO(0.1),
+	RPTC(0.2),
+	CCUp(False),
+	CCDown(False),
+	OCUp(False),
+	OCDown(False),
+	BrokeLow(False),
+	BrokeHigh(False),
+	TestedLow(False),
+	TestedHigh(False),
+	SeparationLow(False),
+	SeparationHigh(False),
+	ATRHigh(1.2),
+	ATRLow(0.8),
+	RangeAbove(False),
+	RangeBelow(False),
+	RangeLarge(False),
+	RangeSmall(False),
+	TrendDay(False),
+	TrendDayUp(False),
+	TrendDayDown(False),
+	ReversalDayUp(False),
+	ReversalDayDown(False),
+	BreakoutAM(False),
+	NarrowAM(False),
+	BreakoutPM(False),
+	COTick(0),
+	COString(""),
+	CCTick(0),
+	CCString(""),
+	VTick(0),
+	VString(""),
+	RRTick(0),
+	RRString(""),
+	RRAveString(""),
+	SepTick(0),
+	SepString(""),
+	SepAveString(""),
+	NCString(""),
+	NRString(""),
+	WRString(""),
+	ip(0),
+	PString(""),
+	RetString(""),
+	RTags(""),
+	RRecord("");
+
+Arrays:
+	COTickString[20](""),
+	CCTickString[20](""),
+	VolTickString[20](""),
+	RR[20](0.0),
+	RRAve[20](0.0),
+	RRTickString[20](""),
+	Separation[20](0),
+	SepAve[20](0),
+	SepTickString[20](""),
+	NC[20](0.0),
+	NRCount[20](0),
+	WRCount[20](0),
+	PatternString[100](""),
+    Pattern[100](False),
+	Returns[20](0.0),
+	HighQueue[20](0),
+	HQTotal[100](0),
+	HQPct[100](0.0),
+	LowQueue[20](0),
+	LQTotal[100](0),
+	LQPct[100](0.0),
+	Highs[500](0),
+	Lows[500](0);
+
+{Initialization}
+
+{Today's OHLC thus far}
+
+OD0 = OpenD(0);
+HD0 = HighD(0);
+LD0 = LowD(0);
+CD0 = CloseD(0);
+RD0 = HD0 - LD0;
+
+{Yesterday's OHLC}
+
+OD1 = OpenD(1);
+HD1 = HighD(1);
+LD1 = LowD(1);
+CD1 = CloseD(1);
+RD1 = HD1 - LD1;
+
+{Set up R Tags}
+
+If DayCount = 0 Then Begin
+	{Symbol Name of Chart}
+	SN = GetSymbolName;
+	{Calculate the bars per day}
+	Value1 = Sess1EndTime - Sess1StartTime;
+	Value2 = IntPortion(Value1 / 100);
+	Value3 = Mod(Sess1EndTime, 100);
+	Value4 = Mod(Sess1StartTime, 100);
+	Value5 = IFF(Value3 >= Value4, Value3 - Value4, MinsPerHour + Value3 - Value4);
+	BarsPerHour = MinsPerHour / BarInterval;
+	BarsInDay = (Value2 * MinsPerHour + Value5) / BarInterval;
+	BarsPerSplit = SplitInterval / BarInterval;
+	Value1 = SplitTime - Sess1StartTime;
+	Value2 = IntPortion(Value1 / 100);
+	Value3 = Mod(SplitTime, 100);
+	Value5 = IFF(Value3 >= Value4, Value3 - Value4, MinsPerHour + Value3 - Value4);
+	SplitTotal = IntPortion((Value2 * MinsPerHour + Value5) / SplitInterval);
+	{Define R Tags}
+	RTags = "";
+	RTags = RTags + "SDate BDM BDW BLen Sep LB HB ATR VP VPP VolP MAD TC OZ Gap ORP ";
+	RTags = RTags + "OGC1 OLC1 C1GO1 C1LO1 VGVP VLVP COTick CCTick VTick ";
+	RTags = RTags + "RRTick RR1 RR2 RR3 RR4 RR5 SepTick Sep1 Sep2 Sep3 Sep4 Sep5 ";
+	RTags = RTags + "NC1 NC2 NC3 NC4 NC5 ";
+	RTags = RTags + "NR1 NR2 NR3 NR4 NR5 NR6 NR7 NR8 NR9 NR10 ";
+	RTags = RTags + "WR1 WR2 WR3 WR4 WR5 WR6 WR7 WR8 WR9 WR10 ";
+	RTags = RTags + "IB OB BuH BeH 2BL 2BH RevU RevD KRU KRD ORU ORD OKRU OKRD ";
+	RTags = RTags + "SigU SigD GSU GSD SBRU SBRD GPU GPD SeqB SeqS GAS GBS CAS CBS ";
+	RTags = RTags + "FOS FBS NXAS NXBS Doji DDoji Ham IHam IDNR4 Spring UT TD ";
+	RTags = RTags + "TDate tRCO tR1 tR2 tR3 tR4 tR5 ";
+	RTags = RTags + "tBLen tSep tLB tHB tCCU tCCD tOCU tOCD tBL tBH tTL tTH tSL tSH ";
+	RTags = RTags + "tRA tRB tRL tRS tTD tTDU tTDD tRDU tRDD tBA tBP ";
+	RTags = RTags +	NewLine;
+	FileAppend(LogFile, RTags);
+	RRecord = "";
+End;
+
+{End of Day Calculations}
+
+If Date > Date[1] Then Begin
+	{Calculate Returns}
+	RetString = "";
+	For i1 = 1 To DLength Begin
+		Returns[i1] = IFF(DClose[i1] > 0, 100 * ((CD1 / DClose[i1]) - 1), 0);
+		RetString = RetString + NumToStr(Returns[i1], 2) + " ";
+	End;
+	{Close-to-Close Up?}
+	If Close[1] > DClose[1] Then
+		CCUp = True
+	Else
+		CCUp = False;
+	{Close-to-Close Down?}
+	If Close[1] < DClose[1] Then
+		CCDown = True
+	Else
+		CCDown = False;
+	{Open-to-Close Up?}
+	If Close[1] > DOpen[1] Then
+		OCUp = True
+	Else
+		OCUp = False;
+	{Open-to-Close Down?}
+	If Close[1] < DOpen[1] Then
+		OCDown = True
+	Else
+		OCDown = False;
+	{Separation <= N?}
+	SeparationLow = AbsValue(RPOIntraday - RPCIntraday) <= RPFrac;
+	{Separation >= N?}
+	SeparationHigh = AbsValue(RPOIntraday - RPCIntraday) >= (1 - RPFrac);
+	{ATR Above Average?}
+	RangeAbove = BarLength >= 1;
+	{ATR Below Average?}
+	RangeBelow = BarLength < 1;
+	{ATR Large?}
+	RangeLarge = BarLength >= ATRHigh;
+	{ATR Small?}
+	RangeSmall = BarLength <= ATRLow;
+	{Trend Day}
+	TrendDay = (RPOIntraday <= RPTO and RPCIntraday >= (1 - RPTC)) or
+			   (RPOIntraday >= (1 - RPTO) and RPCIntraday <= RPTC);
+	{Trend Day Up}
+	TrendDayUp = RPOIntraday <= RPTO and RPCIntraday >= (1 - RPTC);
+	{Trend Day Down}
+	TrendDayDown = RPOIntraday >= (1 - RPTO) and RPCIntraday <= RPTC;
+	{Reversal Day Up}
+	ReversalDayUp = TestedLow and RPCIntraday >= (1 - RPFrac);
+	{Reversal Day Down}
+	ReversalDayDown = TestedHigh and RPCIntraday <= RPFrac;
+	{Statistical Logging}
+	If LogStats Then Begin
+		{Fill in target data based on EOD Data}
+		RRecord = RRecord + NumToStr(Date[1], 0) + " ";
+		{Return Targets}
+		RRecord = RRecord + NumToStr(ReturnOC, 2) + " ";
+		RRecord = RRecord + RetString;
+		{Numeric Targets}
+		RRecord = RRecord + NumToStr(BarLength, 2) + " ";
+		RRecord = RRecord + NumToStr(SepToday, 0) + " ";
+		RRecord = RRecord + NumToStr(LowBar, 0) + " ";
+		RRecord = RRecord + NumToStr(HighBar, 0) + " ";
+		{Pattern Targets}
+		RRecord = RRecord + NumToStr(IFF(CCUp, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(CCDown, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(OCUp, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(OCDown, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(BrokeLow, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(BrokeHigh, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(TestedLow, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(TestedHigh, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(SeparationLow, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(SeparationHigh, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(RangeAbove, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(RangeBelow, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(RangeLarge, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(RangeSmall, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(TrendDay, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(TrendDayUp, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(TrendDayDown, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(ReversalDayUp, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(ReversalDayDown, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(BreakoutAM, 1, 0), 0) + " ";
+		RRecord = RRecord + NumToStr(IFF(BreakoutPM, 1, 0), 0) + " ";
+		RRecord = RRecord + NewLine;
+		{Log Previous Record}
+		FileAppend(LogFile, RRecord);
+		{Start Next Day's Record}
+		RRecord =
+			NumToStr(Date[1], 0) + " " +
+			{SOD Data}
+			NumToStr(bdm, 0) + " " +
+			NumToStr(bdw, 0) + " " +
+			NumToStr(BarLength, 2) + " " +
+			NumToStr(SepToday, 0) + " " +
+			NumToStr(LowBar, 0) + " " +
+			NumToStr(HighBar, 0) + " ";
+	End;
+End;
+
+{Intraday Calculations}
+
+BarLength = IFF(ATR > 0, RD0 / ATR, 0);
+SMA = Average(Close, SMALength);
+FMA = Average(Close, FMALength);
+SD = KeltnerChannel(Close, SMALength, 1) - SMA;
+MADelta = IFF(ATR > 0, AbsValue(FMA - SMA) / ATR, 0);
+Zone = IFF(SD > 0, (Close - SMA) / SD, 0);
+RPOIntraday = IFF(RD0 > 0,(OD0 - LD0) / RD0, 0);
+RPOTZ = splatrf.rpzone(RPOIntraday, BarSegments);
+RPCIntraday = IFF(RD0 > 0,(Close - LD0) / RD0, 0);
+RPCTZ = splatrf.rpzone(RPCIntraday, BarSegments);
+SepToday = AbsValue(RPOTZ - RPCTZ);
+ReturnOC = IFF(OD0 > 0, 100 * ((Close / OD0) - 1), 0);
+
+{Daily Calculations}
+
+If Date > Date[1] Then Begin
+	{Day Count}
+	DayCount = DayCount + 1;
+	id = DayCount;
+	{Calendar}
+	RDate = splatrf.tdate2rdate(ELDateToDateTime(Date));
+	{Business Day of Month}
+	bdm = splatrf.bizdaymonth(RDate);
+	{Business Day of Week}
+	bdw = splatrf.bizdayweek(RDate, FirstDay, LastDay);
+	{Average True Range}
+	ATR = Volatility(RLength) of Data2;
+	{Volatility Percentage}
+	VP = IFF(CD1 > 0, 100 * ATR / CD1, 0);
+	VPAve = Average(VP, WLength) of Data2;
+	VPPct = IFF(VPAve > 0, 100 * ((VP / VPAve) - 1), 0);
+	{Volume}
+	ADV = Average(Volume, WLength) of Data2;
+	VolPct = IFF(ADV > 0, 100 * ((DVolume / ADV) - 1), 0);
+	{Daily Trend Count}
+	If FMA > SMA Then Begin
+		UpCount = UpCount + 1;
+		DownCount = 0;
+	End;
+	If FMA < SMA Then Begin
+		DownCount = DownCount + 1;
+		UpCount = 0;
+	End;
+	If UpCount > 0 Then
+		TrendCount = UpCount
+	Else
+		TrendCount = -DownCount;
+	{Zones}
+	OD0Zone = IFF(SD > 0, (OD0 - SMA) / SD, 0);
+	{Gap Ratio}
+	GapRatio = IFF(ATR > 0, (OD0 - CD1) / ATR, 0);
+	{Open RP}
+	OpenRP = IFF(RD1 > 0, (OD0 - LD1) / RD1, 0);
+	{Period Relationships}
+	OGC1 = OD0 > CD1;
+	OLC1 = OD0 < CD1;
+	C1GO1 = CD1 > OD1;
+	C1LO1 = CD1 < OD1;
+	VGVP = VP > VPAve;
+	VLVP = VP < VPAve;
+	{Crabel Close-to-Open}
+	If OD0 > CD1 Then
+		COTickString[1] = BitOn
+	Else
+		COTickString[1] = BitOff;
+	For i1 = 1 To DLength - 1 Begin
+		If DClose[i1 - 1] > DClose[i1] Then
+			COTickString[i1 + 1] = BitOn
+		Else
+			COTickString[i1 + 1] = BitOff;
+	End;
+	COTick = 0;
+	COString = "";
+	For i1 = DLength DownTo 1 Begin
+		If COTickString[i1] = BitOn Then
+			COTick = COTick + 1
+		Else
+			COTick = COTick - 1;
+		COString = COString + COTickString[i1];
+	End;
+	{Crabel Close-to-Close}
+	For i1 = 1 To DLength Begin
+		If DClose[i1 - 1] > DClose[i1] Then
+			CCTickString[i1] = BitOn
+		Else
+			CCTickString[i1] = BitOff;
+	End;
+	CCTick = 0;
+	CCString = "";
+	For i1 = DLength DownTo 1 Begin
+		If CCTickString[i1] = BitOn Then
+			CCTick = CCTick + 1
+		Else
+			CCTick = CCTick - 1;
+		CCString = CCString + CCTickString[i1];
+	End;
+	{Volume Percentage}
+	For i1 = 1 To DLength Begin
+		If DVolume[i1 - 1] > DVolume[i1] Then
+			VolTickString[i1] = BitOn
+		Else
+			VolTickString[i1] = BitOff;
+	End;
+	VTick = 0;
+	VString = "";
+	For i1 = DLength DownTo 1 Begin
+		If VolTickString[i1] = BitOn Then
+			VTick = VTick + 1
+		Else
+			VTick = VTick - 1;
+		VString = VString + VolTickString[i1];
+	End;
+	{Daily Range Ratio}
+	For i1 = 1 To DLength Begin
+		RR[i1] = (DHigh[i1-1] - DLow[i1-1]) / ATR;
+	End;
+	For i1 = 1 To DLength Begin
+		RRAve[i1] = 0.0;
+		For i2 = 1 To i1 Begin
+			RRAve[i1] = RRAve[i1] + RR[i2];
+		End;
+		RRAve[i1] = RRAve[i1] / i1;
+	End;
+	For i1 = 1 To DLength - 1 Begin
+		If RR[i1] > RR[i1 + 1] Then
+			RRTickString[i1] = BitOn
+		Else
+			RRTickString[i1] = BitOff;
+	End;
+	RRTick = 0;
+	RRString = "";
+	For i1 = DLength - 1 DownTo 1 Begin
+		If RRTickString[i1] = BitOn Then
+			RRTick = RRTick + 1
+		Else
+			RRTick = RRTick - 1;
+		RRString = RRString + RRTickString[i1];
+	End;
+	RRAveString = "";
+	For i1 = 1 To DLength Begin
+		RRAveString = RRAveString + NumToStr(RRAve[i1], 2) + " ";
+	End;
+	{Daily Separation}
+	For i1 = 1 To DLength Begin
+		RPOpen = splatrf.rangepct(DOpen[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPOZ = splatrf.rpzone(RPOpen, BarSegments);
+		RPClose = splatrf.rangepct(DClose[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPCZ = splatrf.rpzone(RPClose, BarSegments);
+		Separation[i1] = AbsValue(RPOZ - RPCZ);
+	End;
+	For i1 = 1 To DLength Begin
+		SepAve[i1] = 0;
+		For i2 = 1 To i1 Begin
+			SepAve[i1] = SepAve[i1] + Separation[i2];
+		End;
+		SepAve[i1] = SepAve[i1] / i1;
+	End;
+	For i1 = 1 To DLength - 1 Begin
+		If Separation[i1] > Separation[i1 + 1] Then
+			SepTickString[i1] = BitOn
+		Else
+			SepTickString[i1] = BitOff;
+	End;
+	SepTick = 0;
+	SepString = "";
+	For i1 = DLength - 1 DownTo 1 Begin
+		If SepTickString[i1] = BitOn Then
+			SepTick = SepTick + 1
+		Else
+			SepTick = SepTick - 1;
+		SepString = SepString + SepTickString[i1];
+	End;
+	SepAveString = "";
+	For i1 = 1 To DLength Begin
+		SepAveString = SepAveString + NumToStr(SepAve[i1], 0) + " ";
+	End;
+	{Net Change}
+	For i1 = 1 To DLength Begin
+		NC[i1] = IFF(ATR > 0, AbsValue(DClose - DClose[i1]) / ATR, 0);
+	End;
+	NCString = "";
+	For i1 = 1 To DLength Begin
+		NCString = NCString + NumToStr(NC[i1], 2) + " ";
+	End;
+	{Narrowest and Widest Range}
+	For i1 = 1 To RLength Begin
+		NRCount[i1] = splatrf.narrowestrange(i1, WLength) of Data2;
+		WRCount[i1] = splatrf.widestrange(i1, WLength) of Data2;
+	End;
+	NRString = "";
+	WRString = "";
+	For i1 = 1 To RLength Begin
+		NRString = NRString + NumToStr(NRCount[i1], 0) + " ";
+		WRString = WRString + NumToStr(WRCount[i1], 0) + " ";
+	End;
+	{Daily Bar Patterns}
+	ip = 1;
+	PatternString[ip] = "Inside Bar"; {1}
+	Pattern[ip] = splatrf.insidebar of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Bar"; {2}
+	Pattern[ip] = splatrf.outsidebar of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Bull Hook"; {3}
+	Pattern[ip] = splatrf.hookup(ATR) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Bear Hook"; {4}
+	Pattern[ip] = splatrf.hookdown(ATR) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "2B Low"; {5}
+	Pattern[ip] = splatrf.testlow(TLength, TBars, TFactor) of Data2 > 0;
+	ip = ip + 1;
+	PatternString[ip] = "2B High"; {6}
+	Pattern[ip] = splatrf.testhigh(TLength, TBars, TFactor) of Data2 > 0;
+	ip = ip + 1;
+	PatternString[ip] = "Reversal Up"; {7}
+	Pattern[ip] = splatrf.reversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Reversal Down"; {8}
+	Pattern[ip] = splatrf.reversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Key Reversal Up"; {9}
+	Pattern[ip] = splatrf.keyreversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Key Reversal Down"; {10}
+	Pattern[ip] = splatrf.keyreversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Reversal Up"; {11}
+	Pattern[ip] = splatrf.outsidereversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Reversal Down"; {12}
+	Pattern[ip] = splatrf.outsidereversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Key Reversal Up"; {13}
+	Pattern[ip] = splatrf.outsidekeyreversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Key Reversal Down"; {14}
+	Pattern[ip] = splatrf.outsidekeyreversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Signal Up"; {15}
+	Pattern[ip] = splatrf.signalup(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Signal Down"; {16}
+	Pattern[ip] = splatrf.signaldown(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Signal Up"; {17}
+	Pattern[ip] = splatrf.gapsignalup(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Signal Down"; {18}
+	Pattern[ip] = splatrf.gapsignaldown(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Snapback Reversal Up"; {19}
+	Pattern[ip] = splatrf.snapbackup(SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Snapback Reversal Down"; {20}
+	Pattern[ip] = splatrf.snapbackdown(SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gann Pullback Up"; {21}
+	Pattern[ip] = splatrf.gannpullup(GPBLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gann Pullback Down"; {22}
+	Pattern[ip] = splatrf.gannpulldown(GPBLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Sequential Buy Setup"; {23}
+	Pattern[ip] = splatrf.sequentialbuy(SeqL, SeqW) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Sequential Sell Setup"; {24}
+	Pattern[ip] = splatrf.sequentialsell(SeqL, SeqW) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Above SMA"; {25}
+	Pattern[ip] = OD0 > SMA and CD1 < SMA[1];
+	ip = ip + 1;
+	PatternString[ip] = "Gap Below SMA"; {26}
+	Pattern[ip] = OD0 < SMA and CD1 > SMA[1];
+	ip = ip + 1;
+	PatternString[ip] = "Close Above SMA"; {27}
+	Pattern[ip] = CD1 > SMA[1] and Close[BarsInDay] < SMA[BarsInDay];
+	ip = ip + 1;
+	PatternString[ip] = "Close Below SMA"; {28}
+	Pattern[ip] = CD1 < SMA[1] and Close[BarsInDay] > SMA[BarsInDay];
+	ip = ip + 1;
+	PatternString[ip] = "FMA Over SMA"; {29}
+	Pattern[ip] = FMA[1] > SMA[1] and FMA[BarsInDay] < SMA[BarsInDay];
+	ip = ip + 1;
+	PatternString[ip] = "FMA Below SMA"; {30}
+	Pattern[ip] = FMA[1] < SMA[1] and FMA[BarsInDay] > SMA[BarsInDay];
+	ip = ip + 1;
+	Condition1 = AbsValue(CD1 - SMA[1]) <= SD;
+	Condition2 = AbsValue(FMA[1] - SMA[1]) <= SD;
+	PatternString[ip] = "Nexus Above SMA"; {31}
+	Pattern[ip] = CD1 > SMA[1] and Condition1 and Condition2;
+	ip = ip + 1;
+	PatternString[ip] = "Nexus Below SMA"; {32}
+	Pattern[ip] = CD1 < SMA[1] and Condition1 and Condition2;
+	ip = ip + 1;
+	PatternString[ip] = "Doji"; {33}
+	Pattern[ip] = splatrf.doji(RPDoji, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Double Doji"; {34}
+	Pattern[ip] = Pattern[ip - 1] and splatrf.doji(RPDoji, Open, High, Low, Close)[1] of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Hammer"; {35}
+	Pattern[ip] = splatrf.hammer(RPDoji, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Inverted Hammer"; {36}
+	Pattern[ip] = splatrf.invertedhammer(RPDoji, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "ID/NR4"; {37}
+	Pattern[ip] = splatrf.insidebar of Data2 and NRCount[1] >= 4;
+	ip = ip + 1;
+	PatternString[ip] = "Spring"; {38}
+	Pattern[ip] = splatrf.spring(PivotStrength, WLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Upthrust"; {39}
+	Pattern[ip] = splatrf.upthrust(PivotStrength, WLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Trend Day"; {40}
+	Pattern[ip] = splatrf.trendbar(RPTO, RPTC, DOpen, DHigh, DLow, DClose) of Data2;
+	PString = "";
+	For i1 = 1 To Patterns Begin
+		PString = PString + NumToStr(IFF(Pattern[i1], 1, 0), 0) + " ";
+	End;
+	{Intraday Range Statistics}
+	iq = Mod(DayCount, WLength);
+	If iq = 0 Then
+		iq = WLength;
+	If HighBar > 0 Then Begin
+		HighQueue[iq] = HighBar;
+		Highs[HighBar] = Highs[HighBar] + 1;
+		For SplitIndex = 1 To SplitTotal Begin
+			HQTotal[SplitIndex] = 0;
+			Value1 = SplitIndex * BarsPerSplit;
+			For Value2 = 1 To WLength Begin
+				If HighQueue[Value2] <= Value1 Then
+					HQTotal[SplitIndex] = HQTotal[SplitIndex] + 1;
+			End;
+			HQPct[SplitIndex] = HQTotal[SplitIndex] / WLength;
+		End;
+	End;
+	If LowBar > 0 Then Begin
+		LowQueue[iq] = LowBar;
+		Lows[LowBar] = Lows[LowBar] + 1;
+		For SplitIndex = 1 To SplitTotal Begin
+			LQTotal[SplitIndex] = 0;
+			Value1 = SplitIndex * BarsPerSplit;
+			For Value2 = 1 To WLength Begin
+				If LowQueue[Value2] <= Value1 Then
+					LQTotal[SplitIndex] = LQTotal[SplitIndex] + 1;
+			End;
+			LQPct[SplitIndex] = LQTotal[SplitIndex] / WLength;
+		End;
+	End;
+	CommentaryCL(NewLine, SN, " High Split Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	For SplitIndex = 1 To SplitTotal Begin
+		CommentaryCL("High Split[", NumToStr(SplitIndex, 0), "] = ", NumToStr(100 * HQPct[SplitIndex], 1), " %");
+	End;
+	CommentaryCL(NewLine, SN, " Low Split Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	For SplitIndex = 1 To SplitTotal Begin
+		CommentaryCL("Low Split[", NumToStr(SplitIndex, 0), "] = ", NumToStr(100 * LQPct[SplitIndex], 1), " %");
+	End;
+	CommentaryCL(NewLine, SN, " High Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	Value2 = 0;
+	For Value1 = 1 To BarsInDay Begin
+		Value2 = Value2 + Highs[Value1];
+		Value3 = 100 * Value2 / DayCount;
+		CommentaryCL("High[", NumToStr(Value1, 0), "] = ", NumToStr(Highs[Value1], 0),
+					 " (", NumToStr(100 * Highs[Value1] / DayCount, 1), "%, ", NumToStr(Value3, 1), "%)");
+	End;
+	CommentaryCL(NewLine, SN, " Low Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	Value2 = 0;
+	For Value1 = 1 To BarsInDay Begin
+		Value2 = Value2 + Lows[Value1];
+		Value3 = 100 * Value2 / DayCount;
+		CommentaryCL("Low[", NumToStr(Value1, 0), "] = ", NumToStr(Lows[Value1], 0),
+					 " (", NumToStr(100 * Lows[Value1] / DayCount, 1), "%, ", NumToStr(Value3, 1), "%)");
+	End;
+	Value2 = 0;
+	CommentaryCL(NewLine, SN, " HorL Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	For Value1 = 1 To BarsInDay Begin
+		Value2 = Value2 + Highs[Value1] + Lows[Value1];
+		Value3 = 100 * Value2 / (2 * DayCount);
+		CommentaryCL("HorL[", NumToStr(Value1, 0), "] = ", NumToStr(Highs[Value1] + Lows[Value1], 0),
+					 " (", NumToStr(100 * (Highs[Value1] + Lows[Value1]) / (2 * DayCount), 1), "%, ",
+					 NumToStr(Value3, 1), "%)");
+	End;
+	{Fill in daily record data}
+	RRecord = RRecord +
+		NumToStr(ATR, 2) + " " +
+		NumToStr(VP, 2) + " " +
+		NumToStr(VPPct, 2) + " " +
+		NumToStr(VolPct, 2) + " " +
+		NumToStr(MADelta, 2) + " " +
+		NumToStr(TrendCount, 0) + " " +
+		NumToStr(OD0Zone, 2) + " " +
+		NumToStr(GapRatio, 2) + " " +
+		NumToStr(OpenRP, 2) + " " +
+		NumToStr(IFF(OGC1, 1, 0), 0) + " " +
+		NumToStr(IFF(OLC1, 1, 0), 0) + " " +
+		NumToStr(IFF(C1GO1, 1, 0), 0) + " " +
+		NumToStr(IFF(C1LO1, 1, 0), 0) + " " +
+		NumToStr(IFF(VGVP, 1, 0), 0) + " " +
+		NumToStr(IFF(VLVP, 1, 0), 0) + " " +
+		NumToStr(COTick, 0) + " " +
+		NumToStr(CCTick, 0) + " " +
+		NumToStr(VTick, 0) + " " +
+		NumToStr(RRTick, 0) + " " +
+		RRAveString +
+		NumToStr(SepTick, 0) + " " +
+		SepAveString +
+		NCString +
+		NRString +
+		WRString +
+		PString;
+	{Initialize Counts}
+	BarCount = 1;
+	LowBar = 1;
+	HighBar = 1;
+	{Initialize Targets}
+	BrokeLow = False;
+	BrokeHigh = False;
+	TestedLow = False;
+	TestedHigh = False;
+	SeparationLow = False;
+	SeparationHigh = False;
+	RangeAbove = False;
+	RangeBelow = False;
+	RangeLarge = False;
+	RangeSmall = False;
+	TrendDay = False;
+	TrendDayUp = False;
+	TrendDayDown = False;
+	ReversalDayUp = False;
+	ReversalDayDown = False;
+	BreakoutAM = False;
+	NarrowAM = False;
+	BreakoutPM = False;
+End;
+
+{Intraday Conditions}
+
+If Low < LD1 Then Begin
+	BrokeLow = True;
+	TestedLow = False;
+End;
+
+If High > HD1 Then Begin
+	BrokeHigh = True;
+	TestedHigh = False;
+End;
+
+If BrokeLow and
+Close > LD1 Then Begin
+	TestedLow = True;
+	BrokeLow = False;
+End;
+
+If BrokeHigh and
+Close < HD1 Then Begin
+	TestedHigh = True;
+	BrokeHigh = False;
+End;
+
+If Time <= SplitTime and
+BarLength > ATRLow Then
+	BreakoutAM = True;
+
+If Time = SplitTime and
+BarLength <= ATRCutoff Then
+	NarrowAM = True;
+
+If Time > SplitTime and
+NarrowAM and
+BarLength >= 1 Then
+	BreakoutPM = True;
+
+If BarCount > 1 Then Begin
+	If Low < Low[BarCount - LowBar] Then
+		LowBar = BarCount;
+	If High > High[BarCount - HighBar] Then
+		HighBar = BarCount;
+End;
+
+{Intraday Commentary}
+
+If ShowCommentary Then Begin
+	{Daily Variables}
+	CommentaryCL(NewLine, SN, " DAILY ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Day Month   = ", NumToStr(bdm, 0));
+	CommentaryCL("Day Week    = ", NumToStr(bdw, 0));
+	CommentaryCL("ATR         = ", NumToStr(ATR, 1));
+	CommentaryCL("VP          = ", NumToStr(VP, 1));
+	CommentaryCL("VP Ave      = ", NumToStr(VPAve, 1));
+	CommentaryCL("Volume %    = ", NumToStr(VolPct, 1));
+	CommentaryCL("MA Delta    = ", NumToStr(MADelta, 1));
+	CommentaryCL("Trend Count = ", NumToStr(TrendCount, 0));
+	CommentaryCL("Zone Open   = ", NumToStr(OD0Zone, 1));
+	CommentaryCL("Gap (ATR)   = ", NumToStr(GapRatio, 2));
+	CommentaryCL("Open RP     = ", NumToStr(OpenRP, 2));
+	CommentaryCL(NewLine, "Period Relationships", NewLine);
+	CommentaryCL("O > C1      = ", OGC1);
+	CommentaryCL("O < C1      = ", OLC1);
+	CommentaryCL("C1 > O1     = ", C1GO1);
+	CommentaryCL("C1 < O1     = ", C1LO1);
+	CommentaryCL("VP > VP Ave = ", VGVP);
+	CommentaryCL("VP < VP Ave = ", VLVP);
+	CommentaryCL(NewLine, "Crabel", NewLine);
+	CommentaryCL("CO Sequence = ", COString);
+	CommentaryCL("CC Sequence = ", CCString);
+	CommentaryCL(NewLine, "Range Ratio", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Range Ratio (", NumToStr(i1, 0), ") = ", NumToStr(RR[i1], 2));
+	End;
+	CommentaryCL(NewLine, "Range Ratio Sequence = ", RRString);
+	CommentaryCL(NewLine, "Separation", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Separation (", NumToStr(i1, 0), ") = ", NumToStr(Separation[i1], 0));
+	End;
+	CommentaryCL(NewLine, "Separation Sequence = ", SepString);
+	CommentaryCL("Volume Sequence = ", VString);
+	CommentaryCL(NewLine, "Narrowest Range", NewLine);
+	For i1 = 1 To RLength Begin
+		CommentaryCL("NR Count (", NumToStr(i1, 0), ") = ", NumToStr(NRCount[i1], 0));
+	End;
+	CommentaryCL(NewLine, "Widest Range", NewLine);
+	For i1 = 1 To RLength Begin
+		CommentaryCL("WR Count (", NumToStr(i1, 0), ") = ", NumToStr(WRCount[i1], 0));
+	End;
+	CommentaryCL(NewLine, "Patterns", NewLine);
+	For i1 = 1 To Patterns Begin
+		CommentaryCL(PatternString[i1], " = ", Pattern[i1]);
+	End;
+	CommentaryCL(NewLine, "Returns", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Return (", NumToStr(i1, 0), ") = ", NumToStr(Returns[i1], 1));
+	End;
+	{Intraday Variables}
+	CommentaryCL(NewLine, SN, " INTRADAY ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Bar Length  = ", NumToStr(BarLength, 2));
+	CommentaryCL("Low Bar     = ", NumToStr(LowBar, 0));
+	CommentaryCL("High Bar    = ", NumToStr(HighBar, 0));
+	CommentaryCL("Zone CD0    = ", NumToStr(Zone, 1));
+	CommentaryCL("RP Open     = ", NumToStr(RPOIntraday, 2));
+	CommentaryCL("RP Close    = ", NumToStr(RPCIntraday, 2));
+	CommentaryCL("Separation  = ", NumToStr(SepToday, 0));
+	CommentaryCL("Return OC   = ", NumToStr(ReturnOC, 2));
+	{Binary Targets}
+	CommentaryCL(NewLine, SN, " TARGETS ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Close to Close Up   = ", CCUp);
+	CommentaryCL("Close to Close Down = ", CCDown);
+	CommentaryCL("Open to Close Up    = ", OCUp);
+	CommentaryCL("Open to Close Down  = ", OCDown);
+	CommentaryCL("Broke Low           = ", BrokeLow);
+	CommentaryCL("Broke High          = ", BrokeHigh);
+	CommentaryCL("Tested Low          = ", TestedLow);
+	CommentaryCL("Tested High         = ", TestedHigh);
+	CommentaryCL("Separation Low      = ", SeparationLow);
+	CommentaryCL("Separation High     = ", SeparationHigh);
+	CommentaryCL("Range Above Average = ", RangeAbove);
+	CommentaryCL("Range Below Average = ", RangeBelow);
+	CommentaryCL("Range Large         = ", RangeLarge);
+	CommentaryCL("Range Small         = ", RangeSmall);
+	CommentaryCL("Trend Day           = ", TrendDay);
+	CommentaryCL("Trend Day Up        = ", TrendDayUp);
+	CommentaryCL("Trend Day Down      = ", TrendDayDown);
+	CommentaryCL("Reversal Day Up     = ", ReversalDayUp);
+	CommentaryCL("Reversal Day Down   = ", ReversalDayDown);
+	CommentaryCL("Breakout AM         = ", BreakoutAM);
+	CommentaryCL("Breakout PM         = ", BreakoutPM);
+End;
+
+{Increment Intraday Bar Count}
+
+BarCount = BarCount + 1;
+
+{End of splatrf.exportts2r}

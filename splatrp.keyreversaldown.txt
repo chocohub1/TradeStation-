@@ -1,0 +1,13 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.keyreversaldown
+Description	: Show downwards key reversals
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(20);
+
+If splatrf.keyreversaldown(Length) Then
+	PlotPaintBar(High, Low, "KR Down");

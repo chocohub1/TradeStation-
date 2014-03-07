@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.hookdown
+Description	: Identify a Bear Hook pattern (Crabel)
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	ATR(Numeric);
+
+splatrf.hookdown = False;
+
+If Open > High[1] and
+Close < Close[1] and
+Range < ATR Then
+	splatrf.hookdown = True;

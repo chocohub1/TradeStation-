@@ -1,0 +1,140 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.float
+Description	: Look for float turnovers near the float channel lines
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{F Parameters}
+	FloatFactor(1.0),
+	BaseBars(7),
+	BaseFactor(0.25),
+	TableBars(3),
+	TableFactor(0.35),
+	{Filter Parameters}
+	FiltersOn(False),
+	FilterLength(14),
+	MinimumPrice(15),
+	{Position Parameters}
+	Equity(1000000),
+	RiskModel(3),
+	RiskPercent(1.0),
+	RiskATR(1.0),
+	EntryFactor(0.3),
+	DrawTargets(False);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	ATRLength(20),
+	MA(0.0),
+	MALength(50),
+	TradeFilter(True),
+	BuyStop(0.0),
+	ShortStop(0.0),
+	{F Variables}
+	TheFloat(0.0),
+	FloatHigh1(0.0),
+	FloatHigh2(0.0),
+	HighBaseCount(1),
+	FloatLow1(0.0),
+	FloatLow2(0.0),
+	LowBaseCount(1),
+	ATRDelta(0.0),
+	TableDelta(0.0),
+	ChannelWidth(0.0),
+	ChannelDelta(0.0);
+
+If TheFloat = 0.0 Then
+Begin
+	{Compute the number of base bars based on float turnover}
+
+	TheFloat = FloatFactor * splatrf.getfloat(GetSymbolName);
+
+End Else If TheFloat > 0.0 Then
+Begin
+	{Initialize variables}
+
+	ATR = Average(Range, ATRLength);
+	MA = Average(Close, MALength);
+	FloatHigh1 = splatrf.floatchannelhigh(TheFloat);
+	FloatLow1 = splatrf.floatchannellow(TheFloat);
+	ChannelWidth = FloatHigh1 - FloatLow1;
+
+	{Run trade filters}
+
+	If FiltersOn Then
+		TradeFilter = Close >= MinimumPrice;
+
+	If TradeFilter Then Begin
+
+		{Calculate shares based on risk model}
+		N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 100);
+
+		{Entry Signals}
+
+		BuyStop = High + (EntryFactor * ATR);
+		ShortStop = Low - (EntryFactor * ATR);
+		ATRDelta = BaseFactor * ATR;
+		TableDelta = TableFactor * ATR;
+		ChannelDelta = BaseFactor * ChannelWidth;
+
+		If HighBaseCount >= BaseBars and
+		AbsValue(FloatHigh1 - FloatHigh2) <= ATRDelta and
+		Highest(High, TableBars) - Lowest(High, TableBars) <= TableDelta and
+		Close > MA and
+	 	High > (FloatHigh1 - TableDelta) Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("F", BuyStop, 0, 0, 0);
+			Buy("LE FB") N Shares Next Bar at BuyStop Stop;
+		End;
+
+		If LowBaseCount >= BaseBars and
+		AbsValue(FloatLow1 - FloatLow2) <= ATRDelta and
+		Highest(Low, TableBars) - Lowest(Low, TableBars) <= TableDelta and
+		Close < MA and
+		Low < (FloatLow1 + TableDelta) Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("F", 0, 0, ShortStop, 0);
+			Sell Short("SE FB") N Shares Next Bar at ShortStop Stop;
+		End;
+
+		If Low <= (FloatLow1 + EntryFactor) and
+		DMIPlus(FilterLength) > DMIMinus(FilterLength) and
+		Close > MA and
+		BuyStop < (FloatLow1 + ChannelDelta) Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("F", BuyStop, 0, 0, 0);
+			Buy("LE FP") N Shares Next Bar on BuyStop Stop;
+		End;
+
+		If High >= (FloatHigh1 - EntryFactor) and
+		DMIMinus(FilterLength) > DMIPlus(FilterLength) and
+		Close < MA and
+		ShortStop > (FloatHigh1 - ChannelDelta) Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("F", 0, 0, ShortStop, 0);
+			Sell Short("SE FP") N Shares Next Bar on ShortStop Stop;
+		End;
+	End;
+
+	{Calculate running base count and changing float channel values}
+
+	If AbsValue(FloatHigh1 - FloatHigh2) <= ATRDelta Then
+		HighBaseCount = HighBaseCount + 1
+	Else
+		HighBaseCount = 1;
+	FloatHigh2 = FloatHigh1;
+
+	If AbsValue(FloatLow1 - FloatLow2) <= ATRDelta Then
+		LowBaseCount = LowBaseCount + 1
+	Else
+		LowBaseCount = 1;
+	FloatLow2 = FloatLow1;
+End;

@@ -1,0 +1,19 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gsubtract
+Description	: Subtract two Gregorian dates
+Provided By	: SplatR (c) Copyright 2004
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear1(Numeric),
+	GMonth1(Numeric),
+	GDay1(Numeric),
+	GYear2(Numeric),
+	GMonth2(Numeric),
+	GDay2(Numeric);
+
+splatrf.gsubtract = splatrf.gdate2rdate(GYear2, GMonth2, GDay2) -
+					splatrf.gdate2rdate(GYear1, GMonth1, GDay1);

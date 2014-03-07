@@ -1,0 +1,13 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.keyreversalup
+Description	: Show upwards key reversals
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(20);
+
+If splatrf.keyreversalup(Length) Then
+	PlotPaintBar(High, Low, "KR Up");

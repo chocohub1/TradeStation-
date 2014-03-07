@@ -1,0 +1,101 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.rectangle
+Description	: Look for Rectangle Breakouts
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{Position Parameters}
+	Equity(100000),
+	RiskModel(3),
+	RiskPercent(1),
+	RiskATR(1),
+	{R Parameters}
+	Lookback(20),
+	EntryFactor(0.15),
+	{Filter Parameters}
+	FiltersOn(False),
+	VPMinimum(3.5),
+	ADXMinimum(25),
+	DrawTargets(False);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	VP(0.0),
+	AV(0.0),
+	ADXValue(0.0),
+	ADXLength(14),
+	DMIP(0.0),
+	DMIM(0.0),
+	MA(0.0),
+	MALength(50),
+	RP(0.0),
+	RPFactor(0.5),
+	RPLength(11),
+	TradeFilter(True),
+	BuyStop(0.0),
+	ShortStop(0.0),
+	ShortMin(5),
+	{R Variables}
+	InRectangle(False),
+	RectangleHigh(0.0),
+	RectangleLow(0.0),
+	RLength(0),
+	R1(False),
+	R11(4),
+	R12(13),
+	R13(1.0),
+	R14(0.35),
+	R2(False),
+	R21(3),
+	R22(9),
+	R23(0.9),
+	R24(0.35);
+
+ATR = Volatility(Lookback);
+VP = splatrf.volatilitypercentage(Lookback);
+AV = Average(Volume, Lookback);
+ADXValue = ADX(ADXLength);
+DMIP = DMIPlus(RPLength);
+DMIM = DMIMinus(RPLength);
+MA = Average(Close, MALength);
+
+If FiltersOn Then
+	TradeFilter = VP >= VPMinimum and
+				  ADXValue >= ADXMinimum;
+
+If TradeFilter Then Begin
+
+	{Calculate shares based on risk model}
+	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Lookback, 1000);
+
+	{Determine whether or not we are in a rectangle}
+	R1 = splatrf.rectangular(R11, R12, R13, R14, Lookback);
+	R2 = splatrf.rectangular(R21, R22, R23, R24, Lookback);
+	InRectangle = R1 or R2;
+	If InRectangle Then Begin
+		If R1 Then RLength = R11 Else RLength = R21;
+	    RectangleHigh = Highest(High, RLength);
+	    RectangleLow = Lowest(Low, RLength);
+	    BuyStop = RectangleHigh + (EntryFactor * ATR);
+	    ShortStop = RectangleLow - (EntryFactor * ATR);
+		RP = splatrf.rangepct(Close, Highest(High, RPLength), Lowest(Low, RPLength));
+		If RP <= (1 - RPFactor) Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("R", BuyStop, 0, 0, 0);
+			Buy("LE R") N Shares Next Bar on BuyStop Stop;
+		End;
+		If Close < MA and
+		RP >= RPFactor and
+		Close >= ShortMin Then Begin
+			{Draw Entry Targets on the Chart}
+			If DrawTargets Then
+				Condition1 = splatrf.plotentrytargets("R", 0, 0, ShortStop, 0);
+			Sell Short("SE R") N Shares Next Bar on ShortStop Stop;
+		End;
+	End;
+End;

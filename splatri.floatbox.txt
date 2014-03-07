@@ -1,0 +1,79 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.floatbox
+Description	: Plot the upper and lower float indicator lines
+Provided By	: SplatR (c) Copyright 2013
+
+Note		: This is an implementation of the Cumulative-Volume
+			  Float Indicator described on Page 74 of the book
+			  "The Precision Profit Float Indicator" by Steve Woods
+
+			  Three dashed lines have been added to indicate
+			  Fibonacci retracement levels at the 38%, 50%, and
+			  62% mark.
+********************************************************************}
+ 
+Inputs:
+	FloatFactor(1.0);
+
+Variables:
+	TheFloat(0.0),
+	FloatBars(0),
+	FloatHigh(0.0),
+	FloatLow(0.0),
+	Float38(0.0),
+	Float50(0.0),
+	Float62(0.0),
+	PlotColor(Black),
+	UpperLine(-1),
+	LowerLine(-1),
+	Line38(-1),
+	Line50(-1),
+	Line62(-1);
+
+If LastBarOnChart Then Begin
+	FloatBars = 0;
+	TheFloat = FloatFactor * splatrf.getfloat(GetSymbolName);
+	If TheFloat > 0 Then Begin
+		FloatBars = splatrf.getfloatbar(TheFloat);
+		If FloatBars > 0 Then Begin
+			FloatHigh = splatrf.floatchannelhigh(TheFloat);
+			FloatLow = splatrf.floatchannellow(TheFloat);
+			If GetBackGroundColor = 1 Then
+				PlotColor = White;
+			UpperLine = TL_New(Date[0], Time[0], FloatHigh, Date[FloatBars], Time[FloatBars], FloatHigh);
+			If UpperLine >= 0 Then Begin
+				TL_SetColor(UpperLine, PlotColor);
+				TL_SetSize(UpperLine, 1);
+			End;
+			LowerLine = TL_New(Date[0], Time[0], FloatLow, Date[FloatBars], Time[FloatBars], FloatLow);
+			If LowerLine >= 0 Then Begin
+				TL_SetColor(LowerLine, PlotColor);
+				TL_SetSize(LowerLine, 1);
+			End;
+			Float38 = FloatHigh - 0.38 * (FloatHigh - FloatLow);
+			Line38 = TL_New(Date[0], Time[0], Float38, Date[FloatBars], Time[FloatBars], Float38);
+			If Line38 >= 0 Then Begin
+				TL_SetStyle(Line38, Tool_Dashed);
+				TL_SetColor(Line38, PlotColor);
+				TL_SetSize(Line38, 0);
+			End;
+			Float50 = FloatHigh - 0.50 * (FloatHigh - FloatLow);
+			Line50 = TL_New(Date[0], Time[0], Float50, Date[FloatBars], Time[FloatBars], Float50);
+			If Line50 >= 0 Then Begin
+				TL_SetStyle(Line50, Tool_Dashed);
+				TL_SetColor(Line50, PlotColor);
+				TL_SetSize(Line50, 0);
+			End;
+			Float62 = FloatHigh - 0.62 * (FloatHigh - FloatLow);
+			Line62 = TL_New(Date[0], Time[0], Float62, Date[FloatBars], Time[FloatBars], Float62);
+			If Line62 >= 0 Then Begin
+				TL_SetStyle(Line62, Tool_Dashed);
+				TL_SetColor(Line62, PlotColor);
+				TL_SetSize(Line62, 0);
+			End;
+		End;
+	End;
+End;
+

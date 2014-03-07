@@ -1,0 +1,31 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.cobra
+Description	: Search for the Cobra Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Percent(Numeric),
+	RangeFactor(Numeric);
+
+Variables:
+	RPOpen(0.0),
+	RPClose(0.0),
+	Length(20);
+
+splatrf.cobra = 0;
+
+RPOpen = splatrf.rangepct(Open, High, Low);
+RPClose = splatrf.rangepct(Close, High, Low);
+
+If RPOpen <= Percent and
+RPClose >= (1 - Percent) and
+Range <= RangeFactor * Average(Range, Length) Then
+	splatrf.cobra = 1;
+
+If RPOpen >= (1 - Percent) and
+RPClose <= Percent and
+Range <= RangeFactor * Average(Range, Length) Then
+	splatrf.cobra = 2;

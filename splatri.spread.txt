@@ -1,0 +1,46 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.spread
+Description	: Plot the Spread between 2 securities
+Provided By	: SplatR (c) 2013
+
+Requirements
+------------
+
+Data1:	Stock 1 Intraday
+Data2:	Stock 2 Intraday
+Data3:	Stock 1 Daily (hidden)
+Data4:	Stock 2 Daily (hidden)
+********************************************************************}
+
+Inputs:
+	VolatilityFactor(1.5),
+	Length(30);
+
+Variables:
+	HV1(0.0),
+	HV2(0.0),
+	CV(0.0),
+	VolatilityBand(0.0),
+	VolatilityConstant(0.0629941),
+	UpperBand(0.0),
+	LowerBand(0.0),
+	Spread(0.0);
+
+If Date <> Date[1] Then Begin
+	HV1 = splatrf.volatility(Length) of Data3;
+	HV2 = splatrf.volatility(Length) of Data4;
+	CV = Correlation(Close[1] of Data3, Close[1] of Data4, Length);
+	VolatilityBand = VolatilityConstant * (HV1 + HV2) * (1 - CV);
+	UpperBand = VolatilityFactor * VolatilityBand;
+	LowerBand = VolatilityFactor * (-VolatilityBand);
+End;
+
+Spread = (Close of Data1 / Close[1] of Data3) - (Close of Data2 / Close[1] of Data4);
+Plot1(Spread, "Spread");
+Plot2(UpperBand, "UB");
+Plot3(0, "Zero");
+Plot4(LowerBand, "LB");
+
+

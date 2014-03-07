@@ -1,0 +1,70 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.trademanager
+Description	: Original PST Trade Manager
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	SystemID(""),
+	{Position Management Parameters}
+	ExitFactor(0.25),
+	StopBars(1),
+	ProfitTarget(True),
+	ProfitFactor(0.9),
+	HoldBars(5),
+	DrawTargets(True),
+	{Trade Logging}
+	LogTrades(False),
+	LogFile("Orders.txt");
+
+Variables:
+	ATR(0.0),
+	ATRLength(20),
+	ATRFactor(0.0),
+	ProfitBars(0),
+	SellStop(0.0),
+	SellTarget1(0.0),
+	SellTarget2(0.0),
+	CoverStop(0.0),
+	CoverTarget1(0.0),
+	CoverTarget2(0.0);
+
+ATR = Volatility(ATRLength);
+ATRFactor = ProfitFactor * ATR;
+ProfitBars = IntPortion(HoldBars/2);
+
+SellStop = Lowest(Low, StopBars) - (ExitFactor * ATR);
+Sell("PST LX-") Next Bar at SellStop Stop;
+If ProfitTarget Then Begin
+	SellTarget1 = High + ATRFactor;
+	Sell("PST LX+") CurrentContracts/2 Shares Next Bar at SellTarget1 Limit;
+	SellTarget2 = High[ProfitBars] + (2 * ATRFactor);
+	Sell("PST LX++") CurrentContracts/2 Shares Next Bar at SellTarget2 Limit;
+End;
+If BarsSinceEntry >= HoldBars - 1 Then
+	Sell("PST LX") Next Bar on Open;
+
+CoverStop = Highest(High, StopBars) + (ExitFactor * ATR);
+Buy to Cover("PST SX-") Next Bar at CoverStop Stop;
+If ProfitTarget Then Begin
+	CoverTarget1 = Low - ATRFactor;
+	Buy to Cover("PST SX+") CurrentContracts/2 Shares Next Bar at CoverTarget1 Limit;
+	CoverTarget2 = Low[ProfitBars] - (2 * ATRFactor);
+	Buy to Cover("PST SX++") CurrentContracts/2 Shares Next Bar at CoverTarget2 Limit;
+End;
+If BarsSinceEntry >= HoldBars - 1 Then
+	Buy to Cover("PST SX") Next Bar on Open;
+
+{Draw Exit Targets on the Chart}
+If DrawTargets Then
+	If MarketPosition = 1 Then
+		Condition1 = splatrf.plotexittargets(SystemID, SellStop, SellTarget1, SellTarget2)
+	Else If MarketPosition = -1 Then
+		Condition1 = splatrf.plotexittargets(SystemID, CoverStop, CoverTarget1, CoverTarget2);
+
+{Log Trades for Spreadsheet Export}
+If (LogTrades) Then
+	Condition1 = splatrf.logtrades(LogFile, SystemID);
+

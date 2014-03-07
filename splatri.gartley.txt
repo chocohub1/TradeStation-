@@ -1,0 +1,42 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.gartley
+Description	: Draw the Gartley pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(50),
+	Strength(5),
+	BullColor(Green),
+	BearColor(Red),
+	F1(0.618);
+
+Variables:
+	PivotCount(0),
+	Gartley(0),
+	Width(1),
+	Drawn(False);
+
+Arrays:
+	PivotMap[50, 4](0),
+	Pattern[5, 4](0),
+	SavedPattern[5, 4](0);
+
+{Find Pivots}
+
+PivotCount = splatrf.pivotmap(Length, 50, PivotMap);
+
+{Gartley}
+
+Gartley = splatrf.gartley(PivotCount, PivotMap, Strength, Pattern, F1);
+If Gartley <> 0 Then Begin
+	If splatrf.samepattern(Gartley, Pattern, SavedPattern) = False Then Begin
+		If Gartley > 0 Then
+			Drawn = splatrf.drawpattern(Gartley, Pattern, BullColor, Width, "G")
+		Else
+			Drawn = splatrf.drawpattern(Gartley, Pattern, BearColor, Width, "G");
+		Condition1 = splatrf.copypattern(Gartley, Pattern, SavedPattern);
+	End;
+End;

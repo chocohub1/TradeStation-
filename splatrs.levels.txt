@@ -1,0 +1,171 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.levels
+Description	: Level System
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{Money Management}
+	Equity(2000000),
+	Allocation(1),
+	RiskModel(3),
+	RiskPercent(2),
+	{System Parameters}
+	ATR1Length(2),
+	ATR2Length(10),
+	ORTime(0950),
+	StartTime(1030),
+	EndTime(1600),
+	MinimumLevels(12),
+	RangePercentage(0.7),
+	GapMinimum(0.25),
+	ORMaximum(0.35),
+	{Logging}
+	LogTrades(False),
+	LogFile("Lorders.txt");
+
+Variables:
+	StartDay(False),
+	DayCount(0),
+	id(0),
+	BarCount(0),
+	ATR1(0.0),
+	ATR2(0.0),
+	ATRTarget(0.0),
+	ATRPercent(0.0),
+	ATRPercentPrev(0.0),
+	ATRVolume(0.0),
+	ATRDist(0.0),
+	OD1(0.0),
+	HD1(0.0),
+	LD1(0.0),
+	CD1(0.0),
+	RD1(0.0),
+	OD(0.0),
+	HD(0.0),
+	LD(0.0),
+	CD(0.0),
+	RD(0.0),
+	TH(0.0),
+	TL(0.0),
+	TR(0.0),
+	TickSumToday(0),
+	TickAveToday(0),
+	N(0),
+	LevelCount(0),
+	{Opening Range}
+	ORHigh(0.0),
+	ORLow(0.0),
+	ORRange(0.0),
+	ORRatio(0.0),
+	ORCondition(False),
+	{Gaps}
+	Gap(0.0),
+	GapRatio(0.0),
+	GapCondition(False),
+	{Separation}
+	Separation(0.0),
+	SepMax(0.7),
+	{Air Pocket}
+	AirPocket(0.0),
+	APPercent(0.0);
+
+Arrays:
+	TickSum[50, 500](0),
+	TickAve[50, 500](0),
+	RR[50, 500](0);
+
+If Time < Time[1] Then
+	StartDay = True
+Else
+	StartDay = False;
+
+If StartDay Then Begin
+	OD1 = OpenD(1);
+	HD1 = HighD(1);
+	LD1 = LowD(1);
+	CD1 = CloseD(1);
+	RD1 = HD1 - LD1;
+	DayCount = DayCount + 1;
+	id = Mod(DayCount, ATR2Length);
+	If id = 0 Then id = ATR2Length;
+	BarCount = 1;
+	ATR1 = Average(Range, ATR1Length) of Data3;
+	ATR2 = Average(Range, ATR2Length) of Data3;
+	ATRTarget = IFF(ATR1 > 0, ATR2 / ATR1, 0);
+	TickSumToday = 0;
+	LevelCount = 0;
+	{Separation}
+	Separation = IFF(RD1 > 0, AbsValue(CD1 - OD1) / RD1, 0);
+	{Gap Ratio}
+	Gap = AbsValue(OpenD(0) - CD1);
+	GapRatio = Gap / ATR2;
+	GapCondition = GapRatio >= GapMinimum;
+	{Position Sizing}
+	N = 1000;
+End;
+
+If ATR2 > 0 and
+Time = ORTime Then Begin
+	{Opening Range}
+	ORHigh = High of Data2;
+	ORLow = Low of Data2;
+	ORRange = ORHigh - ORLow;
+	ORRatio = ORRange / ATR2;
+	ORCondition = ORRatio <= ORMaximum;
+End;
+
+If DayCount > 0 and
+ATR1 > 0 and
+ATR2 > 0 Then Begin
+	HD = HighD(0);
+	LD = LowD(0);
+	RD = HD - LD;
+	TH = MaxList(HD, CD);
+    TL = MinList(LD, CD);
+	TR = HD - LD;
+	ATRPercent = IFF(ATR2 > 0, TR / ATR2, 0);
+	If ATRPercent = ATRPercentPrev Then
+		LevelCount = LevelCount + 1
+	Else
+		LevelCount = 0;
+	ATRPercentPrev = ATRPercent;
+	{Volume Percentage}
+	TickSumToday = TickSumToday + Volume;
+	TickSum[id, BarCount] = TickSumToday;
+	TickAveToday = 0;
+	For Value1 = 1 to ATR2Length Begin
+		TickAveToday = TickAveToday + TickSum[Value1, BarCount];
+	End;
+	TickAve[id, BarCount] = IFF(ATR2Length > 0, TickAveToday / ATR2Length, 0);
+	ATRVolume = IFF(TickAve[id, BarCount] > 0, TickSumToday / TickAve[id, BarCount], 0);
+	{ATR Distribution}
+	RR[id, BarCount] = IFF(ATR2 > 0, (HD - LD) / ATR2, 0);
+	ATRDist = 0.0;
+	For Value1 = 1 to ATR2Length Begin
+		ATRDist = ATRDist + RR[Value1, BarCount];
+	End;
+	ATRDist = IFF(ATR2Length > 0, ATRDist / ATR2Length, 0);
+	{Air Pocket}
+	AirPocket = ATRDist - ATRPercent;
+	APPercent = IFF(ATRDist > 0, ATRPercent / ATRDist, 0);
+	{Increment Bar Count}
+	BarCount = BarCount + 1;
+End;
+
+If Time >= StartTime and
+Time < EndTime and
+Separation <= SepMax and
+ATRPercent <= RangePercentage and
+LevelCount >= MinimumLevels Then Begin
+	Buy("LE L") N Shares Next Bar at HD + 1 Point Stop;
+	SellShort("SE L") N Shares Next Bar at LD - 1 Point Stop;
+End;
+
+SetExitOnClose;
+
+If LogTrades Then
+	Condition1 = splatrf.logtrades(LogFile, "L");
+

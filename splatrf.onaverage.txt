@@ -1,0 +1,18 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.onaverage
+Description	: Is the current bar sitting on the moving average?
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+Variables:
+	MA(0.0);
+
+splatrf.onaverage = False;
+MA = Average(Close, Length);
+If MA >= Low and MA <= High Then
+	splatrf.onaverage = True;

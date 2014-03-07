@@ -1,0 +1,39 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.rectangular
+Description	: Determine whether the region is a rectangle
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RectangleLength(Numeric),
+	RangeLength(Numeric),
+	RangeFactor(Numeric),
+	RangeRatio(Numeric),
+	VLength(Numeric);
+
+Variables:
+	ATR(0.0),
+	RectangleHigh(0.0),
+	RectangleLow(0.0),
+	RectangleRange(0.0),
+	RangeHigh(0.0),
+	RangeLow(0.0),
+	RangeRange(0.0);
+
+splatrf.rectangular = False;
+ATR = Volatility(VLength);
+
+RectangleHigh = Highest(High, RectangleLength);
+RectangleLow = Lowest(Low, RectangleLength);
+RectangleRange = RectangleHigh - RectangleLow;
+
+RangeHigh = Highest(High, RangeLength)[RectangleLength];
+RangeLow = Lowest(Low, RangeLength)[RectangleLength];
+RangeRange = RangeHigh - RangeLow;
+
+If RectangleRange > 0 and RangeRange > 0 Then
+	If (RectangleRange / RangeRange) <= RangeRatio and
+	RectangleRange <= RangeFactor * ATR Then
+		splatrf.rectangular = True;

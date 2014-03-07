@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.rangeratio
+Description	: Calculate the ratio of two bar ranges
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length1(2),
+	Length2(7),
+	LowerLimit(.8),
+	UpperLimit(1.2);
+
+Plot2(LowerLimit, "Lower Limit");
+Plot3(UpperLimit, "Upper Limit");
+Plot1(splatrf.rangeratio(Length1, Length2), "RR");
+
+
+
+

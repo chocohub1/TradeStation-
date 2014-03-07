@@ -1,0 +1,22 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************
+Name		: splatrp.narrowestrange
+Description	: Display the narrowest range bar in n bars 
+Provided By	: SplatR (c) Copyright 2013
+*******************************************************}
+
+Inputs:
+	RangeLength(7),
+	PeriodLength(30);
+
+If splatrf.narrowestrange(RangeLength, PeriodLength) Then Begin
+ 	PlotPaintBar(High, Low, "NR");
+	Alert("NR Alert");
+End
+Else Begin
+	{Both NoPlot statements must be included}
+	NoPlot(1);
+	NoPlot(2);
+End;
+

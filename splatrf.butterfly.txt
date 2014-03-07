@@ -1,0 +1,120 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.butterfly
+Description	: Identify the Butterfly Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	PM[MaxSize1, MaxSize2](NumericArrayRef),
+	Strength(NumericSimple),
+	Pattern[MaxSize3, MaxSize4](NumericArrayRef),
+	F1(NumericSimple);
+
+Variables:
+	PatternPivots(4),
+	p1(0),
+	p2(0),
+	p3(0),
+	p4(0),
+	v1(0.0),
+	v2(0.0),
+	v3(0.0),
+	v4(0.0),
+	s1(0.0),
+	s2(0.0),
+	s3(0.0),
+	s4(0.0),
+	s5(0.0);
+
+splatrf.butterfly = 0;
+If Pivots >= PatternPivots and Strength >= 1 Then Begin
+	{Bullish Butterfly}
+	p2 = splatrf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
+	p1 = splatrf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
+	If p2 >= 0 and p1 >= 0 and
+	p2 < p1 Then Begin
+		v2 = High[PM[p2, 0]];
+		v1 = Low[PM[p1, 0]];
+		p3 = splatrf.pivotlow(Pivots, PM, 0, p2-1, Strength);
+		If p3 >= 0 and v2 > v1 Then Begin
+			v3 = Low[PM[p3, 0]];
+			p4 = splatrf.pivothigh(Pivots, PM, 0, p3-1, Strength);
+			If p4 >= 0 and v3 > v1 and v3 < v2 Then Begin
+				v4 = High[PM[p4, 0]];
+				If v4 > v3 and v4 < v2 Then Begin
+					s1 = v2 - v1;
+					s2 = v2 - v3;
+					s3 = v4 - v3;
+					s4 = v4 - Close;
+					s5 = v2 - Close;
+					If s2 < s1 and s3 < s2 and s4 > s2 and s5 >= F1 * s1 and
+				 	Low < v1 Then Begin
+						Pattern[1, 0] = PM[p1, 0];
+						Pattern[1, 1] = PM[p1, 1];
+						Pattern[1, 2] = PM[p1, 2];
+						Pattern[1, 3] = PM[p1, 3];
+						Pattern[2, 0] = PM[p2, 0];
+						Pattern[2, 1] = PM[p2, 1];
+						Pattern[2, 2] = PM[p2, 2];
+						Pattern[2, 3] = PM[p2, 3];
+						Pattern[3, 0] = PM[p3, 0];
+						Pattern[3, 1] = PM[p3, 1];
+						Pattern[3, 2] = PM[p3, 2];
+						Pattern[3, 3] = PM[p3, 3];
+						Pattern[4, 0] = PM[p4, 0];
+						Pattern[4, 1] = PM[p4, 1];
+						Pattern[4, 2] = PM[p4, 2];
+						Pattern[4, 3] = PM[p4, 3];
+						splatrf.butterfly = PatternPivots;
+					End;
+				End;
+			End;
+		End;
+	End;
+	{Bearish Butterfly}
+	p1 = splatrf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
+	p2 = splatrf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
+	If p1 >= 0 and p2 >= 0 and
+	p2 < p1 Then Begin
+		v1 = High[PM[p1, 0]];
+		v2 = Low[PM[p2, 0]];
+		p3 = splatrf.pivothigh(Pivots, PM, 0, p2-1, Strength);
+		If p3 >= 0 and v1 > v2 Then Begin
+			v3 = High[PM[p3, 0]];
+			p4 = splatrf.pivotlow(Pivots, PM, 0, p3-1, Strength);
+			If p4 >= 0 and v3 < v1 and v3 > v2 Then Begin
+				v4 = Low[PM[p4, 0]];
+				If v4 < v3 and v4 > v2 Then Begin
+					s1 = v1 - v2;
+					s2 = v3 - v2;
+					s3 = v3 - v4;
+					s4 = Close - v4;
+					s5 = Close - v2;
+					If s2 < s1 and s3 < s2 and s4 > s2 and s5 >= F1 * s1 and
+				 	High > v1 Then Begin
+						Pattern[1, 0] = PM[p1, 0];
+						Pattern[1, 1] = PM[p1, 1];
+						Pattern[1, 2] = PM[p1, 2];
+						Pattern[1, 3] = PM[p1, 3];
+						Pattern[2, 0] = PM[p2, 0];
+						Pattern[2, 1] = PM[p2, 1];
+						Pattern[2, 2] = PM[p2, 2];
+						Pattern[2, 3] = PM[p2, 3];
+						Pattern[3, 0] = PM[p3, 0];
+						Pattern[3, 1] = PM[p3, 1];
+						Pattern[3, 2] = PM[p3, 2];
+						Pattern[3, 3] = PM[p3, 3];
+						Pattern[4, 0] = PM[p4, 0];
+						Pattern[4, 1] = PM[p4, 1];
+						Pattern[4, 2] = PM[p4, 2];
+						Pattern[4, 3] = PM[p4, 3];
+						splatrf.butterfly = -PatternPivots;
+					End;
+				End;
+			End;
+		End;
+	End;
+End;

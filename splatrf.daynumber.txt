@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.daynumber
+Description	: Compute the ordinal day number
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	GMonth(Numeric),
+	GDay(Numeric);
+
+splatrf.daynumber = splatrf.gsubtract(GYear - 1, 12, 31, GYear, GMonth, GDay);

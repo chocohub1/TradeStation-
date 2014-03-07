@@ -1,0 +1,34 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.wedge
+Description	: Draw a wedge
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	WedgeLength(3);
+
+Variables:
+	UpperLine(-1),
+	LowerLine(-1);
+
+If splatrf.wedge(WedgeLength) and WedgeLength > 1 Then Begin
+	UpperLine = TL_New(Date[WedgeLength], Time[WedgeLength], High[WedgeLength], Date[0], Time[0], High);
+	If UpperLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(UpperLine, Yellow)
+		Else
+			TL_SetColor(UpperLine, Black);
+		TL_SetSize(UpperLine, 1);
+	End;
+	LowerLine = TL_New(Date[WedgeLength], Time[WedgeLength], Low[WedgeLength], Date[0], Time[0], Low);
+	If LowerLine >= 0 Then Begin
+		If GetBackGroundColor = Black Then
+			TL_SetColor(LowerLine, Yellow)
+		Else
+			TL_SetColor(LowerLine, Black);
+		TL_SetSize(LowerLine, 1);
+	End;
+End;
+

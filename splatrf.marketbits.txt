@@ -1,0 +1,1273 @@
+{*******************************************************************
+Name		: splatri.marketbits
+Provided By	: SplatR (c) Copyright 2013
+Description : Examine market character using relational bitmaps
+
+Item                  Bits    Value Range   Increment   Condition
+----                  ----    -----------   ---------   ---------
+
+Business Day Month      31    1 to 31          1        all days can be theoretically traded
+Business Day Week        5    1 to 5           1        can ignore holidays
+Average True Range      20    0.5 to 10.0      0.5
+Volatility Percentage   10    1.0 to 10.0      1.0
+Trend Count             21    -10 to +10       1
+Zone                    21    -10 to +10       1
+Gap (ATR)                5    -1.0 to +1.0     0.4
+Crabel Sequence         60    1 to 60          1
+Range Percentage        10    0 to 9           1        length is bar divisions
+Range Ratio Sequence    28    1 to 28          1
+Separation Sequence     28    1 to 28          1
+Single Range Bar        19    2 to 20          1        length is window range
+Multi Range Bar          9    2 to 10          1
+N-Bar High or Low       20    1 to 20          1        length is window range
+Pattern                 39    1 to 39          1        length is number of patterns
+Bar Length (ATR)         5    0.4 to 2.0       0.4
+Bar Number              13    1 to 13          1        length is number of bars in a day
+Targets                 22    1 to 22          1        length is number of targets
+
+********************************************************************}
+
+Inputs:
+	DOpen(Open of Data2),
+	DHigh(High of Data2),
+	DLow(Low of Data2),
+	DClose(Close of Data2),
+	DRange(Range of Data2),
+	ILength(13),
+	DLength(5),
+	RLength(10),
+	WLength(20),
+	BarSegments(10),
+	PivotStrength(1),
+	Patterns(39),
+	Targets(22),
+	SMALength(65),
+	FMALength(20),
+	KeltnerSD(5),
+	ATRCutoff(0.6),
+	SplitTime(1130),
+	CloseTime(1600),
+	ShowCommentary(True),
+	ShowBitmap(False),
+	ShowSummary(True);
+
+Variables:
+	StartGlobal(False),
+	StartDay(False),
+	EndDay(False),
+	TagTotal(0),
+	BitTotal(0),
+	BitmapEnd(0.0),
+	SequenceTotal(0),
+	DayCount(0),
+	id(0),
+	ibt(0),
+	ibo(0),
+	ip(0),
+	it(0),
+	BarCount(0),
+	ib(0),
+	LowBar(0),
+	HighBar(0),
+	RDate(0),
+	bdm(0),
+	bdw(0),
+	FirstDay(False),
+	LastDay(False),
+	ATR(0.0),
+	VP(0.0),
+	VPAve(0.0),
+	GapRatio(0.0),
+	SN(""),
+	RPOpen(0.0),
+	RPClose(0.0),
+	RPOZ(0),
+	RPCZ(0),
+	RPOToday(0.0),
+	RPOTZ(0),
+	RPCToday(0.0),
+	RPCTZ(0),
+	RPFrac(0.3333),
+	SepToday(0),
+	SMA(0.0),
+	FMA(0.0),
+	SD(0.0),
+	Zone(0.0),
+	UpCount(0),
+	DownCount(0),
+	TrendCount(0),
+	i1(0),
+	i2(0),
+	i3(0),
+	i4(0),
+	OD0(0.0),
+	OD0Zone(0.0),
+	HD0(0.0),
+	LD0(0.0),
+	RD0(0.0),
+	OD1(0.0),
+	HD1(0.0),
+	LD1(0.0),
+	CD1(0.0),
+	OGC1(False),
+	OLC1(False),
+	C1GO1(False),
+	C1LO1(False),
+	VGVP(False),
+	VLVP(False),
+	CrabelCases(0),
+	CrabelOn("+"),
+	CrabelOff("-"),
+	ReturnCC(0.0),
+	ReturnOC(0.0),
+	BarLength(0.0),
+	lz(0.0),
+	hz(0.0),
+	TLength(10),
+	TBars(2),
+	TFactor(0.5),
+	SSegments(3),
+	GPBLength(3),
+	SeqL(9),
+	SeqW(4),
+	DojiRP(0.3),
+	CCUp(False),
+	CCDown(False),
+	OCUp(False),
+	OCDown(False),
+	BrokeLow(False),
+	BrokeHigh(False),
+	TestedLow(False),
+	TestedHigh(False),
+	SeparationLow(False),
+	SeparationHigh(False),
+	ATRHigh(1.2),
+	ATRLow(0.8),
+	RangeAbove(False),
+	RangeBelow(False),
+	RangeLarge(False),
+	RangeSmall(False),
+	TrendDayUp(False),
+	TrendDayDown(False),
+	ReversalDayUp(False),
+	ReversalDayDown(False),
+	SlingshotUp(False),
+	SlingshotDown(False),
+	BreakoutAM(False),
+	NarrowAM(False),
+	BreakoutPM(False),
+	TargetOffset(0),
+	TargetLength(0),
+	TempString(""),
+	TempString2(""),
+	SourceString(""),
+	BitString(""),
+	SPString(""),
+	TPString(""),
+	StatString(""),
+	Sequence(False),
+	InputBit(False),
+	TargetBit(False),
+	SamplePct(0.0),
+	TargetPct(0.0),
+	DeltaPct(0.0);
+
+Arrays:
+	BitmapTag[100](""),
+	BitmapOffset[100](0),
+	BitmapLength[100](0),
+	BitmapStart[100](0.0),
+	BitmapInc[100](0.0),
+	Bitmap[5000, 500](False),
+	CrabelString[256](""),
+	CrabelCOTick[20](""),
+	CrabelCCTick[20](""),
+	RR[20](0.0),
+	RRTick[20](""),
+	Separation[20](0),
+	SeparationTick[20](""),
+	NRCount[20](0),
+	WRCount[20](0),
+	PatternString[100](""),
+    Pattern[100](False),
+	Returns[20](0.0),
+	TargetDV[30](False),
+	TargetString[30](""),
+	TargetTotal[30](0),
+	TargetOccur[30, 500](0),
+	TargetHit[30, 500](0),
+	Highs[100](0),
+	Lows[100](0),
+	HighOnly[100](0),
+	LowOnly[100](0),
+	HighOrLow[100](0),
+	HighAndLow[100](0);
+
+{Initialization}
+
+If StartGlobal = False Then Begin
+	StartGlobal = True;
+	DayCount = 0;
+	{Compute series cases}
+	Value1 = 0;
+	For i1 = 2 To DLength Begin
+		Value1 = Value1 + Power(2, i1);
+	End;
+	CrabelCases = Value1;
+	Value1 = 1;
+	For i1 = 2 To DLength Begin
+		For i2 = 0 To Power(2, i1) - 1 Begin
+			CrabelString[Value1] = splatrf.dec2binary(i2, CrabelOn, CrabelOff, i1);
+			Value1 = Value1 + 1;
+		End;
+	End;
+	Value1 = 0;
+	For i1 = 2 To DLength - 1 Begin
+		Value1 = Value1 + Power(2, i1);
+	End;
+	SequenceTotal = Value1;
+	{Define Variable Tags}
+	ibo = 1;
+	ibt = 1;
+	{Tag 1}
+	BitmapTag[ibt] = "Business Day of Month";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 31;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 2}
+	BitmapTag[ibt] = "Business Day of Week";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 5;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 3}
+	BitmapTag[ibt] = "Average True Range";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 20;
+	BitmapStart[ibt] = 0.5;
+	BitmapInc[ibt] = 0.5;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 4}
+	BitmapTag[ibt] = "Volatility Percentage";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 10;
+	BitmapStart[ibt] = 1.0;
+	BitmapInc[ibt] = 1.0;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 5}
+	BitmapTag[ibt] = "VP Average";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 10;
+	BitmapStart[ibt] = 1.0;
+	BitmapInc[ibt] = 1.0;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 6}
+	BitmapTag[ibt] = "Trend Count";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 21;
+	BitmapStart[ibt] = -10;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 7}
+	BitmapTag[ibt] = "Zone Open";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 21;
+	BitmapStart[ibt] = -10.0;
+	BitmapInc[ibt] = 1.0;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 8}
+	BitmapTag[ibt] = "Gap (ATR)";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 6;
+	BitmapStart[ibt] = -1.0;
+	BitmapInc[ibt] = 0.4;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 9}
+	BitmapTag[ibt] = "O > C1";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 10}
+	BitmapTag[ibt] = "O < C1";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 11}
+	BitmapTag[ibt] = "C1 > O1";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 12}
+	BitmapTag[ibt] = "C1 < O1";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 13}
+	BitmapTag[ibt] = "VP > VP Ave";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 14}
+	BitmapTag[ibt] = "VP < VP Ave";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = 1;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 15}
+	BitmapTag[ibt] = "Crabel CO Sequence";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = CrabelCases;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 16}
+	BitmapTag[ibt] = "Crabel CC Sequence";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = CrabelCases;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 17}
+	BitmapTag[ibt] = "RR Sequence";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = SequenceTotal;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 18}
+	BitmapTag[ibt] = "Separation Sequence";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = SequenceTotal;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 19}
+	BitmapTag[ibt] = "NRS";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = WLength - 1;
+	BitmapStart[ibt] = 2;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 20}
+	BitmapTag[ibt] = "WRS";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = WLength - 1;
+	BitmapStart[ibt] = 2;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 21}
+	BitmapTag[ibt] = "NRM";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = RLength - 1;
+	BitmapStart[ibt] = 2;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 22}
+	BitmapTag[ibt] = "WRM";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = RLength - 1;
+	BitmapStart[ibt] = 2;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 23}
+	BitmapTag[ibt] = "Pattern";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = Patterns;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	ibt = ibt + 1;
+	{Tag 24}
+	BitmapTag[ibt] = "Targets";
+	BitmapOffset[ibt] = ibo;
+	BitmapLength[ibt] = Targets;
+	BitmapStart[ibt] = 1;
+	BitmapInc[ibt] = 1;
+	ibo = ibo + BitmapLength[ibt];
+	{ibt = ibt + 1;}
+	{Add more Tags here}
+	{Totals}
+	BitTotal = ibo;
+	TagTotal = ibt;
+End;
+
+If Date > Date[1] Then Begin
+	StartDay = True;
+	EndDay = False;
+End;
+
+{Daily Calculations}
+
+If StartDay Then Begin
+	StartDay = False;
+	{Day Count}
+	DayCount = DayCount + 1;
+	id = DayCount;
+	{Symbol Name of Chart}
+	SN = GetSymbolName;
+	{Calendar}
+	RDate = splatrf.tdate2rdate(ELDateToDateTime(Date));
+	{Business Day of Month}
+	bdm = splatrf.bizdaymonth(RDate);
+	{Business Day of Week}
+	bdw = splatrf.bizdayweek(RDate, FirstDay, LastDay);
+	{Average True Range}
+	ATR = Volatility(RLength) of Data2;
+	{Volatility Percentage}
+	VP = IFF(CD1 > 0, 100 * ATR / DClose, 0);
+	VPAve = Average(VP, WLength) of Data2;
+	{Daily Trend Count}
+	If FMA > SMA Then Begin
+		UpCount = UpCount + 1;
+		DownCount = 0;
+	End;
+	If FMA < SMA Then Begin
+		DownCount = DownCount + 1;
+		UpCount = 0;
+	End;
+	If UpCount > 0 Then
+		TrendCount = UpCount
+	Else
+		TrendCount = -DownCount;
+	{Zones}
+	OD0 = OpenD(0);
+	OD0Zone = IFF(SD > 0, (OD0 - SMA) / SD, 0);
+	OD1 = OpenD(1);
+	HD1 = HighD(1);
+	LD1 = LowD(1);
+	CD1 = CloseD(1);
+	{Gap Ratio}
+	GapRatio = IFF(ATR > 0, (OD0 - CD1) / ATR, 0);
+	{Period Relationships}
+	OGC1 = OD0 > CD1;
+	OLC1 = OD0 < CD1;
+	C1GO1 = CD1 > OD1;
+	C1LO1 = CD1 < OD1;
+	VGVP = VP > VPAve;
+	VLVP = VP < VPAve;
+	{Crabel Close-to-Open}
+	If OD0 > CD1 Then
+		CrabelCOTick[1] = CrabelOn
+	Else
+		CrabelCOTick[1] = CrabelOff;
+	For i1 = 1 To DLength - 1 Begin
+		If DClose[i1 - 1] > DClose[i1] Then
+			CrabelCOTick[i1 + 1] = CrabelOn
+		Else
+			CrabelCOTick[i1 + 1] = CrabelOff;
+	End;
+	{Crabel Close-to-Close}
+	For i1 = 1 To DLength Begin
+		If DClose[i1 - 1] > DClose[i1] Then
+			CrabelCCTick[i1] = CrabelOn
+		Else
+			CrabelCCTick[i1] = CrabelOff;
+	End;
+	{Daily Range Ratio}
+	For i1 = 1 To DLength Begin
+		RR[i1] = DRange[i1-1] / ATR;
+	End;
+	For i1 = 1 To DLength - 1 Begin
+		If RR[i1] > RR[i1 + 1] Then
+			RRTick[i1] = CrabelOn
+		Else
+			RRTick[i1] = CrabelOff;
+	End;
+	{Daily Separation}
+	For i1 = 1 To DLength Begin
+		RPOpen = splatrf.rangepct(DOpen[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPOZ = splatrf.rpzone(RPOpen, BarSegments);
+		RPClose = splatrf.rangepct(DClose[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPCZ = splatrf.rpzone(RPClose, BarSegments);
+		Separation[i1] = AbsValue(RPOZ - RPCZ);
+	End;
+	For i1 = 1 To DLength - 1 Begin
+		If Separation[i1] > Separation[i1 + 1] Then
+			SeparationTick[i1] = CrabelOn
+		Else
+			SeparationTick[i1] = CrabelOff;
+	End;
+	{Narrowest and Widest Range}
+	For i1 = 1 To RLength Begin
+		NRCount[i1] = splatrf.narrowestrange(i1, WLength) of Data2;
+		WRCount[i1] = splatrf.widestrange(i1, WLength) of Data2;
+	End;
+	{Daily Bar Patterns}
+	ip = 1;
+	PatternString[ip] = "Inside Bar"; {1}
+	Pattern[ip] = splatrf.insidebar of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Bar"; {2}
+	Pattern[ip] = splatrf.outsidebar of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Bull Hook"; {3}
+	Pattern[ip] = splatrf.hookup(ATR) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Bear Hook"; {4}
+	Pattern[ip] = splatrf.hookdown(ATR) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "2B Low"; {5}
+	Pattern[ip] = splatrf.testlow(TLength, TBars, TFactor) of Data2 > 0;
+	ip = ip + 1;
+	PatternString[ip] = "2B High"; {6}
+	Pattern[ip] = splatrf.testhigh(TLength, TBars, TFactor) of Data2 > 0;
+	ip = ip + 1;
+	PatternString[ip] = "Reversal Up"; {7}
+	Pattern[ip] = splatrf.reversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Reversal Down"; {8}
+	Pattern[ip] = splatrf.reversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Key Reversal Up"; {9}
+	Pattern[ip] = splatrf.keyreversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Key Reversal Down"; {10}
+	Pattern[ip] = splatrf.keyreversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Reversal Up"; {11}
+	Pattern[ip] = splatrf.outsidereversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Reversal Down"; {12}
+	Pattern[ip] = splatrf.outsidereversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Key Reversal Up"; {13}
+	Pattern[ip] = splatrf.outsidekeyreversalup(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Outside Key Reversal Down"; {14}
+	Pattern[ip] = splatrf.outsidekeyreversaldown(DLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Signal Up"; {15}
+	Pattern[ip] = splatrf.signalup(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Signal Down"; {16}
+	Pattern[ip] = splatrf.signaldown(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Signal Up"; {17}
+	Pattern[ip] = splatrf.gapsignalup(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Signal Down"; {18}
+	Pattern[ip] = splatrf.gapsignaldown(DLength, SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Snapback Reversal Up"; {19}
+	Pattern[ip] = splatrf.snapbackup(SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Snapback Reversal Down"; {20}
+	Pattern[ip] = splatrf.snapbackdown(SSegments) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gann Pullback Up"; {21}
+	Pattern[ip] = splatrf.gannpullup(GPBLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gann Pullback Down"; {22}
+	Pattern[ip] = splatrf.gannpulldown(GPBLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Sequential Buy Setup"; {23}
+	Pattern[ip] = splatrf.sequentialbuy(SeqL, SeqW) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Sequential Sell Setup"; {24}
+	Pattern[ip] = splatrf.sequentialsell(SeqL, SeqW) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Gap Above SMA"; {25}
+	Pattern[ip] = OD0 > SMA and CD1 < SMA[1];
+	ip = ip + 1;
+	PatternString[ip] = "Gap Below SMA"; {26}
+	Pattern[ip] = OD0 < SMA and CD1 > SMA[1];
+	ip = ip + 1;
+	PatternString[ip] = "Close Above SMA"; {27}
+	Pattern[ip] = CD1 > SMA[1] and Close[ILength] < SMA[ILength];
+	ip = ip + 1;
+	PatternString[ip] = "Close Below SMA"; {28}
+	Pattern[ip] = CD1 < SMA[1] and Close[ILength] > SMA[ILength];
+	ip = ip + 1;
+	PatternString[ip] = "FMA Over SMA"; {29}
+	Pattern[ip] = FMA[1] > SMA[1] and FMA[ILength] < SMA[ILength];
+	ip = ip + 1;
+	PatternString[ip] = "FMA Below SMA"; {30}
+	Pattern[ip] = FMA[1] < SMA[1] and FMA[ILength] > SMA[ILength];
+	ip = ip + 1;
+	Condition1 = AbsValue(CD1 - SMA[1]) <= SD;
+	Condition2 = AbsValue(FMA[1] - SMA[1]) <= SD;
+	PatternString[ip] = "Nexus Above SMA"; {31}
+	Pattern[ip] = CD1 > SMA[1] and Condition1 and Condition2;
+	ip = ip + 1;
+	PatternString[ip] = "Nexus Below SMA"; {32}
+	Pattern[ip] = CD1 < SMA[1] and Condition1 and Condition2;
+	ip = ip + 1;
+	PatternString[ip] = "Doji"; {33}
+	Pattern[ip] = splatrf.doji(DojiRP, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Double Doji"; {34}
+	Pattern[ip] = Pattern[ip - 1] and
+				  splatrf.doji(DojiRP, Open, High, Low, Close)[1] of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Hammer"; {35}
+	Pattern[ip] = splatrf.hammer(DojiRP, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Inverted Hammer"; {36}
+	Pattern[ip] = splatrf.invertedhammer(DojiRP, Open, High, Low, Close) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "ID/NR4"; {37}
+	Pattern[ip] = splatrf.insidebar of Data2 and NRCount[1] >= 4;
+	ip = ip + 1;
+	PatternString[ip] = "Spring"; {38}
+	Pattern[ip] = splatrf.spring(PivotStrength, WLength) of Data2;
+	ip = ip + 1;
+	PatternString[ip] = "Upthrust"; {39}
+	Pattern[ip] = splatrf.upthrust(PivotStrength, WLength) of Data2;
+	{Calculate Daily Returns}
+	For i1 = 1 To DLength Begin
+		Returns[i1] = IFF(ATR > 0, (CD1 - DClose[i1]) / ATR, 0);
+	End;
+	{Initialize Counts}
+	BarCount = 1;
+	LowBar = 1;
+	HighBar = 1;
+	{Initialize Targets}
+	CCUp = False;
+	CCDown = False;
+	OCUp = False;
+	OCDown = False;
+	BrokeLow = False;
+	BrokeHigh = False;
+	TestedLow = False;
+	TestedHigh = False;
+	SeparationLow = False;
+	SeparationHigh = False;
+	RangeAbove = False;
+	RangeBelow = False;
+	RangeLarge = False;
+	RangeSmall = False;
+	TrendDayUp = False;
+	TrendDayDown = False;
+	ReversalDayUp = False;
+	ReversalDayDown = False;
+	SlingshotUp = False;
+	SlingshotDown = False;
+	BreakoutAM = False;
+	NarrowAM = False;
+	BreakoutPM = False;
+End;
+
+{Intraday Range}
+
+HD0 = HighD(0);
+LD0 = LowD(0);
+RD0 = HD0 - LD0;
+BarLength = IFF(ATR > 0, RD0 / ATR, 0);
+
+{Intraday Metrics}
+
+SMA = Average(Close, SMALength);
+FMA = Average(Close, FMALength);
+SD = KeltnerChannel(Close, SMALength, 1) - SMA;
+Zone = IFF(SD > 0, (Close - SMA) / SD, 0);
+RPOToday = IFF(RD0 > 0,(OD0 - LD0) / RD0, 0);
+RPOTZ = splatrf.rpzone(RPOToday, BarSegments);
+RPCToday = IFF(RD0 > 0,(Close - LD0) / RD0, 0);
+RPCTZ = splatrf.rpzone(RPCToday, BarSegments);
+SepToday = AbsValue(RPOTZ - RPCTZ);
+ReturnCC = IFF(ATR > 0, (Close - CD1) / ATR, 0);
+ReturnOC = IFF(ATR > 0, (Close - OD0) / ATR, 0);
+
+{Intraday Conditions}
+
+If LD0 < LD1 Then Begin
+	BrokeLow = True;
+	TestedLow = False;
+End;
+
+If HD0 > HD1 Then Begin
+	BrokeHigh = True;
+	TestedHigh = False;
+End;
+
+If BrokeLow and
+Close > LD1 Then Begin
+	TestedLow = True;
+	BrokeLow = False;
+End;
+
+If BrokeHigh and
+Close < HD1 Then Begin
+	TestedHigh = True;
+	BrokeHigh = False;
+End;
+
+If Time <= SplitTime and
+BarLength > ATRLow Then
+	BreakoutAM = True;
+
+If Time = SplitTime and
+BarLength <= ATRCutoff Then
+	NarrowAM = True;
+
+If Time > SplitTime and
+NarrowAM and
+BarLength >= 1 Then
+	BreakoutPM = True;
+
+If BarCount > 1 Then Begin
+	If Low < Low[BarCount - LowBar] Then
+		LowBar = BarCount;
+	If High > High[BarCount - HighBar] Then
+		HighBar = BarCount;
+End;
+
+{Increment Intraday Bar Count}
+
+BarCount = BarCount + 1;
+
+{Daily Commentary}
+
+If Time = CloseTime and
+EndDay = False Then
+	EndDay = True
+Else
+	EndDay = False;
+
+If ShowCommentary and
+CommentaryEnabled and
+EndDay Then Begin
+	{Initialize today's bits}
+	For i1 = 1 To BitTotal Begin
+		Bitmap[id, i1] = False;
+	End;
+	{Independent Variables}
+	CommentaryCL(NewLine, SN, " DAILY ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Day Month   = ", NumToStr(bdm, 0));
+	ibt = 1;
+	ibo = BitMapOffset[ibt] + bdm - BitmapStart[ibt];
+	Bitmap[id, ibo] = True;
+	CommentaryCL("Day Week    = ", NumToStr(bdw, 0));
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt] + bdw - BitmapStart[ibt];
+	Bitmap[id, ibo] = True;
+	CommentaryCL("ATR         = ", NumToStr(ATR, 1));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If ATR >= BitmapStart[ibt] and ATR <= BitmapEnd Then Begin
+		Value1 = IFF(BitmapInc[ibt] > 0, (ATR - BitmapStart[ibt]) / BitmapInc[ibt], 0);
+		ibo = BitMapOffset[ibt] + IntPortion(Round(Value1, 0));
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL("VP          = ", NumToStr(VP, 1));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If VP >= BitmapStart[ibt] and VP <= BitmapEnd Then Begin
+		Value1 = IFF(BitmapInc[ibt] > 0, (VP - BitmapStart[ibt]) / BitmapInc[ibt], 0);
+		ibo = BitMapOffset[ibt] + IntPortion(Round(Value1, 0));
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL("VP Average  = ", NumToStr(VPAve, 1));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If VPAve >= BitmapStart[ibt] and VPAve <= BitmapEnd Then Begin
+		Value1 = IFF(BitmapInc[ibt] > 0, (VPAve - BitmapStart[ibt]) / BitmapInc[ibt], 0);
+		ibo = BitMapOffset[ibt] + IntPortion(Round(Value1, 0));
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL("Trend Count = ", NumToStr(TrendCount, 0));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If TrendCount >= BitmapStart[ibt] and TrendCount <= BitmapEnd Then Begin
+		ibo = BitMapOffset[ibt] + TrendCount - BitmapStart[ibt];
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL("Zone Open   = ", NumToStr(OD0Zone, 1));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If OD0Zone >= BitmapStart[ibt] and OD0Zone <= BitmapEnd Then Begin
+		ibo = BitMapOffset[ibt] + OD0Zone - BitmapStart[ibt];
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL("Gap (ATR)   = ", NumToStr(GapRatio, 1));
+	ibt = ibt + 1;
+	BitmapEnd = BitmapStart[ibt] + (BitmapLength[ibt] - 1) * BitmapInc[ibt];
+	If GapRatio >= BitmapStart[ibt] and GapRatio <= BitmapEnd Then Begin
+		Value1 = IFF(BitmapInc[ibt] > 0, (GapRatio - BitmapStart[ibt]) / BitmapInc[ibt], 0);
+		ibo = BitMapOffset[ibt] + IntPortion(Round(Value1, 0));
+		Bitmap[id, ibo] = True;
+	End;
+	CommentaryCL(NewLine, "Period Relationships", NewLine);
+	CommentaryCL("O > C1      = ", OGC1);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = OGC1;
+	CommentaryCL("O < C1      = ", OLC1);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = OLC1;
+	CommentaryCL("C1 > O1     = ", C1GO1);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = C1GO1;
+	CommentaryCL("C1 < O1     = ", C1LO1);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = C1LO1;
+	CommentaryCL("VP > VP Ave = ", VGVP);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = VGVP;
+	CommentaryCL("VP < VP Ave = ", VLVP);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	Bitmap[id, ibo] = VLVP;
+	{Crabel CO}
+	CommentaryCL(NewLine, "Crabel", NewLine);
+	TempString = "";
+	For i1 = 1 To DLength Begin
+		TempString = CrabelCOTick[i1] + TempString;
+	End;
+	CommentaryCL("CO Sequence = ", TempString);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = 2 To DLength Begin
+		SourceString = MidStr(TempString, DLength - i1 + 1, i1);
+		For i2 = 0 To Power(2, i1) - 1 Begin
+			BitString = splatrf.dec2binary(i2, CrabelOn, CrabelOff, i1);
+			If BitString = SourceString Then
+				Bitmap[id, ibo] = True;
+			ibo = ibo + 1;
+		End;
+	End;
+	{Crabel CC}
+	TempString = "";
+	For i1 = 1 To DLength Begin
+		TempString = CrabelCCTick[i1] + TempString;
+	End;
+	CommentaryCL("CC Sequence = ", TempString);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = 2 To DLength Begin
+		SourceString = MidStr(TempString, DLength - i1 + 1, i1);
+		For i2 = 0 To Power(2, i1) - 1 Begin
+			BitString = splatrf.dec2binary(i2, CrabelOn, CrabelOff, i1);
+			If BitString = SourceString Then
+				Bitmap[id, ibo] = True;
+			ibo = ibo + 1;
+		End;
+	End;
+	{Range Ratio Sequence}
+	CommentaryCL(NewLine, "Range Ratio", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Range Ratio (", NumToStr(i1, 0), ") = ", NumToStr(RR[i1], 2));
+	End;
+	TempString = "";
+	For i1 = 1 To DLength - 1 Begin
+		TempString = RRTick[i1] + TempString;
+	End;
+	CommentaryCL(NewLine, "Range Ratio Sequence = ", TempString);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = 2 To DLength - 1 Begin
+		SourceString = MidStr(TempString, DLength - i1, i1);
+		For i2 = 0 To Power(2, i1) - 1 Begin
+			BitString = splatrf.dec2binary(i2, CrabelOn, CrabelOff, i1);
+			If BitString = SourceString Then
+				Bitmap[id, ibo] = True;
+			ibo = ibo + 1;
+		End;
+	End;
+	{Separation Sequence}
+	CommentaryCL(NewLine, "Separation", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Separation (", NumToStr(i1, 0), ") = ", NumToStr(Separation[i1], 0));
+	End;
+	TempString = "";
+	For i1 = 1 To DLength - 1 Begin
+		TempString = SeparationTick[i1] + TempString;
+	End;
+	CommentaryCL(NewLine, "Separation Sequence = ", TempString);
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = 2 To DLength - 1 Begin
+		SourceString = MidStr(TempString, DLength - i1, i1);
+		For i2 = 0 To Power(2, i1) - 1 Begin
+			BitString = splatrf.dec2binary(i2, CrabelOn, CrabelOff, i1);
+			If BitString = SourceString Then
+				Bitmap[id, ibo] = True;
+			ibo = ibo + 1;
+		End;
+	End;
+	{NR and WR}
+	CommentaryCL(NewLine, "Narrowest Range", NewLine);
+	For i1 = 1 To RLength Begin
+		CommentaryCL("NR Count (", NumToStr(i1, 0), ") = ", NumToStr(NRCount[i1], 0));
+	End;
+	CommentaryCL(NewLine, "Widest Range", NewLine);
+	For i1 = 1 To RLength Begin
+		CommentaryCL("WR Count (", NumToStr(i1, 0), ") = ", NumToStr(WRCount[i1], 0));
+	End;
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i2 = BitmapStart[ibt] To WLength Begin
+		If NRCount[1] >= i2 Then
+			Bitmap[id, ibo + i2 - BitmapStart[ibt]] = True;
+	End;
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i2 = BitmapStart[ibt] To WLength Begin
+		If WRCount[1] >= i2 Then
+			Bitmap[id, ibo + i2 - BitmapStart[ibt]] = True;
+	End;
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = BitmapStart[ibt] To RLength Begin
+		If NRCount[i1] >= WLength Then
+			Bitmap[id, ibo + i1 - BitmapStart[ibt]] = True;
+	End;
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = BitmapStart[ibt] To RLength Begin
+		If WRCount[i1] >= WLength Then
+			Bitmap[id, ibo + i1 - BitmapStart[ibt]] = True;
+	End;
+	{Patterns}
+	CommentaryCL(NewLine, "Patterns", NewLine);
+	For i1 = 1 To Patterns Begin
+		CommentaryCL(PatternString[i1], " = ", Pattern[i1]);
+	End;
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For i1 = 1 To Patterns Begin
+		If Pattern[i1] Then
+			Bitmap[id, ibo + i1 - 1] = True;
+	End;
+	CommentaryCL(NewLine, "Returns", NewLine);
+	For i1 = 1 To DLength Begin
+		CommentaryCL("Return (", NumToStr(i1, 0), ") = ", NumToStr(Returns[i1], 1));
+	End;
+	{Dependent Variables}
+	CommentaryCL(NewLine, SN, " INTRADAY ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Bar Length  = ", NumToStr(BarLength, 1));
+	CommentaryCL("Low Bar     = ", NumToStr(LowBar, 0));
+	CommentaryCL("High Bar    = ", NumToStr(HighBar, 0));
+	CommentaryCL("Zone CD0    = ", NumToStr(Zone, 1));
+	CommentaryCL("RPO Zone    = ", NumToStr(RPOTZ, 0));
+	CommentaryCL("RPC Zone    = ", NumToStr(RPCTZ, 0));
+	CommentaryCL("Separation  = ", NumToStr(SepToday, 0));
+	CommentaryCL("Return CC   = ", NumToStr(ReturnCC, 1));
+	CommentaryCL("Return OC   = ", NumToStr(ReturnOC, 1));
+	{Binary Targets}
+	CommentaryCL(NewLine, SN, " TARGETS ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	{Close-to-Close Up?}
+	it = 1;
+	If Close > CD1 Then
+		CCUp = True;
+	TargetString[it] = "CC Up"; {1}
+	CommentaryCL(TargetString[it], " = ", CCUp);
+	TargetDV[it] = CCUp;
+	{Close-to-Close Down?}
+	it = it + 1;
+	If Close < CD1 Then
+		CCDown = True;
+	TargetString[it] = "CC Down"; {2}
+	CommentaryCL(TargetString[it], " = ", CCDown);
+	TargetDV[it] = CCDown;
+	{Open-to-Close Up?}
+	it = it + 1;
+	If Close > OD0 Then
+		OCUp = True;
+	TargetString[it] = "OC Up"; {3}
+	CommentaryCL(TargetString[it], " = ", OCUp);
+	TargetDV[it] = OCUp;
+	{Open-to-Close Down?}
+	it = it + 1;
+	If Close < OD0 Then
+		OCDown = True;
+	TargetString[it] = "OC Down"; {4}
+	CommentaryCL(TargetString[it], " = ", OCDown);
+	TargetDV[it] = OCDown;
+	{Broke Low?}
+	it = it + 1;
+	TargetString[it] = "Broke Low"; {5}
+	CommentaryCL(TargetString[it], " = ", BrokeLow);
+	TargetDV[it] = BrokeLow;
+	{Broke High?}
+	it = it + 1;
+	TargetString[it] = "Broke High"; {6}
+	CommentaryCL(TargetString[it], " = ", BrokeHigh);
+	TargetDV[it] = BrokeHigh;
+	{Tested Low?}
+	it = it + 1;
+	TargetString[it] = "Tested Low"; {7}
+	CommentaryCL(TargetString[it], " = ", TestedLow);
+	TargetDV[it] = TestedLow;
+	{Tested High?}
+	it = it + 1;
+	TargetString[it] = "Tested High"; {8}
+	CommentaryCL(TargetString[it], " = ", TestedHigh);
+	TargetDV[it] = TestedHigh;
+	{Separation <= N?}
+	it = it + 1;
+	TargetString[it] = "Separation Low"; {9}
+	SeparationLow = AbsValue(RPOToday - RPCToday) <= RPFrac;
+	CommentaryCL(TargetString[it], " = ", SeparationLow);
+	TargetDV[it] = SeparationLow;
+	{Separation >= N?}
+	it = it + 1;
+	TargetString[it] = "Separation High"; {10}
+	SeparationHigh = AbsValue(RPOToday - RPCToday) >= (1 - RPFrac);
+	CommentaryCL(TargetString[it], " = ", SeparationHigh);
+	TargetDV[it] = SeparationHigh;
+	{ATR Above Average?}
+	it = it + 1;
+	TargetString[it] = "Range > Ave"; {11}
+	RangeAbove = BarLength >= 1;
+	CommentaryCL(TargetString[it], " = ", RangeAbove);
+	TargetDV[it] = RangeAbove;
+	{ATR Below Average?}
+	it = it + 1;
+	TargetString[it] = "Range < Ave"; {12}
+	RangeBelow = BarLength < 1;
+	CommentaryCL(TargetString[it], " = ", RangeBelow);
+	TargetDV[it] = RangeBelow;
+	{ATR Large?}
+	it = it + 1;
+	TargetString[it] = "Range Large"; {13}
+	RangeLarge = BarLength >= ATRHigh;
+	CommentaryCL(TargetString[it], " = ", RangeLarge);
+	TargetDV[it] = RangeLarge;
+	{ATR Small?}
+	it = it + 1;
+	TargetString[it] = "Range Small"; {14}
+	RangeSmall = BarLength <= ATRLow;
+	CommentaryCL(TargetString[it], " = ", RangeSmall);
+	TargetDV[it] = RangeSmall;
+	{Trend Day Up}
+	it = it + 1;
+	TrendDayUp = AbsValue(RPOToday - RPCToday) >= (1 - RPFrac) and
+				 ATR > ATRLow and RPCToday >= (1 - RPFrac);
+	TargetString[it] = "Trend Day Up"; {15}
+	CommentaryCL(TargetString[it], " = ", TrendDayUp);
+	TargetDV[it] = TrendDayUp;
+	{Trend Day Down}
+	it = it + 1;
+	TrendDayDown = AbsValue(RPOToday - RPCToday) >= (1 - RPFrac) and
+				   ATR > ATRLow and RPCToday <= RPFrac;
+	TargetString[it] = "Trend Day Down"; {16}
+	CommentaryCL(TargetString[it], " = ", TrendDayDown);
+	TargetDV[it] = TrendDayDown;
+	{Reversal Day Up}
+	it = it + 1;
+	ReversalDayUp = AbsValue(RPOToday - RPCToday) <= RPFrac and
+					ATR > ATRLow and RPCToday >= (1 - RPFrac);
+	TargetString[it] = "Reversal Day Up"; {17}
+	CommentaryCL(TargetString[it], " = ", ReversalDayUp);
+	TargetDV[it] = ReversalDayUp;
+	{Reversal Day Down}
+	it = it + 1;
+	ReversalDayDown = AbsValue(RPOToday - RPCToday) <= RPFrac and
+					  ATR > ATRLow and RPCToday <= RPFrac;
+	TargetString[it] = "Reversal Day Down"; {18}
+	CommentaryCL(TargetString[it], " = ", ReversalDayDown);
+	TargetDV[it] = ReversalDayDown;
+	{Slingshot Up}
+	it = it + 1;
+	SlingshotUp = TestedLow and RPCToday >= (1 - RPFrac);
+	TargetString[it] = "Slingshot Up"; {19}
+	CommentaryCL(TargetString[it], " = ", SlingshotUp);
+	TargetDV[it] = SlingshotUp;
+	{Slingshot Down}
+	it = it + 1;
+	SlingshotDown = TestedHigh and RPCToday <= RPFrac;
+	TargetString[it] = "Slingshot Down"; {20}
+	CommentaryCL(TargetString[it], " = ", SlingshotDown);
+	TargetDV[it] = SlingshotDown;
+	{Morning Breakout?}
+	it = it + 1;
+	TargetString[it] = "Breakout AM"; {21}
+	CommentaryCL(TargetString[it], " = ", BreakoutAM);
+	TargetDV[it] = BreakoutAM;
+	{Afternoon Breakout?}
+	it = it + 1;
+	TargetString[it] = "Breakout PM"; {22}
+	CommentaryCL(TargetString[it], " = ", BreakoutPM);
+	TargetDV[it] = BreakoutPM;
+	{Set Bitmap}
+	ibt = ibt + 1;
+	ibo = BitMapOffset[ibt];
+	For it = 1 To Targets Begin
+		If TargetDV[it] Then
+			Bitmap[id, ibo + it - 1] = True;
+	End;
+	{Print Bitmap}
+	If ShowBitmap Then Begin
+		print(SN, " Date: ", Date, " Time: ", Time, " Length: ", BitTotal);
+		ibo = 1;
+		For i2 = 1 To ibt Begin
+			print("Tag ", i2, ": ", BitmapTag[i2], " : ", MidStr(TargetString[i2], ibo, BitmapLength[i2]));
+			ibo = ibo + BitmapLength[i2];
+		End;
+	End;
+End;
+
+{Summary}
+
+If ShowSummary and
+EndDay Then Begin
+	CommentaryCL(NewLine, SN, " SUMMARY ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	CommentaryCL("Total Days = ", NumToStr(DayCount, 0));
+	CommentaryCL("Total Tags = ", NumToStr(TagTotal, 0));
+	CommentaryCL("Bitmap Length = ", NumToStr(BitTotal, 0));
+	{Bitmap Statistics}
+	If LastBarOnChart Then Begin
+		CommentaryCL(NewLine, SN, " BITMAP ", NumToStr(Date, 0), " ", NumToStr(Time, 0));
+		For it = 1 To Targets Begin
+			TargetTotal[it] = 0;
+			For i4 = 1 To BitTotal Begin
+				TargetOccur[it, i4] = 0;
+				TargetHit[it, i4] = 0;
+			End;
+		End;
+		TargetOffset = BitmapOffset[TagTotal];
+		For it = 1 To Targets Begin
+			For i2 = 1 To DayCount Begin
+				TargetBit = Bitmap[i2, TargetOffset + it - 1];
+				For i3 = 1 To BitTotal Begin
+					InputBit = Bitmap[i2, i3];
+					If InputBit Then Begin
+						TargetOccur[it, i3] = TargetOccur[it, i3] + 1;
+						If TargetBit Then
+							TargetHit[it, i3] = TargetHit[it, i3] + 1;
+					End;
+				End;
+				If TargetBit Then
+					TargetTotal[it] = TargetTotal[it] + 1;
+			End;
+		End;
+		For it = 1 To Targets Begin
+			Value1 = TargetTotal[it];
+			CommentaryCL(NewLine, "Target ", NumToStr(it, 0), " : ", TargetString[it],
+				         " = ", NumToStr(Value1, 0));
+			TempString = "Target " + TargetString[it] + " (" + NumToStr(Value1, 0) + ")";
+			For i1 = 1 To TagTotal Begin
+				Sequence = InStr(BitmapTag[i1], "Sequence") > 0;
+				CommentaryCL(NewLine, "Tag ", NumToStr(i1, 0), " : ", BitmapTag[i1],
+					" for ", TempString, NewLine);
+				For i2 = 1 To BitmapLength[i1] Begin
+					ibo = BitmapOffset[i1] + i2 - 1;
+					Value2 = TargetOccur[it, ibo];
+					SamplePct = IFF(DayCount > 0, 100 * Value2 / DayCount, 0);
+					Value3 = TargetHit[it, ibo];
+					TargetPct = IFF(Value1 > 0, 100 * Value3 / Value1, 0);
+					DeltaPct = IFF(SamplePct > 0 and Value3 > 0,
+								   100 * ((TargetPct / SamplePct) - 1), 0);
+					If Sequence Then
+						TempString2 = CrabelString[i2]
+					Else
+						TempString2 = "Bit " + NumToStr(i2, 0);
+					SPString = " | S " + NumToStr(SamplePct, 1) + " %";
+					TPString = " | Hits " + NumToStr(Value3, 0) +
+							   " : T " + NumToStr(TargetPct, 1) + " %";
+					StatString = TempString2 + SPString + TPString +
+								 " | D " + NumToStr(DeltaPct, 1) + " %";
+					CommentaryCL(StatString);
+				End;
+			End;
+		End;
+	End;
+	{HL Statistics}
+	Highs[HighBar] = Highs[HighBar] + 1;
+	Lows[LowBar] = Lows[LowBar] + 1;
+	CommentaryCL(NewLine, SN, " High Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	For Value1 = 1 To ILength Begin
+		CommentaryCL("High[", NumToStr(Value1, 0), "] = ", NumToStr(Highs[Value1], 0));
+	End;
+	CommentaryCL(NewLine, SN, " Low Data ", NumToStr(Date, 0), " ", NumToStr(Time, 0), NewLine);
+	For Value1 = 1 To ILength Begin
+		CommentaryCL("Low[", NumToStr(Value1, 0), "] = ", NumToStr(Lows[Value1], 0));
+	End;
+	{High Only Data}
+	CommentaryCL(NewLine, "H Only Data", NewLine);
+	Condition1 = False;
+	Value1 = 1;
+	While (Condition1 = False and Value1 <= ILength) Begin
+		If HighBar = Value1 Then Begin
+			Condition1 = True;
+			HighOnly[Value1] = HighOnly[Value1] + 1;
+		End;
+		Value1 = Value1 + 1;
+	End;
+	For Value1 = 1 To ILength Begin
+		Value2 = IFF(DayCount > 0, HighOnly[Value1] / DayCount, 0);
+		CommentaryCL("Honly (", NumToStr(Value1, 0), ") % = ", NumToStr(Value2, 2));
+	End;
+	{Low Only Data}
+	CommentaryCL(NewLine, "L Only Data", NewLine);
+	Condition1 = False;
+	Value1 = 1;
+	While (Condition1 = False and Value1 <= ILength) Begin
+		If LowBar = Value1 Then Begin
+			Condition1 = True;
+			LowOnly[Value1] = LowOnly[Value1] + 1;
+		End;
+		Value1 = Value1 + 1;
+	End;
+	For Value1 = 1 To ILength Begin
+		Value2 = IFF(DayCount > 0, LowOnly[Value1] / DayCount, 0);
+		CommentaryCL("Lonly (", NumToStr(Value1, 0), ") % = ", NumToStr(Value2, 2));
+	End;
+	{High or Low Data}
+	CommentaryCL(NewLine, "H or L Data", NewLine);
+	Condition1 = False;
+	Value1 = 1;
+	While (Condition1 = False and Value1 <= ILength) Begin
+		If HighBar = Value1 or LowBar = Value1 Then Begin
+			Condition1 = True;
+			HighOrLow[Value1] = HighOrLow[Value1] + 1;
+		End;
+		Value1 = Value1 + 1;
+	End;
+	For Value1 = 1 To ILength Begin
+		Value2 = IFF(DayCount > 0, HighOrLow[Value1] / DayCount, 0);
+		CommentaryCL("HorL (", NumToStr(Value1, 0), ") % = ", NumToStr(Value2, 2));
+	End;
+	{High and Low Data}
+	CommentaryCL(NewLine, "H and L Data", NewLine);
+	For Value1 = 1 To ILength Begin
+		If HighBar <= Value1 and LowBar <= Value1 Then
+			HighAndLow[Value1] = HighAndLow[Value1] + 1;
+	End;
+	For Value1 = 1 To ILength Begin
+		Value2 = IFF(DayCount > 0, HighAndLow[Value1] / DayCount, 0);
+		CommentaryCL("HandL (", NumToStr(Value1, 0), ") % = ", NumToStr(Value2, 2));
+	End;
+End;
+

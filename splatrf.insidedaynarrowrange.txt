@@ -1,0 +1,16 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.insidedaynarrowrange
+Description	: Is the current bar an inside day / narrow range bar?
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RangeLength(Numeric),
+	Index(Numeric);
+
+splatrf.insidedaynarrowrange = False;
+If Range < Lowest(Range, RangeLength - 1)[Index + 1] and
+Low > Low[1] and High < High[1] Then
+	splatrf.insidedaynarrowrange = True;

@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.presidents
+Description	: Presidents Birthday
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	RMonday(1),
+	IMonth(2),
+	IDay(1);
+
+HString = "Presidents Day";
+splatrf.presidents = splatrf.nthkday(3, RMonday, GYear, IMonth, IDay);
+

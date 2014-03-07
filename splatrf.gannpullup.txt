@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.gannpullup
+Description	: Test for a Gann PullBack Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.gannpullup = False;
+
+If splatrf.retraceup(Length) Then
+	splatrf.gannpullup = True;

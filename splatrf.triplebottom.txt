@@ -1,0 +1,38 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.triplebottom
+Description	: Find a triple bottom formation
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(Numeric),
+	Strength(Numeric),
+	RangeFactor(Numeric);
+
+Variables:
+	TheDelta(0.0),
+	HighPivot1(0.0),
+	LowPivot1(0.0),
+	HighPivot2(0.0),
+	LowPivot2(0.0);
+
+splatrf.triplebottom = -1;
+TheDelta = RangeFactor * Volatility(LookbackBars);
+HighPivot1 = PivotHighVSBar(1, High, Strength, Strength, LookbackBars);
+LowPivot1 = PivotLowVSBar(1, Low, Strength, Strength, LookbackBars);
+HighPivot2 = PivotHighVSBar(2, High, Strength, Strength, LookbackBars);
+LowPivot2 = PivotLowVSBar(2, Low, Strength, Strength, LookbackBars);
+
+If HighPivot1 <> -1 and
+LowPivot1 <> -1 and
+HighPivot2 <> -1 and
+LowPivot2 <> -1 and
+AbsValue(Low - Low[LowPivot1]) <= TheDelta and
+AbsValue(Low - Low[LowPivot2]) <= TheDelta and
+AbsValue(Low - Lowest(Low, LowPivot2)) <= TheDelta and
+HighPivot1 < LowPivot1 and
+HighPivot2 < LowPivot2 and
+Low <= Low[1] Then
+	splatrf.triplebottom = LowPivot2;

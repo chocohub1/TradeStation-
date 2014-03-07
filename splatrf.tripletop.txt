@@ -1,0 +1,38 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.tripletop
+Description	: Find a triple top formation
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	LookbackBars(Numeric),
+	Strength(Numeric),
+	RangeFactor(Numeric);
+
+Variables:
+	Pdelta(0.0),
+	HighPivot1(0.0),
+	LowPivot1(0.0),
+	HighPivot2(0.0),
+	LowPivot2(0.0);
+
+splatrf.tripletop = -1;
+Pdelta = RangeFactor * Volatility(LookbackBars);
+HighPivot1 = PivotHighVSBar(1, High, Strength, Strength, LookbackBars);
+LowPivot1 = PivotLowVSBar(1, Low, Strength, Strength, LookbackBars);
+HighPivot2 = PivotHighVSBar(2, High, Strength, Strength, LookbackBars);
+LowPivot2 = PivotLowVSBar(2, Low, Strength, Strength, LookbackBars);
+
+If HighPivot1 <> -1 and
+LowPivot1 <> -1 and
+HighPivot2 <> -1 and
+LowPivot2 <> -1 and
+AbsValue(High - High[HighPivot1]) <= Pdelta and
+AbsValue(High - High[HighPivot2]) <= Pdelta and
+AbsValue(High - Highest(High, HighPivot2)) <= Pdelta and
+HighPivot1 > LowPivot1 and
+HighPivot2 > LowPivot2 and
+High >= High[1] Then
+	splatrf.tripletop = HighPivot2;

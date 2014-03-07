@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.floatchannellow
+Description	: Return the value of the lower float channel
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	TheFloat(Numeric);
+
+Variables:
+	FloatBars(0);
+
+splatrf.floatchannellow = 0;
+FloatBars = 0;
+If TheFloat > 0 Then Begin
+	FloatBars = splatrf.getfloatbar(TheFloat);
+	If FloatBars > 0 Then
+		splatrf.floatchannellow = Lowest(Low, FloatBars);
+End;

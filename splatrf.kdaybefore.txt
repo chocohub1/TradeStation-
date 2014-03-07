@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.kdaybefore
+Description	: kday-before
+Provided By	: Splatr (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	k(Numeric);
+
+splatrf.kdaybefore = splatrf.kdayonbefore(RDate - 1, k);
+

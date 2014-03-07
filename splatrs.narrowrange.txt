@@ -1,0 +1,95 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.narrowrange
+Description	: Use the Range Ratio to find Narrow Range Patterns
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	{N Parameters}
+	RatioLength1(1),
+	RatioLength2(7),
+	RangePercent(0.7),
+	MaxRangeRatio(0.7),
+	{Filter Parameters}
+	FiltersOn(False),
+	FilterLength(10),
+	MinimumPrice(20),
+	MinimumADX(18),
+	MinimumHV(0.5),
+	RetraceBars(3),
+	{Position Parameters}
+	Equity(1000000),
+	RiskModel(3),
+	RiskPercent(1.0),
+	RiskATR(1.0),
+	EntryFactor(0.10),
+	DrawTargets(False);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	ATRLength(20),
+	MA(0.0),
+	MALength(50),
+	TradeFilter(True),
+	BuyStop(0.0),
+	ShortStop(0.0),
+	{N Variables}
+	NLength1(5),
+	NLength2(10),
+	NLength3(4),
+	LowVolatility(False);
+
+ATR = Volatility(ATRLength);
+MA = Average(Close, MALength);
+
+{Set Entry and Exit Stops}
+
+BuyStop = High + (EntryFactor * ATR);
+ShortStop = Low - (EntryFactor * ATR);
+
+{splatrf. N Setup}
+
+Condition1 = splatrf.narrowrange(NLength1, 1) and splatrf.narrowrange(NLength1, 0)[1];
+Condition2 = Low > Low[1] and High < High[1] and Low[1] > Low[2] and High[1] < High[2];
+Condition3 = splatrf.narrowrange(NLength2, 0);
+Condition4 = splatrf.insidedaynarrowrange(NLength3, 0);
+Condition5 = splatrf.rangeratio(RatioLength1, RatioLength2) <= MaxRangeRatio;
+LowVolatility = Condition1 or Condition2 or Condition3 or Condition4 or Condition5;
+
+{Run trade filters}
+
+If FiltersOn Then
+	TradeFilter = Close > MinimumPrice and
+				  ADX(FilterLength) >= MinimumADX and
+				  splatrf.volatility(FilterLength) >= MinimumHV;
+
+If LowVolatility and
+Range <= RangePercent * ATR and
+TradeFilter Then Begin
+
+	{Calculate shares based on risk model}
+	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 1);
+
+	{Narrow Range}
+
+	If MedianPrice > MA and
+	splatrf.retracedown(RetraceBars) Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("N", BuyStop, 0, 0, 0);
+		If DMIPlus(FilterLength) > DMIMinus(FilterLength) Then
+			Buy("LE N") N Shares Next Bar at BuyStop Stop;
+	End;
+
+	If MedianPrice < MA and
+	splatrf.retraceup(RetraceBars) Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("N", 0, 0, ShortStop, 0);
+		If DMIMinus(FilterLength) > DMIPlus(FilterLength) Then
+			Sell Short("SE N") N Shares Next Bar at ShortStop Stop;
+	End;
+End;

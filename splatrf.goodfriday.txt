@@ -1,0 +1,19 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.goodfriday
+Description	: Good Friday
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	EString("");
+
+HString = "Good Friday";
+splatrf.goodfriday = splatrf.easter(GYear, EString) - 2;
+

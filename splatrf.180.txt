@@ -1,0 +1,43 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.180
+Description	: Search for the 180 Pattern
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Percent(Numeric),
+	RangeFactor(Numeric),
+	Length(Numeric);
+
+Variables:
+	RPOpen(0.0),
+	RPClose(0.0),
+	ATR(0.0),
+	RangeCondition(False);
+
+splatrf.180 = 0;
+
+RPOpen = splatrf.rangepct(Open, High, Low);
+RPClose = splatrf.rangepct(Close, High, Low);
+ATR = Volatility(Length);
+RangeCondition = Average(Range, 2) >= RangeFactor * ATR;
+
+Condition1 = RPOpen[1] >= (1 - Percent) and RPClose[1] <= Percent and
+			 RPOpen <= Percent and RPClose >= (1 - Percent);
+Condition2 = Close[1] < Open[1] and
+			 Close > Open and
+		     High >= MedianPrice[1];
+If (Condition1 and Condition2) and
+RangeCondition Then
+	splatrf.180 = 1;
+
+Condition1 = RPOpen[1] <= Percent and RPClose[1] >= (1 - Percent) and
+			 RPOpen >= (1 - Percent) and RPClose <= Percent;
+Condition2 = Close[1] > Open[1] and
+			 Close < Open and
+		     Low <= MedianPrice[1];
+If (Condition1 and Condition2) and
+RangeCondition Then
+	splatrf.180 = 2;

@@ -1,0 +1,17 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.reversalup
+Description	: Test for a Reversal (R) Bar Up
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+splatrf.reversalup = False;
+
+If Low < Lowest(Low, Length-1)[1] and
+Close > Close[1] and
+Close > Open Then
+	splatrf.reversalup = True;

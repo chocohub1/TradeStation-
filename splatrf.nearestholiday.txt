@@ -1,0 +1,52 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.nearestholiday
+Description	: Determine the nearest holiday
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RDate(Numeric),
+	Holidays(Numeric),
+	Holiday[MaxSize1](NumericArray),
+	HolidayIndex(NumericRef);
+
+Variables:
+	GYear(0),
+	GMonth(0),
+	GDay(0),
+	ih(0),
+	diff(0),
+	NearRD(0),
+	ird(0);
+
+Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+diff = 366;
+For ih = 0 to Holidays-1 Begin
+	Value1 = Holiday[ih] - RDate;
+	Value2 = AbsValue(Value1);
+	If Value2 < diff Then Begin
+		diff = Value2;
+		HolidayIndex = ih;
+		Value3 = Value1;
+	End;
+End;
+
+NearRD = Holiday[HolidayIndex];
+If Value3 > 0 Then Begin
+	Value4 = RDate;
+	Value5 = NearRD;
+End Else Begin
+	Value4 = NearRD;
+	Value5 = RDate;
+End;
+For ird = Value4 To Value5 Begin
+	Value6 = splatrf.dayofweek(ird);
+	If Value6 = 0 or Value6 = 6 Then
+		diff = diff - 1;
+End;
+If Value3 > 0 Then
+	splatrf.nearestholiday = -diff
+Else
+	splatrf.nearestholiday = diff;

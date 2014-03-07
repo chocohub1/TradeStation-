@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.daysremain
+Description	: Compute the days remaining in a year
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	GMonth(Numeric),
+	GDay(Numeric);
+
+splatrf.daysremain = splatrf.gsubtract(GYear, GMonth, GDay, GYear, 12, 31);

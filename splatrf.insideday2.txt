@@ -1,0 +1,13 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.insideday2
+Description	: Search for two Inside Days in a row
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+splatrf.insideday2 = False;
+
+If Low > Low[1] and High < High[1] and
+Low[1] > Low[2] and High[1] < High[2] Then
+	splatrf.insideday2 = True;

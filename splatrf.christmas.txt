@@ -1,0 +1,20 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.christmas
+Description	: christmas
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	IMonth(12),
+	IDay(25);
+
+HString = "Christmas";
+splatrf.christmas = splatrf.gdate2rdate(GYear, IMonth, IDay);
+

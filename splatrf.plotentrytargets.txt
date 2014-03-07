@@ -1,0 +1,82 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.plotentrytargets
+Description	: Plot the entry points, both stops and limits
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	SystemID(String),
+	BuyStop(Numeric),
+	BuyLimit(Numeric),
+	ShortStop(Numeric),
+	ShortLimit(Numeric);
+
+Variables:
+	PlotColor(Black),
+	BSLine(-1),
+	BLLine(-1),
+	SSLine(-1),
+	SLLine(-1),
+	BSString(""),
+	BLString(""),
+	SSString(""),
+	SLString(""),
+	BSText(-1),
+	BLText(-1),
+	SSText(-1),
+	SLText(-1);
+
+splatrf.plotentrytargets = False;
+
+If LastBarOnChart Then Begin
+	If GetBackGroundColor = 1 Then
+		PlotColor = White;
+	If BuyStop > 0 Then Begin
+		BSString = " LE " + SystemID + " Stop ";
+		BSLine = TL_New(Date[0], Time[0], BuyStop, Date[1], Time[1], BuyStop);
+		If BSLine >= 0 Then Begin
+			TL_SetColor(BSLine, PlotColor);
+			TL_SetSize(BSLine, 1);
+			TL_SetExtRight(BSLine, True);
+			BSText = Text_New(Date, Time, BuyStop, BSString);
+			Text_SetColor(BSText, PlotColor);
+		End;
+	End;
+	If BuyLimit > 0 Then Begin
+		BLString = " LE " + SystemID + " Limit ";
+		BLLine = TL_New(Date[0], Time[0], BuyLimit, Date[1], Time[1], BuyLimit);
+		If BLLine >= 0 Then Begin
+			TL_SetColor(BLLine, PlotColor);
+			TL_SetSize(BLLine, 1);
+			TL_SetExtRight(BLLine, True);
+			BLText = Text_New(Date, Time, BuyLimit, BLString);
+			Text_SetColor(BLText, PlotColor);
+		End;
+	End;
+	If ShortStop > 0 Then Begin
+		SSString = " SE " + SystemID + " Stop ";
+		SSLine = TL_New(Date[0], Time[0], ShortStop, Date[1], Time[1], ShortStop);
+		If SSLine >= 0 Then Begin
+			TL_SetColor(SSLine, PlotColor);
+			TL_SetSize(SSLine, 1);
+			TL_SetExtRight(SSLine, True);
+			SSText = Text_New(Date, Time, ShortStop, SSString);
+			Text_SetColor(SSText, PlotColor);
+		End;
+	End;
+	If ShortLimit > 0 Then Begin
+		SLString = " SE " + SystemID + " Limit ";
+		SLLine = TL_New(Date[0], Time[0], ShortLimit, Date[1], Time[1], ShortLimit);
+		If SLLine >= 0 Then Begin
+			TL_SetColor(SLLine, PlotColor);
+			TL_SetSize(SLLine, 1);
+			TL_SetExtRight(SLLine, True);
+			SLText = Text_New(Date, Time, ShortLimit, SLString);
+			Text_SetColor(SLText, PlotColor);
+		End;
+	End;
+End;
+
+splatrf.plotentrytargets = True;

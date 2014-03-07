@@ -1,0 +1,34 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.pivothigh
+Description	: Find the highest pivot 
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Pivots(NumericSimple),
+	PM[MaxSize1, MaxSize2](NumericArrayRef),
+	PStart(NumericSimple),
+	PEnd(NumericSimple),
+	MinStrength(NumericSimple);
+
+Variables:
+	ip(0),
+	hp(0),
+	TheHigh(0.0);
+
+splatrf.pivothigh = 0;
+If Pivots >= 1 and MinStrength >= 1 Then Begin
+	hp = -1;
+	TheHigh = 0.0;
+	For ip = PStart to PEnd Begin
+		If PM[ip, 1] = 1 Then Begin
+			If High[PM[ip, 0]] > TheHigh and PM[ip, 2] >= MinStrength Then Begin
+				TheHigh = High[PM[ip, 0]];
+				hp = ip;
+			End;
+		End;
+	End;
+	splatrf.pivothigh = hp;
+End;

@@ -1,0 +1,28 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.pivots
+Description	: Show Pivot Patterns
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Offset(13),
+	HPColor(Cyan),
+	LPColor(Magenta),
+	DPColor(Yellow);
+
+Condition1 = High < High[1] and High[1] > High[2];
+Condition2 = Low > Low[1] and Low[1] < Low[2];
+
+If Condition1 and Condition2 Then Begin
+	{Double Pivot}
+	PlotPaintBar[Offset](High[1], Low[1], "Pivot", DPColor);
+End Else Begin
+	{High Pivot}
+	If Condition1 Then
+		PlotPaintBar[Offset](High[1], Low[1], "Pivot", HPColor);
+	{Low Pivot}
+	If Condition2 Then
+		PlotPaintBar[Offset](High[1], Low[1], "Pivot", LPColor);
+End;

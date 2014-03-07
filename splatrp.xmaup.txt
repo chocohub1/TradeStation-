@@ -1,0 +1,15 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrp.xmaup
+Description	: Show upwards cross of moving average
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	RangeFactor(1.35),
+	Length(65),
+	RPFactor(0.3);
+
+If splatrf.xmaup(RangeFactor, Length, RPFactor) Then
+	PlotPaintBar(High, Low, "XMA Up");

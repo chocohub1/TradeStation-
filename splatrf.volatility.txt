@@ -1,0 +1,33 @@
+{*******************************************************************
+Name		: splatrf.volatility
+Description	: Calculate the annualized historic volatility
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(Numeric);
+
+Variables:
+	DaysInYear(365),
+	DaysInMonth(30),
+	DaysInWeek(7),
+	HoursInDay(24),
+	MinutesInHour(60),
+	TimeFactor(0.0);
+
+splatrf.volatility = 0;
+
+If Close > 0 and Close[1] > 0 Then Begin
+	If DataCompression >= 1 and DataCompression < 5 Then Begin
+		If DataCompression = 1 Then {Intraday}
+			TimeFactor = DaysInYear * HoursInDay * (BarInterval / MinutesInHour)
+		Else If DataCompression = 2 Then {Daily}
+			TimeFactor = DaysInYear
+		Else If DataCompression = 3 Then {Weekly}
+			TimeFactor = DaysInYear / DaysInWeek
+		Else If DataCompression = 4 Then {Monthly}
+			TimeFactor = DaysInYear / DaysInMonth;
+		splatrf.volatility = StdDev(Log(Close / Close[1]), Length) * SquareRoot(TimeFactor);
+	End;
+End;
+

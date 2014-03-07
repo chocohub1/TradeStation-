@@ -1,0 +1,118 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.nlinebreak
+Description	: Superimpose an N-Line Break chart
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Price(Close),
+	BreakBars(3),
+	UpColor(Tool_White),
+	DownColor(Tool_Yellow);
+
+Variables:
+	BasePrice(0.0),
+	TheHigh(0.0),
+	TheLow(0.0),
+	UpCount(0),
+	DownCount(0),
+	ix(0),
+	VL(-1),
+	TLVal(0.0),
+	TL(-1),
+	BLVal(0.0),
+	BL(-1),
+	Color(Tool_White);
+
+Arrays:
+	UpBlock[10](0.0),
+	DownBlock[10](0.0);
+
+If CurrentBar = 1 Then Begin
+	BasePrice = Price;
+	UpCount = 0;
+	TheHigh = Price;
+	DownCount = 0;
+	TheLow = Price;
+	TLVal = Price;
+	BLVal = Price;
+End Else Begin
+	If Price < BasePrice Then Begin
+		Color = DownColor;
+		UpCount = 0;
+		If (Price < TheLow or DownCount = 0) Then Begin
+			{New Low}
+			DownCount = DownCount + 1;
+			If DownCount <= BreakBars Then
+				DownBlock[DownCount-1] = Price;
+			If DownCount = 1 Then Begin
+				BasePrice = BLVal;
+				TLVal = BasePrice;
+			End Else Begin
+				TLVal = TheLow;
+				If DownCount > BreakBars Then Begin
+					BasePrice = DownBlock[0];
+					For ix = 0 To BreakBars - 1 Begin
+						DownBlock[ix] = DownBlock[ix+1];
+					End;
+					DownBlock[BreakBars-1] = Price;
+				End;
+			End;
+			BLVal = Price;
+			TheLow = Price;
+		End;
+	End;
+	If Price > BasePrice Then Begin
+		Color = UpColor;
+		DownCount = 0;
+		If (Price > TheHigh or UpCount = 0) Then Begin
+			{New High}
+			UpCount = UpCount + 1;
+			If UpCount <= BreakBars Then
+				UpBlock[UpCount-1] = Price;
+			If UpCount = 1 Then Begin
+				BasePrice = TLVal;
+				BLVal = BasePrice;
+			End Else Begin
+				BLVal = TheHigh;
+				If UpCount > BreakBars Then Begin
+					BasePrice = UpBlock[0];
+					For ix = 0 To BreakBars - 2 Begin
+						UpBlock[ix] = UpBlock[ix+1];
+					End;
+					UpBlock[BreakBars-1] = Price;
+				End;
+			End;
+			TLVal = Price;
+			TheHigh = Price;
+		End;
+	End;
+End;
+
+{Draw the top line}
+TL = TL_New(Date[1], Time[1], TLVal, Date, Time, TLVal);
+If TL >= 0 Then Begin
+	TL_SetColor(TL, Color);
+	TL_SetSize(TL, 1);
+End;
+{Draw the bottom line}
+BL = TL_New(Date[1], Time[1], BLVal, Date, Time, BLVal);
+If BL >= 0 Then Begin
+	TL_SetColor(BL, Color);
+	TL_SetSize(BL, 1);
+End;
+{Draw the left vertical line}
+VL = TL_New(Date[1], Time[1], BLVal, Date[1], Time[1], TLVal);
+If VL >= 0 Then Begin
+	TL_SetColor(VL, Color);
+	TL_SetSize(VL, 1);
+End;
+{Draw the right vertical line}
+VL = TL_New(Date, Time, BLVal, Date, Time, TLVal);
+If VL >= 0 Then Begin
+	TL_SetColor(VL, Color);
+	TL_SetSize(VL, 1);
+End;
+

@@ -1,0 +1,27 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.hvratio
+Description	: Display the Historical Volatility Ratio
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+ 
+Inputs:
+	Length1(10),
+	Length2(100),
+	Cutoff(0.5);
+
+Variables:
+	HV1(0.0),
+	HV2(0.0),
+	HVR(0.0);
+
+HV1 = splatrf.volatility(Length1);
+HV2 = splatrf.volatility(Length2);
+If HV1 > 0 and HV2 > 0 Then Begin
+	HVR = HV1 / HV2;
+	Plot1(HVR, "HV Ratio");
+	Plot2(Average(HVR, Length1), "HVR Ave");
+	Plot3(Cutoff, "Cutoff");
+End;
+

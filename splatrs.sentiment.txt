@@ -1,0 +1,128 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrs.sentiment
+Description	: Look for combinations of sentiment indicators
+Provided By	: SplatR (c) Copyright 2013
+
+1. VIX (V)
+2. Advancers (A)
+3. Decliners (D)
+4. Arms Index, or TRIN (T)
+5. Tick (K)
+
+Data1: Market Index
+Data2: $VIX.X
+Data3: $ADV
+Data4: $DECL
+Data5: $TRIN
+Data6: $TICK
+
+NOTE: TradeStation 6 and 7 do not allow importing external data.
+Thus, we can only use the sentiment indicators that are provided
+by the TradeStation feed. Ask TradeStation to include more
+sentiment indicators in their feed, such as the put/call ratio
+and new highs/lows.
+
+********************************************************************}
+
+Inputs:
+	{Market Parameters}
+	MinimumPatterns(2),
+	Length(20),
+	{Position Parameters}
+	Equity(100000),
+	RiskModel(3),
+	RiskPercent(2.0),
+	RiskATR(1.0),
+	EntryFactor(0.2),
+	DrawTargets(True);
+
+Variables:
+	N(0),
+	ATR(0.0),
+	LongCount(0),
+	ShortCount(0),
+	ReturnValue(0),
+	PriceDelta(0),
+	HighLow(0),
+	Smooth(4),
+	BuyStop(0.0),
+	ShortStop(0.0);
+
+ATR = Volatility(Length);
+BuyStop = High + (EntryFactor * ATR);
+ShortStop = Low - (EntryFactor * ATR);
+
+If DataCompression < 2 Then 
+	Commentary("This system must be applied to a daily bar " +
+	"interval or longer.")
+Else Begin
+	LongCount = 0;
+	ShortCount = 0;
+	ATR = Volatility(Length);
+	PriceDelta = ATR / 4;
+
+	If Close of Data2 > 0 Then Begin
+		HighLow = splatrf.highlowindex(Close of Data2, Length);
+		If HighLow = 1 Then
+			LongCount = LongCount + 1
+		Else If HighLow = 2 Then
+			ShortCount = ShortCount + 1;
+	End;
+
+	If Close of Data3 > 0 Then Begin
+		HighLow = splatrf.highlowindex(Close of Data3, Length);
+		If HighLow = 2 Then
+			LongCount = LongCount + 1
+		Else If HighLow = 1 Then
+			ShortCount = ShortCount + 1;
+	End;
+
+	If Close of Data4 > 0 Then Begin
+		HighLow = splatrf.highlowindex(Close of Data4, Length);
+		If HighLow = 1 Then
+			LongCount = LongCount + 1
+		Else If HighLow = 2 Then
+			ShortCount = ShortCount + 1;
+	End;
+
+	If Close of Data5 > 0 Then Begin
+		HighLow = splatrf.highlowindex(Average(Close of Data5, Smooth),
+		Length);
+		If HighLow = 1 Then
+			LongCount = LongCount + 1
+		Else If HighLow = 2 Then
+			ShortCount = ShortCount + 1;
+	End;
+
+	If Close of Data6 > 0 Then Begin
+		HighLow = splatrf.highlowindex(Average(Close of Data6, Smooth), Length);
+		If HighLow = 2 Then
+			LongCount = LongCount + 1
+		Else If HighLow = 1 Then
+			ShortCount = ShortCount + 1;
+	End;
+
+	{Calculate shares based on risk model}
+	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Length, 100);
+
+	{Multiple Pattern Buy Signal}
+
+	If LongCount >= MinimumPatterns Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("S", BuyStop, 0, 0, 0);
+		Buy("LE S") N Shares Next Bar on BuyStop Stop;
+	End;
+
+	{Multiple Pattern Sell Signal}
+
+	If ShortCount >= MinimumPatterns Then Begin
+		{Draw Entry Targets on the Chart}
+		If DrawTargets Then
+			Condition1 = splatrf.plotentrytargets("S", 0, 0, ShortStop, 0);
+		Sell Short("SE S") N Shares Next Bar on ShortStop Stop;
+	End;
+End;
+

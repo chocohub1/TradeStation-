@@ -1,0 +1,21 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatrf.labor
+Description	: labor-day
+Provided By	: SplatR (c) Copyright 2013
+Reference	: Calendrical Calculations, Cambridge Press, 2002
+********************************************************************}
+
+Inputs:
+	GYear(Numeric),
+	HString(StringRef);
+
+Variables:
+	RMonday(1),
+	IMonth(9),
+	IDay(1);
+
+HString = "Labor Day";
+splatrf.labor = splatrf.firstkday(RMonday, GYear, IMonth, IDay);
+

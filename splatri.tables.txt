@@ -1,0 +1,510 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.tables
+Description	: Tables
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	BarsInDay(14),
+	SMALength(65),
+	FMALength(20),
+	ATRLength(10),
+	KeltnerSD(5),
+	RangeIndexDays(3),
+	atrfactor(0.25),
+	TLength(5),
+	TCount(3),
+	TFactor(0.5),
+	TBColor(Cyan),
+	TTColor(Magenta),
+	TWidth(1),
+	CloseTime(1615),
+	LogStats(False),
+	TBLog("c:\trading\tbstats.txt"),
+	TTLog("c:\trading\ttstats.txt");
+
+Variables:
+	StartDay(False),
+	DayCount(0),
+	id(0),
+	BarCount(0),
+	ib(0),
+	ATR(0.0),
+	ATRPercentage(0.0),
+	ATRSum(0.0),
+	ATRTarget(0.0),
+	GapRatio(0.0),
+	RR1(0.0),
+	RR2(0.0),
+	RR3(0.0),
+	SN(""),
+	RangePercentage(0.0),
+	UpString("UP"),
+	DownString("DOWN"),
+	FlatString("FLAT"),
+	SMA(0.0),
+	SMATrend(""),
+	FMA(0.0),
+	FMATrend(""),
+	SD(0.0),
+	UB(0.0),
+	LB(0.0),
+	TickSumToday(0),
+	TickAveToday(0),
+	PRV(0.0),
+	Zone(0.0),
+	Slope(0.0),
+	UpCount(0),
+	Uptrend(False),
+	DownCount(0),
+	Downtrend(False),
+	MACrossUp(False),
+	MACrossDown(False),
+	TrendCount(0),
+	zonecount(0),
+	upperbound(0),
+	lowerbound(0),
+	LevelCount(0),
+	il(0),
+	OD0(0.0),
+	HD0(0.0),
+	LD0(0.0),
+	RD0(0.0),
+	HD1(0.0),
+	LD1(0.0),
+	RD1(0.0),
+	HD2(0.0),
+	LD2(0.0),
+	RD2(0.0),
+	Mean(0.0),
+	THigh(0.0),
+	TLow(0.0),
+	TRange(0.0),
+	TB(0),
+	TT(0),
+	TableBottom(False),
+	TBCount(0),
+	TBar(0),
+	itb(0),
+	TableTop(False),
+	TTCount(0),
+	itt(0),
+	TLine(-1),
+	TableAM(1100),
+	TablePM(1400),
+	TableScore(0),
+	TableMFE(0.0),
+	TableMAE(0.0),
+	TablePL(0.0),
+	StatsString("");
+
+Arrays:
+	TBLow[50](0.0),
+	TTHigh[50](0.0),
+	TBBar[50](0),
+	TTBar[50](0),
+	TBRange[50](0.0),
+	TTRange[50](0.0),
+	TBString[50](""),
+	TTString[50](""),
+	TickSum[50, 100](0),
+	TickAve[50, 100](0),
+	LevelID[20](""),	
+	Level[2, 20](0.0);
+
+{Initialization}
+
+If Time < Time[1] Then Begin
+	StartDay = True;
+	{Calculate the ATR}
+	ATRSum = 0.0;
+	For Value1 = 1 To ATRLength Begin
+		ATRSum = ATRSum + HighD(Value1) - LowD(Value1);
+	End;
+	ATR = ATRSum / ATRLength;
+	{Calculate the Gap}
+	GapRatio = IFF(ATR > 0, (Open - Close) / ATR, 0);
+	{Clear the table strings}
+	For itb = 1 To TBCount Begin
+		TBString[itb] = "";
+	End;
+	For itt = 1 To TTCount Begin
+		TTString[itt] = "";
+	End;
+	{Clear the table counts}
+	TBCount = 0;
+	TTCount = 0;
+End Else
+	StartDay = False;
+
+If StartDay and
+ATR > 0 Then Begin
+	{Day Index}
+	DayCount = DayCount + 1;
+	id = Mod(DayCount, ATRLength);
+	If id = 0 Then id = ATRLength;
+	{Trend Counts}
+	If FMA > SMA Then Begin
+		UpCount = UpCount + 1;
+		DownCount = 0;
+	End;
+	If FMA < SMA Then Begin
+		DownCount = DownCount + 1;
+		UpCount = 0;
+	End;
+	{Initialize Counts}
+	BarCount = 1;
+	TickSumToday = 0;
+	zonecount = 0;
+	{Symbol Name}
+	SN = GetSymbolName;
+End;
+
+{Intraday Range}
+
+HD0 = HighD(0);
+LD0 = LowD(0);
+RD0 = HD0 - LD0;
+HD1 = HighD(1);
+LD1 = LowD(1);
+RD1 = HD1 - LD1;
+HD2 = HighD(2);
+LD2 = LowD(2);
+RD2 = HD2 - LD2;
+ATRPercentage = IFF(ATR > 0, RD0 / ATR, 0);
+
+{Keltner Bands}
+
+SMA = Average(Close, SMALength);
+FMA = Average(Close, FMALength);
+SD = KeltnerChannel(Close, SMALength, 1) - SMA;
+UB = KeltnerChannel(Close, SMALength, KeltnerSD);
+LB = KeltnerChannel(Close, SMALength, -KeltnerSD);
+Uptrend = SMA > SMA[BarsInDay];
+Downtrend = SMA < SMA[BarsInDay];
+MACrossUp = FMA > SMA and FMA[BarsInDay] < SMA[BarsInDay];
+MACrossDown = FMA < SMA and FMA[BarsInDay] > SMA[BarsInDay];
+
+{Volume}
+
+TickSumToday = TickSumToday + Volume;
+TickSum[id, BarCount] = TickSumToday;
+TickAveToday = 0;
+For Value1 = 1 to ATRLength Begin
+	TickAveToday = TickAveToday + TickSum[Value1, BarCount];
+End;
+TickAve[id, BarCount] = IFF(ATRLength > 0, TickAveToday / ATRLength, 0);
+PRV = IFF(TickAve[id, BarCount] > 0, TickSumToday / TickAve[id, BarCount], 0);
+If CommentaryEnabled Then Begin
+	CommentaryCL(NewLine, SN, " VOLATILITY ", NewLine);
+	CommentaryCL("ATR        = ", NumToStr(ATR, 2));
+	CommentaryCL("RR         = ", NumToStr(RR1, 2), " yesterday");
+	CommentaryCL("Volume %   = ", NumToStr(PRV, 2));
+	CommentaryCL("ATR Target = ", NumToStr(ATRTarget, 2));
+End;
+
+{Intraday Patterns}
+
+THigh = Highest(High, TLength);
+TLow = Lowest(Low, TLength);
+TRange = IFF(ATR > 0, (THigh - TLow) / ATR, 0);
+
+TB = splatrf.tablebottom(TLength, TCount, TFactor);
+If TB >= TCount Then Begin
+	TableBottom = True;
+	TBCount = TBCount + 1;
+	TBLow[TBCount] = Low;
+	TBBar[TBCount] = BarCount;
+	TBRange[TBCount] = TRange;
+	{Draw Table Bottom}
+	TLine = TL_New(Date[0], Time[0], TLow, Date[TLength-1], Time[TLength-1], TLow);
+	If TLine >= 0 Then Begin
+		TL_SetColor(TLine, TBColor);
+		TL_SetSize(TLine, TWidth);
+		Alert("Table Bottom");
+	End;
+End;
+
+TT = splatrf.tabletop(TLength, TCount, TFactor);
+If TT >= TCount Then Begin
+	TableTop = True;
+	TTCount = TTCount + 1;
+	TTHigh[TTCount] = High;
+	TTBar[TTCount] = BarCount;
+	TTRange[TTCount] = TRange;
+	{Draw Table Top}
+	TLine = TL_New(Date[0], Time[0], THigh, Date[TLength-1], Time[TLength-1], THigh);
+	If TLine >= 0 Then Begin
+		TL_SetColor(TLine, TTColor);
+		TL_SetSize(TLine, TWidth);
+		Alert("Table Top");
+	End;
+End;
+
+{Statistical Logging}
+
+If (TableBottom or TableTop) Then Begin
+	{Calculations}
+	If UpCount > 0 Then
+		TrendCount = UpCount
+	Else
+		TrendCount = -DownCount;
+	Slope = IFF(ATR > 0, (Close - Close[BarsInDay]) / ATR, 0);
+	{TableBottom}
+	If TableBottom Then Begin
+		{Score}
+		RangePercentage = IFF(RD0 > 0, (TBLow[TBCount] - LD0) / RD0, 0);
+		Zone = (TBLow[TBCount] - SMA) / SD;
+		TableScore = 0;
+		If Uptrend Then
+			TableScore = TableScore + 1
+		Else
+			TableScore = TableScore - 1;
+		If UpCount < KeltnerSD or DownCount >= KeltnerSD Then
+			TableScore = TableScore + 1;
+		If UpCount >= KeltnerSD or DownCount < KeltnerSD Then
+			TableScore = TableScore - 1;
+		If FMA > FMA[1] Then
+			TableScore = TableScore + 1;
+		If MACrossUp Then
+			TableScore = TableScore + 1;
+		If MACrossDown Then
+			TableScore = TableScore - 1;
+		If Zone < -KeltnerSD Then
+			TableScore = TableScore + 1;
+		If Zone > KeltnerSD Then
+			TableScore = TableScore - 1;
+		{Commentary}
+		If CommentaryEnabled Then Begin
+			CommentaryCL(NewLine, SN, " TABLE BOTTOM ", NumToStr(TLength, 0), " / ", NumToStr(TCount, 0), NewLine);
+			CommentaryCL("Table Price = ", NumToStr(TBLow[TBCount], 2));
+			CommentaryCL("ATR         = ", NumToStr(ATR, 2));
+			CommentaryCL("Range Ratio = ", NumToStr(RR1, 2));
+			CommentaryCL("Gap Ratio   = ", NumToStr(GapRatio, 2));
+			CommentaryCL("Volume %    = ", NumToStr(PRV, 2));
+			CommentaryCL("ATR %       = ", NumToStr(ATRPercentage, 2));
+			CommentaryCL("Range %     = ", NumToStr(RangePercentage, 2));
+			CommentaryCL("Zone Index  = ", NumToStr(Zone, 1));
+			CommentaryCL("Trend Count = ", NumToStr(TrendCount, 0));
+			CommentaryCL("Table Range = ", NumToStr(TBRange[TBCount], 2));
+			CommentaryCL("Price Slope = ", NumToStr(Slope, 2));
+			CommentaryCL("Table Score = ", NumToStr(TableScore, 0));
+		End;
+		{Statistics}
+		If LogStats Then Begin
+			TBString[TBCount] = GetSymbolName + "," +
+				NumToStr(Date, 0) + "," +
+				NumToStr(Time, 0) + "," +
+				NumToStr(TBLow[TBCount], 2) + "," +
+				NumToStr(ATR, 2) + "," +
+				NumToStr(RR1, 2) + "," +
+				NumToStr(GapRatio, 2) + "," +
+				NumToStr(PRV, 2) + "," +
+				NumToStr(ATRPercentage, 2) + "," +
+				NumToStr(RangePercentage, 2) + "," +
+				NumToStr(Zone, 1) + "," +
+				NumToStr(TrendCount, 0) + "," +
+				NumToStr(TBRange[TBCount], 2) + "," +
+				NumToStr(Slope, 2) + "," +
+				NumToStr(TableScore, 0) + ",";
+		End;
+		TableBottom = False;
+	End;
+	{Table Top}
+	If TableTop Then Begin
+		{Score}
+		RangePercentage = IFF(RD0 > 0, (TTHigh[TTCount] - LD0) / RD0, 0);
+		Zone = (TTHigh[TTCount] - SMA) / SD;
+		TableScore = 0;
+		If Downtrend Then
+			TableScore = TableScore + 1
+		Else
+			TableScore = TableScore - 1;
+		If DownCount < KeltnerSD or UpCount >= KeltnerSD Then
+			TableScore = TableScore + 1;
+		If DownCount >= KeltnerSD or UpCount < KeltnerSD Then
+			TableScore = TableScore - 1;
+		If FMA < FMA[1] Then
+			TableScore = TableScore + 1;
+		If MACrossDown Then
+			TableScore = TableScore + 1;
+		If MACrossUp Then
+			TableScore = TableScore - 1;
+		If Zone < -KeltnerSD Then
+			TableScore = TableScore - 1;
+		If Zone > KeltnerSD Then
+			TableScore = TableScore + 1;
+		{Commentary}
+		If CommentaryEnabled Then Begin
+			CommentaryCL(NewLine, SN, " TABLE TOP ", NumToStr(TLength, 0), " / ", NumToStr(TCount, 0), NewLine);
+			CommentaryCL("Table Price = ", NumToStr(TTHigh[TTCount], 2));
+			CommentaryCL("ATR         = ", NumToStr(ATR, 2));
+			CommentaryCL("Range Ratio = ", NumToStr(RR1, 2));
+			CommentaryCL("Gap Ratio   = ", NumToStr(GapRatio, 2));
+			CommentaryCL("Volume %    = ", NumToStr(PRV, 2));
+			CommentaryCL("ATR %       = ", NumToStr(ATRPercentage, 2));
+			CommentaryCL("Range %     = ", NumToStr(RangePercentage, 2));
+			CommentaryCL("Zone Index  = ", NumToStr(Zone, 1));
+			CommentaryCL("Trend Count = ", NumToStr(TrendCount, 0));
+			CommentaryCL("Table Range = ", NumToStr(TTRange[TTCount], 2));
+			CommentaryCL("Price Slope = ", NumToStr(Slope, 2));
+			CommentaryCL("Table Score = ", NumToStr(TableScore, 0));
+		End;
+		{Statistics}
+		If LogStats Then Begin
+			TTString[TTCount] = GetSymbolName + "," +
+				NumToStr(Date, 0) + "," +
+				NumToStr(Time, 0) + "," +
+				NumToStr(TTHigh[TTCount], 2) + "," +
+				NumToStr(ATR, 2) + "," +
+				NumToStr(RR1, 2) + "," +
+				NumToStr(GapRatio, 2) + "," +
+				NumToStr(PRV, 2) + "," +
+				NumToStr(ATRPercentage, 2) + "," +
+				NumToStr(RangePercentage, 2) + "," +
+				NumToStr(Zone, 1) + "," +
+				NumToStr(TrendCount, 0) + "," +
+				NumToStr(TTRange[TTCount], 2) + "," +
+				NumToStr(Slope, 2) + "," +
+				NumToStr(TableScore, 0) + ",";
+		End;
+		TableTop = False;
+	End;
+End;
+
+{Commentary}
+
+If Time = CloseTime and
+ATR > 0 Then Begin
+	{Calculations}
+	Mean = (HD0 + LD0) / 2;
+	RR1 = IFF(ATR > 0, RD0 / ATR, 0);
+	RR2 = IFF(ATR > 0, (RD0 + RD1) / (2 * ATR), 0);
+	RR3 = IFF(ATR > 0, (RD0 + RD1 + RD2) / (3 * ATR), 0);
+	ATRTarget = IFF(RD0 > 0, ATR / RD0, 0);
+	{Store Levels}
+	LevelCount = 1;
+	LevelID[LevelCount] = "*C*";
+	Level[1, LevelCount] = Close;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "HD";
+	Level[1, LevelCount] = HD0;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LD";
+	Level[1, LevelCount] = LD0;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LT";
+	Level[1, LevelCount] = SMA;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "ST";
+	Level[1, LevelCount] = FMA;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "UB";
+	Level[1, LevelCount] = UB;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LB";
+	Level[1, LevelCount] = LB;
+	Level[2, LevelCount] = LevelCount;
+	{Statistical Commentary}
+	If CommentaryEnabled Then Begin
+		SN = GetSymbolName;
+		CommentaryCL(NewLine, SN, " LEVELS", NewLine);
+		Value2 = Sort2DArray(Level, 2, LevelCount, 1);
+		For il = 1 To LevelCount Begin
+			CommentaryCL(LevelID[Level[2, il]], " = ", Level[1, il]);
+		End;
+		CommentaryCL(NewLine, SN, " METRICS", NewLine);
+		{Zone Count}
+		upperbound = Mean + atrfactor * ATR;
+		lowerbound = Mean - atrfactor * ATR;
+		For ib = 0 To BarsInDay-1 Begin
+			Value3 = MedianPrice[ib];
+			If Value3 < upperbound and Value3 > lowerbound Then
+				zonecount = zonecount + 1;
+		End;
+		CommentaryCL("Zone Count : ", NumToStr(10 * zonecount / BarsInDay, 0));
+		{Range Ratio}
+		CommentaryCL("Range Ratio 1 / ", NumToStr(ATRLength, 0), " : ", NumToStr(RR1, 2), " today");
+		CommentaryCL("Range Ratio 2 / ", NumToStr(ATRLength, 0), " : ", NumToStr(RR2, 2));
+		CommentaryCL("Range Ratio 3 / ", NumToStr(ATRLength, 0), " : ", NumToStr(RR3, 2));
+		{Trend}
+		CommentaryCL(NewLine, SN, " TREND", NewLine);
+		If FMA > SMA and
+		FMA[BarsInDay] < SMA[BarsInDay] Then
+			CommentaryCL("ST/LT Cross : ", UpString);
+		If FMA < SMA and
+		FMA[BarsInDay] > SMA[BarsInDay] Then
+			CommentaryCL("ST/LT Cross : ", DownString);
+		If Close > SMA and
+		Close[BarsInDay] < SMA[BarsInDay] Then
+			CommentaryCL("Close/LT Cross : ", UpString);
+		If Close < SMA and
+		Close[BarsInDay] > SMA[BarsInDay] Then
+			CommentaryCL("Close/LT Cross : ", DownString);
+		If UpCount > 0 Then
+			CommentaryCL("Up Count : ", NumToStr(UpCount, 0));
+		If DownCount > 0 Then
+			CommentaryCL("Down Count : ", NumToStr(DownCount, 0));
+		If SMA > SMA[BarsInDay] Then
+			SMATrend = UpString
+		Else If SMA < SMA[BarsInDay] Then
+			SMATrend = DownString
+		Else
+			SMATrend = FlatString;
+		CommentaryCL("LT Trend : ", SMATrend);
+		If FMA > FMA[BarsInDay] Then
+			FMATrend = UpString
+		Else If FMA < FMA[BarsInDay] Then
+			FMATrend = DownString
+		Else
+			FMATrend = FlatString;
+		CommentaryCL("ST Trend : ", FMATrend);
+	End;
+	{Log Statistics}
+	If LogStats Then Begin
+		For itb = 1 To TBCount Begin
+			StatsString = "";
+			TBar = BarCount - TBBar[itb];
+			If TBar > 0 Then Begin
+				Value4 = Highest(High, TBar);
+				TableMFE = IFF(ATR > 0, (Value4 - Low[TBar]) / ATR, 0);
+				Value5 = Lowest(Low, TBar);
+				TableMAE = IFF(ATR > 0, (Value5 - Low[TBar]) / ATR, 0);
+				TablePL = IFF(ATR > 0, (Close - Low[TBar]) / ATR, 0);
+				StatsString = TBString[itb] +
+					NumToStr(TableMFE, 2) + "," +
+					NumToStr(TableMAE, 2) + "," +
+					NumToStr(TablePL, 2) + NewLine;
+				FileAppend(TBLog, StatsString);
+			End;
+		End;
+		For itt = 1 To TTCount Begin
+			StatsString = "";
+			TBar = BarCount - TTBar[itt];
+			If TBar > 0 Then Begin
+				Value6 = Lowest(Low, TBar);
+				TableMFE = IFF(ATR > 0, (High[TBar] - Value6) / ATR, 0);
+				Value7 = Highest(High, TBar);
+				TableMAE = IFF(ATR > 0, (High[TBar] - Value7) / ATR, 0);
+				TablePL = IFF(ATR > 0, (High[TBar] - Close) / ATR, 0);
+				StatsString = TTString[itt] +
+					NumToStr(TableMFE, 2) + "," +
+					NumToStr(TableMAE, 2) + "," +
+					NumToStr(TablePL, 2) + NewLine;
+				FileAppend(TTLog, StatsString);
+			End;
+		End;
+	End;
+End;
+
+{Increment Intraday Bar Count}
+
+BarCount = BarCount + 1;

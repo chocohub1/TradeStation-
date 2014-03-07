@@ -1,0 +1,244 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.zones
+Description	: Intraday Trading Zones
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	SMALength(65),
+	FMALength(20),
+	ATRLength(7),
+	KeltnerSD(5),
+	TrendLookback(13),
+	ZoneFactor(3/11),
+	CloseTime(1615),
+	LogStats(False),
+	LogFile("c:\trading\zonestats.txt");
+
+Variables:
+	SN(""),
+	UpString("UP"),
+	DownString("DOWN"),
+	FlatString("FLAT"),
+	R4(0.0),
+	R3(0.0),
+	S3(0.0),
+	S4(0.0),
+	PP(0.0),
+	SMA(0.0),
+	SMATrend(""),
+	FMA(0.0),
+	FMATrend(""),
+	UB(0.0),
+	LB(0.0),
+	ATR(0.0),
+	UpCount(0),
+	DownCount(0),
+	zonecount(0),
+	upperbound(0.0),
+	lowerbound(0.0),
+	LevelCount(0),
+	il(0),
+	OD0(0.0),
+	HD0(0.0),
+	LD0(0.0),
+	TB(0),
+	TT(0),
+	T1Length(6),
+	T2Length(7),
+	TCount(4),
+	TFactor(0.5),
+	TableBottom(False),
+	TBLow(0.0),
+	TableTop(False),
+	TTHigh(0.0),
+	StatsString("");
+
+Arrays:
+	LevelID[20](""),	
+	Level[2, 20](0.0);
+
+{Initialization}
+
+SMA = Average(Close, SMALength);
+FMA = Average(Close, FMALength);
+UB = KeltnerChannel(Close, SMALength, KeltnerSD);
+LB = KeltnerChannel(Close, SMALength, -KeltnerSD);
+
+ATR = Volatility(ATRLength) of Data2;
+If Time < Time[1] and
+ATR > 0 Then Begin
+	{Trend Counts}
+	If FMA > SMA Then Begin
+		UpCount = UpCount + 1;
+		DownCount = 0;
+	End;
+	If FMA < SMA Then Begin
+		DownCount = DownCount + 1;
+		UpCount = 0;
+	End;
+	{Zone Count}
+	zonecount = 0;
+	upperbound = Open + ZoneFactor * ATR;
+	lowerbound = Open - ZoneFactor * ATR;
+End;
+
+{Intraday Metrics}
+
+If Close <= upperbound and
+Close >= lowerbound Then
+	zonecount = zonecount + 1;
+
+{Intraday Patterns}
+
+TB = splatrf.tablebottom(T1Length, TCount, TFactor);
+If TB >= TCount Then Begin
+	TableBottom = True;
+	TBLow = Lowest(Low, T1Length);
+End;
+
+TB = splatrf.tablebottom(T2Length, TCount, TFactor);
+If TB >= TCount Then Begin
+	TableBottom = True;
+	TBLow = Lowest(Low, T2Length);
+End;
+
+TT = splatrf.tabletop(T1Length, TCount, TFactor);
+If TT >= TCount Then Begin
+	TableTop = True;
+	TTHigh = Highest(High, T1Length);
+End;
+
+TT = splatrf.tabletop(T2Length, TCount, TFactor);
+If TT >= TCount Then Begin
+	TableTop = True;
+	TTHigh = Highest(High, T2Length);
+End;
+
+{Plot Levels}
+
+Plot1(R4, "R4");
+Plot2(R3, "R3");
+Plot3(S3, "S3");
+Plot4(S4, "S4");
+
+{Commentary}
+
+If Time >= CloseTime Then Begin
+	{Intraday Levels}
+	HD0 = HighD(0);
+	LD0 = LowD(0);
+	{Calculate Levels}
+	R4 = Close + 2 * ZoneFactor * ATR;
+	R3 = Close + 1 * ZoneFactor * ATR;
+	S3 = Close - 1 * ZoneFactor * ATR;
+	S4 = Close - 2 * ZoneFactor * ATR;
+	PP = (Close + HD0 + LD0) / 3;
+	{Store Levels}
+	LevelCount = 1;
+	LevelID[LevelCount] = "*C*";
+	Level[1, LevelCount] = Close;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "HD";
+	Level[1, LevelCount] = HD0;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LD";
+	Level[1, LevelCount] = LD0;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "PP";
+	Level[1, LevelCount] = PP;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LT";
+	Level[1, LevelCount] = SMA;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "ST";
+	Level[1, LevelCount] = FMA;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "UB";
+	Level[1, LevelCount] = UB;
+	Level[2, LevelCount] = LevelCount;
+	LevelCount = LevelCount + 1;
+	LevelID[LevelCount] = "LB";
+	Level[1, LevelCount] = LB;
+	Level[2, LevelCount] = LevelCount;
+	If TableBottom Then Begin
+		LevelCount = LevelCount + 1;
+		LevelID[LevelCount] = "TB";
+		Level[1, LevelCount] = TBLow;
+		Level[2, LevelCount] = LevelCount;
+	End;
+	TableBottom = False;
+	If TableTop Then Begin
+		LevelCount = LevelCount + 1;
+		LevelID[LevelCount] = "TT";
+		Level[1, LevelCount] = TTHigh;
+		Level[2, LevelCount] = LevelCount;
+	End;
+	TableTop = False;
+	{Statistical Commentary}
+	If CommentaryEnabled Then Begin
+		SN = GetSymbolName;
+		CommentaryCL(NewLine, SN, " ZONES", NewLine);
+		CommentaryCL("Zone 5 : ", R4, " and above");
+		CommentaryCL("Zone 4 : ", R3, " to ", R4);
+		CommentaryCL("Zone 3 : ", S3, " to ", R3);
+		CommentaryCL("Zone 2 : ", S4, " to ", S3);
+		CommentaryCL("Zone 1 : ", S4, " and below");
+		CommentaryCL(NewLine, SN, " LEVELS", NewLine);
+		Value1 = Sort2DArray(Level, 2, LevelCount, 1);
+		For il = 1 To LevelCount Begin
+			CommentaryCL(LevelID[Level[2, il]], " = ", Level[1, il]);
+		End;
+		CommentaryCL(NewLine, SN, " METRICS", NewLine);
+		CommentaryCL("Zone Count : ", NumToStr(10 * zonecount / (TrendLookback + 1), 0));
+		CommentaryCL("Range Ratio : ", (HD0 - LD0) / ATR);
+		CommentaryCL(NewLine, SN, " TREND", NewLine);
+		If FMA > SMA and
+		FMA[TrendLookback] < SMA[TrendLookback] Then
+			CommentaryCL("ST/LT Cross : ", UpString);
+		If FMA < SMA and
+		FMA[TrendLookback] > SMA[TrendLookback] Then
+			CommentaryCL("ST/LT Cross : ", DownString);
+		If Close > SMA and
+		Close[TrendLookback] < SMA[TrendLookback] Then
+			CommentaryCL("Close/LT Cross : ", UpString);
+		If Close < SMA and
+		Close[TrendLookback] > SMA[TrendLookback] Then
+			CommentaryCL("Close/LT Cross : ", DownString);
+		If UpCount > 0 Then
+			CommentaryCL("Up Count : ", NumToStr(UpCount, 0));
+		If DownCount > 0 Then
+			CommentaryCL("Down Count : ", NumToStr(DownCount, 0));
+		If SMA > SMA[TrendLookback] Then
+			SMATrend = UpString
+		Else If SMA < SMA[TrendLookback] Then
+			SMATrend = DownString
+		Else
+			SMATrend = FlatString;
+		CommentaryCL("LT Trend : ", SMATrend);
+		If FMA > FMA[TrendLookback] Then
+			FMATrend = UpString
+		Else If FMA < FMA[TrendLookback] Then
+			FMATrend = DownString
+		Else
+			FMATrend = FlatString;
+		CommentaryCL("ST Trend : ", FMATrend);
+	End;
+	{Statistical Logging}
+	If LogStats Then Begin
+		StatsString = GetSymbolName + "," +
+			NumToStr(Date, 0) + "," +
+			NumToStr(UpCount, 0) + "," +
+			NumToStr(DownCount, 0) + NewLine;
+		FileAppend(LogFile, StatsString);
+	End;
+End;
+

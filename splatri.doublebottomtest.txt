@@ -1,0 +1,26 @@
+[LegacyColorValue = true]; 
+
+{*******************************************************************
+Name		: splatri.doublebottomtest
+Description	: Identify "2B" bottom patterns
+Provided By	: SplatR (c) Copyright 2013
+********************************************************************}
+
+Inputs:
+	Length(20),
+	Separation(9),
+	ATRFactor(0.5);
+
+Variables:
+	TBBar(-1),
+	TBLine(-1);
+
+TBBar = splatrf.testlow(Length, Separation, ATRFactor);
+If TBBar <> -1 Then Begin
+	TBLine = TL_New(Date[0], Time[0], Low, Date[TBBar], Time[TBBar], Low[TBBar]);
+	If TBLine >= 0 Then Begin
+		TL_SetColor(TBLine, Blue);
+		TL_SetSize(TBLine, 1);
+	End;
+End;
+
