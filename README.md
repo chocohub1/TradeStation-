@@ -9,6 +9,7 @@ EasyLanguage Systems, Indicators, and Functions for TradeStation
 - Fibonacci Patterns
 - Float Analysis
 - Gann Patterns
+- Gartley Pattern
 - Geometric Pivot Patterns
 - Open Range Breakout
 - Pair Trading
