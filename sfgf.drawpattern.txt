@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.drawpattern
-Description	: Draw a pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.drawpattern
+Description : Draw a pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Pivots(NumericSimple),
@@ -24,7 +37,7 @@ Variables:
 	TB(-1),
 	CodeText(0);
 
-splatrf.drawpattern = False;
+sfgf.drawpattern = False;
 AbsPivots = AbsValue(Pivots);
 For ip = 1 to AbsPivots-1 Begin
 	b1 = Pattern[ip, 0];
@@ -56,4 +69,4 @@ End;
 CodeText = Text_New(Date, Time, Value2, Code);
 Text_SetStyle(CodeText, 2, 2);
 Text_SetColor(CodeText, Color);
-splatrf.drawpattern = True;
+sfgf.drawpattern = True;
