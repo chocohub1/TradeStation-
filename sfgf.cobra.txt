@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.cobra
-Description	: Search for the Cobra Pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.cobra
+Description : Identify the Cobra Pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Percent(Numeric),
@@ -15,17 +28,17 @@ Variables:
 	RPClose(0.0),
 	Length(20);
 
-splatrf.cobra = 0;
+sfgf.cobra = 0;
 
-RPOpen = splatrf.rangepct(Open, High, Low);
-RPClose = splatrf.rangepct(Close, High, Low);
+RPOpen = sfgf.rangepct(Open, High, Low);
+RPClose = sfgf.rangepct(Close, High, Low);
 
 If RPOpen <= Percent and
 RPClose >= (1 - Percent) and
 Range <= RangeFactor * Average(Range, Length) Then
-	splatrf.cobra = 1;
+	sfgf.cobra = 1;
 
 If RPOpen >= (1 - Percent) and
 RPClose <= Percent and
 Range <= RangeFactor * Average(Range, Length) Then
-	splatrf.cobra = 2;
+	sfgf.cobra = 2;

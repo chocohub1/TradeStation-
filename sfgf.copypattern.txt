@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.copypattern
-Description	: Copy a pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.copypattern
+Description : Copy a pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Pivots(NumericSimple),
@@ -15,7 +28,7 @@ Variables:
 	AbsPivots(0),
 	ip(0);
 
-splatrf.copypattern = False;
+sfgf.copypattern = False;
 AbsPivots = AbsValue(Pivots);
 For ip = 1 to AbsPivots Begin
 	OutPattern[ip, 0] = InPattern[ip, 0];
@@ -23,4 +36,4 @@ For ip = 1 to AbsPivots Begin
 	OutPattern[ip, 2] = InPattern[ip, 2];
 	OutPattern[ip, 3] = InPattern[ip, 3];
 End;
-splatrf.copypattern = True;
+sfgf.copypattern = True;

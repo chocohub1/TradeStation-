@@ -1,7 +1,7 @@
 [LegacyColorValue = true]; 
 
 {
-Function    : sfgs.closetrademanager
+System      : sfgs.closetrademanager
 Description : Manage closing trades
 
 Copyright 2016 Scottfree Gains LLC

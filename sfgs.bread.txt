@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrs.bread
-Description	: Bread and Butter System
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+System      : sfgs.bread
+Description : Bread and Butter
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	{Money Management}
@@ -333,12 +346,12 @@ If NewDay Then Begin
 	TickSumToday = 0;
 	TickAveToday = 0;
 	{Holidays}
-	RDate = splatrf.tdate2rdate(ELDateToDateTime(Date));
-	Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
-	Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
-	HDays = splatrf.nearestholiday(RDate, Holidays, Holiday, HolidayIndex);
-	dw = splatrf.bizdayweek(RDate, FirstDay, LastDay);
-	dm = splatrf.bizdaymonth(RDate);
+	RDate = sfgf.tdate2rdate(ELDateToDateTime(Date));
+	Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
+	Holidays = sfgf.setholidays(GYear, True, Holiday, HolidayName);
+	HDays = sfgf.nearestholiday(RDate, Holidays, Holiday, HolidayIndex);
+	dw = sfgf.bizdayweek(RDate, FirstDay, LastDay);
+	dm = sfgf.bizdaymonth(RDate);
 	{Daily Metrics}
 	ATRDaily = Volatility(RRLength) of Data2;
 	MADaily = Average(Close, MADailyLength) of Data2;
@@ -346,11 +359,11 @@ If NewDay Then Begin
 	NDayLow = Lowest(Low, KLength - 1) of Data2;
 	MacroUptrend = Close > MADaily;
 	MacroDowntrend = Close < MADaily;
-	RR = splatrf.rangeratio(1, RRLength) of Data2;
-	RR2 = splatrf.rangeratio(2, RRLength) of Data2;
+	RR = sfgf.rangeratio(1, RRLength) of Data2;
+	RR2 = sfgf.rangeratio(2, RRLength) of Data2;
 	RSIOversold = RSI(Close, RSILength) of Data2 <= RSILimit;
-	DRectangle = splatrf.rectangular(DR1, DR2, DR3, RRatio, Strength) of Data2 or
-				 splatrf.rectangular(RLength, Lookback, RFactor, RRatio, Strength) of Data2;
+	DRectangle = sfgf.rectangular(DR1, DR2, DR3, RRatio, Strength) of Data2 or
+				 sfgf.rectangular(RLength, Lookback, RFactor, RRatio, Strength) of Data2;
 	{Gap Conditions}
 	BGD = False;
 	BGU = False;
@@ -418,7 +431,7 @@ If NewDay Then Begin
 		UpCount = 0;
 	End;
 	{Position Sizing}
-	N = splatrf.getshares(Equity * Allocation,
+	N = sfgf.getshares(Equity * Allocation,
 				  	  	  RiskModel,
 				  	  	  RiskPercent,
 				  	   	  0,
@@ -448,13 +461,13 @@ LowOfDay = LowD(0);
 HighOfDay1 = HighD(1);
 LowOfDay1 = LowD(1);
 CloseOfDay1 = CloseD(1);
-RPO = splatrf.rangepct(Open, High, Low);
-RPC = splatrf.rangepct(Close, High, Low);
+RPO = sfgf.rangepct(Open, High, Low);
+RPC = sfgf.rangepct(Close, High, Low);
 LookbackHigh = Highest(High, Lookback);
 LookbackLow = Lowest(Low, Lookback);
-RPHL = splatrf.rangepct(High, LookbackHigh, LookbackLow);
-RPLL = splatrf.rangepct(Low, LookbackHigh, LookbackLow);
-RPCL = splatrf.rangepct(Close, LookbackHigh, LookbackLow);
+RPHL = sfgf.rangepct(High, LookbackHigh, LookbackLow);
+RPLL = sfgf.rangepct(Low, LookbackHigh, LookbackLow);
+RPCL = sfgf.rangepct(Close, LookbackHigh, LookbackLow);
 IntradayBars = IntradayBars + 1;
 IntradayRange = AbsValue(HighOfDay - LowOfDay);
 RRToday = IFF(ATRDaily > 0, IntradayRange / ATRDaily, 0);
@@ -504,7 +517,7 @@ AdvTop = AdvRatio >= AdvHighRatio;
 AdvRP = IFF(AdvRange > 0, (High of Data3 - AdvLowest) / AdvRange, 0);
 
 {Rectangle}
-InRectangle = splatrf.rectangular(RLength, Lookback, RFactor, RRatio, Strength);
+InRectangle = sfgf.rectangular(RLength, Lookback, RFactor, RRatio, Strength);
 If InRectangle Then Begin
 	RHigh = Highest(High, RLength);
 	RLow = Lowest(Low, RLength);
@@ -512,7 +525,7 @@ If InRectangle Then Begin
 End;
 
 {Congestion Area}
-CCondition = splatrf.congestion(CLength, CFactor, MALength);
+CCondition = sfgf.congestion(CLength, CFactor, MALength);
 If CCondition or CToday Then
 	CToday = True;
 
@@ -524,14 +537,14 @@ If Time = Close2Time Then Begin
 End;
 
 {Nexus}
-Nexus = splatrf.nexus(RRLength, NFactor, Strength, MALength);
+Nexus = sfgf.nexus(RRLength, NFactor, Strength, MALength);
 If Nexus Then
 	NToday = True;
 
 Congestion = RToday or CToday or NToday or CDay;
 
 {Table}
-TB = splatrf.tablebottom(TLength, TCount, TFactor);
+TB = sfgf.tablebottom(TLength, TCount, TFactor);
 If TB >= TCount Then Begin
 	TableBottom = True;
 	TBLow = Lowest(Low, TLength);
@@ -540,7 +553,7 @@ End Else Begin
 	TableBottom = False;
 End;
 
-TT = splatrf.tabletop(TLength, TCount, TFactor);
+TT = sfgf.tabletop(TLength, TCount, TFactor);
 If TT >= TCount Then Begin
 	TableTop = True;
 	TTHigh = Highest(High, TLength);
@@ -662,7 +675,7 @@ BEGIN
 
 {Key Reversal}
 
-KRDown = splatrf.keyreversaldown(MALength);
+KRDown = sfgf.keyreversaldown(MALength);
 If KRDown and
 (BrokeUpper or UpCount >= KLength) and
 BGU = False and
@@ -673,7 +686,7 @@ LastTime Then Begin
 		SellShort("SE BKR") NS Shares This Bar on Close;
 End;
 
-KRUp = splatrf.keyreversalup(MALength);
+KRUp = sfgf.keyreversalup(MALength);
 If KRUp and
 (BrokeLower or DownCount >= KLength) and
 BGD = False and
@@ -699,7 +712,7 @@ End;
 
 Condition1 = Upturn or BuyKR or Buy180 or BGU or LongDowntrend;
 
-If splatrf.tail(TPercent, Strength) = 2 and
+If sfgf.tail(TPercent, Strength) = 2 and
 Range >= RangeFactor * ATR and
 Condition1 = False and
 Close > KCLower and
@@ -713,7 +726,7 @@ End;
 
 Condition1 = Downturn or SellKR or Sell180 or BGD or LongUptrend;
 
-If splatrf.tail(TPercent, Strength) = 1 and
+If sfgf.tail(TPercent, Strength) = 1 and
 Range >= RangeFactor * ATR and
 Condition1 = False and
 Close < KCUpper and
@@ -729,7 +742,7 @@ End;
 
 Condition1 = MACrossUp or DownCount >= KLength;
 
-Down180 = splatrf.180(P180, RangeFactor, MALength) = 2;
+Down180 = sfgf.180(P180, RangeFactor, MALength) = 2;
 If Down180 and
 (Downtrend or LongUptrend) and
 Condition1 = False and
@@ -741,7 +754,7 @@ End;
 
 Condition1 = MACrossDown or LongUptrend;
 
-Up180 = splatrf.180(P180, RangeFactor, MALength) = 1;
+Up180 = sfgf.180(P180, RangeFactor, MALength) = 1;
 If Up180 and
 (Uptrend or DownCount >= KLength) and
 Condition1 = False and
@@ -868,7 +881,7 @@ BEGIN
 
 Condition1 = Congestion or BGU or BuyT;
 
-TH = splatrf.testhigh(Lookback2B, Width2B, Delta2B);
+TH = sfgf.testhigh(Lookback2B, Width2B, Delta2B);
 If TH >= Width2B and
 Downtrend and
 TypicalPrice < MA + KeltnerSD and
@@ -881,7 +894,7 @@ End;
 
 Condition1 = Congestion or BGD;
 
-TL = splatrf.testlow(Lookback2B, Width2B, Delta2B);
+TL = sfgf.testlow(Lookback2B, Width2B, Delta2B);
 If TL >= Width2B and
 Uptrend and
 TypicalPrice > MA - KeltnerSD and
@@ -1170,9 +1183,9 @@ If Intraday Then
 {Log trades to spreadsheet}
 
 If LogTrades Then
-	Condition1 = splatrf.logtrades(LogFile, "B");
+	Condition1 = sfgf.logtrades(LogFile, "B");
 
 {Log statistics to spreadsheet}
 
 If LogStats Then
-	Condition2 = splatrf.LogStats(StatsFile, "B");
+	Condition2 = sfgf.LogStats(StatsFile, "B");

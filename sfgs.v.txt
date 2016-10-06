@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrs.v
-Description	: Look for "V" Bottoms and Tops
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+System      : sfgs.v
+Description : "V" Bottoms and Tops
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	{Position Parameters}
@@ -37,7 +50,7 @@ ATR = Volatility(ATRLength);
 MA = Average(Close, MALength);
 
 {Calculate shares based on risk model}
-N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 1000);
+N = sfgf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 1000);
 
 {Long Signal}
 
@@ -54,7 +67,7 @@ Close > MA and
 MA > MA[1] Then Begin
 	{Draw Entry Targets on the Chart}
 	If DrawTargets Then
-		Condition1 = splatrf.plotentrytargets("V", BuyStop, 0, 0, 0);
+		Condition1 = sfgf.plotentrytargets("V", BuyStop, 0, 0, 0);
 	Buy("LE V") N Shares Next Bar on BuyStop Stop;
 End;
 
@@ -75,6 +88,6 @@ MA < MA[1] and
 ShortFlag Then Begin
 	{Draw Entry Targets on the Chart}
 	If DrawTargets Then
-		Condition1 = splatrf.plotentrytargets("V", 0, 0, ShortStop, 0);
+		Condition1 = sfgf.plotentrytargets("V", 0, 0, ShortStop, 0);
 	SellShort("SE V") N Shares Next Bar on ShortStop Stop;
 End;

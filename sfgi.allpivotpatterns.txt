@@ -1,7 +1,7 @@
 [LegacyColorValue = true]; 
 
 {
-Function    : sfgi.allpivotpatterns
+Indicator   : sfgi.allpivotpatterns
 Description : Draw all of the PPM patterns
 
 Copyright 2016 Scottfree Gains LLC
