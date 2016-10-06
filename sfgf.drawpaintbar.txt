@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.drawpaintbar
-Description	: Paint a bar using trendline functions
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.drawpaintbar
+Description : Paint a bar using trendline functions
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	PBDate(Numeric),
@@ -17,11 +30,11 @@ Inputs:
 Variables:
 	TL(-1);
 
-splatrf.drawpaintbar = True;
+sfgf.drawpaintbar = True;
 TL = TL_New(PBDate, PBTime, PBLow, PBDate, PBTime, PBHigh);
 If TL >= 0 Then Begin
 	TL_SetColor(TL, PBColor);
 	TL_SetStyle(TL, Tool_Solid);
 	TL_SetSize(TL, PBWidth);
 End Else
-	splatrf.drawpaintbar = False;
+	sfgf.drawpaintbar = False;
