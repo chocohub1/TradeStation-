@@ -1,11 +1,24 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.BizDayWeek
-Description	: Get the ordinal business day of the week
-Provided By	: SplatR (c) Copyright 2013
+{
+Function    : sfgf.BizDayWeek
+Description : Get the ordinal business day of the week
 Reference	: Calendrical Calculations, Cambridge Press, 2002
-********************************************************************}
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RDate(Numeric),
@@ -28,10 +41,10 @@ Arrays:
 
 FirstDay = False;
 LastDay = False;
-dw = splatrf.dayofweek(RDate);
+dw = sfgf.dayofweek(RDate);
 
-Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
-Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
+Holidays = sfgf.setholidays(GYear, True, Holiday, HolidayName);
 hd = 0;
 Value1 = RDate - dw;
 For id = Value1+1 To Value1+5 Begin
@@ -46,4 +59,4 @@ If dw = 5 or (dw = 4 and hd = 5) Then
 	LastDay = True;
 If hd > 0 and hd < dw Then
 	dw = dw - 1;
-splatrf.bizdayweek = dw;
+sfgf.bizdayweek = dw;

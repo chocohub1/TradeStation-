@@ -1,9 +1,8 @@
 [LegacyColorValue = true]; 
 
 {
-Function    : sfgf.christmas
-Description : Identify the Christmas Holiday
-Reference   : Calendrical Calculations, Cambridge Press, 2002
+Function    : sfgs.closetrademanager
+Description : Manage closing trades
 
 Copyright 2016 Scottfree Gains LLC
 
@@ -21,12 +20,19 @@ limitations under the License.
 }
 
 Inputs:
-	GYear(Numeric),
-	HString(StringRef);
+	SystemID(""),
+	{Trade Logging}
+	LogTrades(False),
+	LogFile("Orders.txt");
 
-Variables:
-	IMonth(12),
-	IDay(25);
+{Exit position after certain number of bars}
 
-HString = "Christmas";
-sfgf.christmas = sfgf.gdate2rdate(GYear, IMonth, IDay);
+If Close < Open Then
+	Sell("LX C<O") This Bar on Close;
+
+If Close > Open Then
+	BuyToCover("SX C>O") This Bar on Close;
+
+{Log Trades for Spreadsheet Export}
+If LogTrades Then
+	Condition1 = sfgf.logtrades(LogFile, SystemID);
