@@ -1,0 +1,169 @@
+[LegacyColorValue = true]; 
+
+{
+Function    : sfgi.allpivotpatterns
+Description : Draw all of the PPM patterns
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
+
+Inputs:
+	Length(50),
+	Strength(5),
+	BullColor(White),
+	BearColor(White);
+
+Variables:
+	PivotCount(0),
+	LongCount(0),
+	ShortCount(0),
+	{Patterns}
+	FibCluster(0),
+	SymPivot(0),
+	Gartley(0),
+	Butterfly(0),
+	ExpWave(0),
+	ProWave(0),
+	{Drawing}
+	Width(1),
+	Drawn(False),
+	{Fibonacci Constants}
+	F1(0.382),
+	F2(0.500),
+	F3(0.618),
+	F4(0.786),
+	F5(1.000),
+	F6(1.272),
+	F7(1.618),
+	F8(2.618),
+	ATRFactor(1.0);
+
+Arrays:
+	PivotMap[50, 4](0),
+	Pattern[5, 4](0),
+	SavedPattern[5, 4](0);
+
+PivotCount = 0;
+LongCount = 0;
+ShortCount = 0;
+
+{Find Pivots}
+
+PivotCount = sfgf.pivotmap(Length, 50, PivotMap);
+
+If PivotCount > 0 Then Begin
+	
+{Fibonacci Cluster}
+	
+FibCluster = sfgf.fibcluster(PivotCount, PivotMap, Strength, Pattern, F2, F3, F4);
+If FibCluster <> 0 Then Begin
+	If sfgf.samepattern(FibCluster, Pattern, SavedPattern) = False Then Begin
+		If FibCluster > 0 Then Begin
+			Drawn = sfgf.drawpattern(FibCluster, Pattern, BullColor, Width, "F");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(FibCluster, Pattern, BearColor, Width, "F");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(FibCluster, Pattern, SavedPattern);
+	End;
+End;
+
+{Symmetric Pivot}
+
+SymPivot = sfgf.symmetricpivot(PivotCount, PivotMap, Strength, Pattern);
+If SymPivot <> 0 Then Begin
+	If sfgf.samepattern(SymPivot, Pattern, SavedPattern) = False Then Begin
+		If SymPivot > 0 Then Begin
+			Drawn = sfgf.drawpattern(SymPivot, Pattern, BullColor, Width, "S");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(SymPivot, Pattern, BearColor, Width, "S");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(SymPivot, Pattern, SavedPattern);
+	End;
+End;
+
+{Gartley}
+
+Gartley = sfgf.gartley(PivotCount, PivotMap, Strength, Pattern, F3);
+If Gartley <> 0 Then Begin
+	If sfgf.samepattern(Gartley, Pattern, SavedPattern) = False Then Begin
+		If Gartley > 0 Then Begin
+			Drawn = sfgf.drawpattern(Gartley, Pattern, BullColor, Width, "G");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(Gartley, Pattern, BearColor, Width, "G");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(Gartley, Pattern, SavedPattern);
+	End;
+End;
+
+{Butterfly}
+
+Butterfly = sfgf.butterfly(PivotCount, PivotMap, Strength, Pattern, F6);
+If Butterfly <> 0 Then Begin
+	If sfgf.samepattern(Butterfly, Pattern, SavedPattern) = False Then Begin
+		If Butterfly > 0 Then Begin
+			Drawn = sfgf.drawpattern(Butterfly, Pattern, BullColor, Width, "B");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(Butterfly, Pattern, BearColor, Width, "B");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(Butterfly, Pattern, SavedPattern);
+	End;
+End;
+
+{Expansion Wave}
+
+ExpWave = sfgf.expansionwave(PivotCount, PivotMap, Strength, Pattern, ATRFactor);
+If ExpWave <> 0 Then Begin
+	If sfgf.samepattern(ExpWave, Pattern, SavedPattern) = False Then Begin
+		If ExpWave > 0 Then Begin
+			Drawn = sfgf.drawpattern(ExpWave, Pattern, BullColor, Width, "E");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(ExpWave, Pattern, BearColor, Width, "E");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(ExpWave, Pattern, SavedPattern);
+	End;
+End;
+
+{Projected Wave}
+
+ProWave = sfgf.projectedwave(PivotCount, PivotMap, Strength, Pattern, ATRFactor);
+If ProWave <> 0 Then Begin
+	If sfgf.samepattern(ProWave, Pattern, SavedPattern) = False Then Begin
+		If ProWave > 0 Then Begin
+			Drawn = sfgf.drawpattern(ProWave, Pattern, BullColor, Width, "P");
+			LongCount = LongCount + 1;
+		End Else Begin
+			Drawn = sfgf.drawpattern(ProWave, Pattern, BearColor, Width, "P");
+			ShortCount = ShortCount + 1;
+		End;
+		Condition1 = sfgf.copypattern(ProWave, Pattern, SavedPattern);
+	End;
+End;
+
+{Pattern Counts}
+
+Plot1(LongCount, "Longs");
+Plot2(ShortCount, "Shorts");
+
+End;
