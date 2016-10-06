@@ -1,11 +1,24 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.bizdaymonth
-Description	: Get the ordinal business day of the month
-Provided By	: SplatR (c) Copyright 2013
+{
+Function    : sfgf.bizdaymonth
+Description : Get the ordinal business day of the month
 Reference	: Calendrical Calculations, Cambridge Press, 2002
-********************************************************************}
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RDate(Numeric);
@@ -24,23 +37,22 @@ Arrays:
 	Holiday[20](0),
 	HolidayName[20]("");	
 
-Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
-RDate1 = splatrf.gdate2rdate(GYear, GMonth, 1);
-Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
+RDate1 = sfgf.gdate2rdate(GYear, GMonth, 1);
+Holidays = sfgf.setholidays(GYear, True, Holiday, HolidayName);
 ib = 0;
 id = RDate1;
 While id <= RDate Begin
-	Value1 = splatrf.dayofweek(id);
+	Value1 = sfgf.dayofweek(id);
 	Condition1 = Value1 >= 1 and Value1 <= 5;
 	If Condition1 Then
 		ib = ib + 1;
 	For ih = 0 To Holidays-1 Begin
-		Value2 = splatrf.dayofweek(Holiday[ih]);
+		Value2 = sfgf.dayofweek(Holiday[ih]);
 		Condition2 = Value2 >= 1 and Value2 <= 5;
 		If Holiday[ih] = id and Condition2 Then
 			ib = ib - 1;
 	End;
 	id = id + 1;
 End;
-splatrf.bizdaymonth = ib;
-
+sfgf.bizdaymonth = ib;
