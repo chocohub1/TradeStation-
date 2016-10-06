@@ -1,8 +1,21 @@
-{*******************************************************************
-Name		: splatrf.exportts2r
-Provided By	: SplatR (c) Copyright 2013
+{
+Function    : sfgf.exportts2r
 Description : Export data from TradeStation for R Analysis
-********************************************************************}
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	DOpen(Open of Data2),
@@ -342,9 +355,9 @@ SD = KeltnerChannel(Close, SMALength, 1) - SMA;
 MADelta = IFF(ATR > 0, AbsValue(FMA - SMA) / ATR, 0);
 Zone = IFF(SD > 0, (Close - SMA) / SD, 0);
 RPOIntraday = IFF(RD0 > 0,(OD0 - LD0) / RD0, 0);
-RPOTZ = splatrf.rpzone(RPOIntraday, BarSegments);
+RPOTZ = sfgf.rpzone(RPOIntraday, BarSegments);
 RPCIntraday = IFF(RD0 > 0,(Close - LD0) / RD0, 0);
-RPCTZ = splatrf.rpzone(RPCIntraday, BarSegments);
+RPCTZ = sfgf.rpzone(RPCIntraday, BarSegments);
 SepToday = AbsValue(RPOTZ - RPCTZ);
 ReturnOC = IFF(OD0 > 0, 100 * ((Close / OD0) - 1), 0);
 
@@ -355,11 +368,11 @@ If Date > Date[1] Then Begin
 	DayCount = DayCount + 1;
 	id = DayCount;
 	{Calendar}
-	RDate = splatrf.tdate2rdate(ELDateToDateTime(Date));
+	RDate = sfgf.tdate2rdate(ELDateToDateTime(Date));
 	{Business Day of Month}
-	bdm = splatrf.bizdaymonth(RDate);
+	bdm = sfgf.bizdaymonth(RDate);
 	{Business Day of Week}
-	bdw = splatrf.bizdayweek(RDate, FirstDay, LastDay);
+	bdw = sfgf.bizdayweek(RDate, FirstDay, LastDay);
 	{Average True Range}
 	ATR = Volatility(RLength) of Data2;
 	{Volatility Percentage}
@@ -479,10 +492,10 @@ If Date > Date[1] Then Begin
 	End;
 	{Daily Separation}
 	For i1 = 1 To DLength Begin
-		RPOpen = splatrf.rangepct(DOpen[i1-1], DHigh[i1-1], DLow[i1-1]);
-		RPOZ = splatrf.rpzone(RPOpen, BarSegments);
-		RPClose = splatrf.rangepct(DClose[i1-1], DHigh[i1-1], DLow[i1-1]);
-		RPCZ = splatrf.rpzone(RPClose, BarSegments);
+		RPOpen = sfgf.rangepct(DOpen[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPOZ = sfgf.rpzone(RPOpen, BarSegments);
+		RPClose = sfgf.rangepct(DClose[i1-1], DHigh[i1-1], DLow[i1-1]);
+		RPCZ = sfgf.rpzone(RPClose, BarSegments);
 		Separation[i1] = AbsValue(RPOZ - RPCZ);
 	End;
 	For i1 = 1 To DLength Begin
@@ -521,8 +534,8 @@ If Date > Date[1] Then Begin
 	End;
 	{Narrowest and Widest Range}
 	For i1 = 1 To RLength Begin
-		NRCount[i1] = splatrf.narrowestrange(i1, WLength) of Data2;
-		WRCount[i1] = splatrf.widestrange(i1, WLength) of Data2;
+		NRCount[i1] = sfgf.narrowestrange(i1, WLength) of Data2;
+		WRCount[i1] = sfgf.widestrange(i1, WLength) of Data2;
 	End;
 	NRString = "";
 	WRString = "";
@@ -533,76 +546,76 @@ If Date > Date[1] Then Begin
 	{Daily Bar Patterns}
 	ip = 1;
 	PatternString[ip] = "Inside Bar"; {1}
-	Pattern[ip] = splatrf.insidebar of Data2;
+	Pattern[ip] = sfgf.insidebar of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Outside Bar"; {2}
-	Pattern[ip] = splatrf.outsidebar of Data2;
+	Pattern[ip] = sfgf.outsidebar of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Bull Hook"; {3}
-	Pattern[ip] = splatrf.hookup(ATR) of Data2;
+	Pattern[ip] = sfgf.hookup(ATR) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Bear Hook"; {4}
-	Pattern[ip] = splatrf.hookdown(ATR) of Data2;
+	Pattern[ip] = sfgf.hookdown(ATR) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "2B Low"; {5}
-	Pattern[ip] = splatrf.testlow(TLength, TBars, TFactor) of Data2 > 0;
+	Pattern[ip] = sfgf.testlow(TLength, TBars, TFactor) of Data2 > 0;
 	ip = ip + 1;
 	PatternString[ip] = "2B High"; {6}
-	Pattern[ip] = splatrf.testhigh(TLength, TBars, TFactor) of Data2 > 0;
+	Pattern[ip] = sfgf.testhigh(TLength, TBars, TFactor) of Data2 > 0;
 	ip = ip + 1;
 	PatternString[ip] = "Reversal Up"; {7}
-	Pattern[ip] = splatrf.reversalup(DLength) of Data2;
+	Pattern[ip] = sfgf.reversalup(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Reversal Down"; {8}
-	Pattern[ip] = splatrf.reversaldown(DLength) of Data2;
+	Pattern[ip] = sfgf.reversaldown(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Key Reversal Up"; {9}
-	Pattern[ip] = splatrf.keyreversalup(DLength) of Data2;
+	Pattern[ip] = sfgf.keyreversalup(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Key Reversal Down"; {10}
-	Pattern[ip] = splatrf.keyreversaldown(DLength) of Data2;
+	Pattern[ip] = sfgf.keyreversaldown(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Outside Reversal Up"; {11}
-	Pattern[ip] = splatrf.outsidereversalup(DLength) of Data2;
+	Pattern[ip] = sfgf.outsidereversalup(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Outside Reversal Down"; {12}
-	Pattern[ip] = splatrf.outsidereversaldown(DLength) of Data2;
+	Pattern[ip] = sfgf.outsidereversaldown(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Outside Key Reversal Up"; {13}
-	Pattern[ip] = splatrf.outsidekeyreversalup(DLength) of Data2;
+	Pattern[ip] = sfgf.outsidekeyreversalup(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Outside Key Reversal Down"; {14}
-	Pattern[ip] = splatrf.outsidekeyreversaldown(DLength) of Data2;
+	Pattern[ip] = sfgf.outsidekeyreversaldown(DLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Signal Up"; {15}
-	Pattern[ip] = splatrf.signalup(DLength, SSegments) of Data2;
+	Pattern[ip] = sfgf.signalup(DLength, SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Signal Down"; {16}
-	Pattern[ip] = splatrf.signaldown(DLength, SSegments) of Data2;
+	Pattern[ip] = sfgf.signaldown(DLength, SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Gap Signal Up"; {17}
-	Pattern[ip] = splatrf.gapsignalup(DLength, SSegments) of Data2;
+	Pattern[ip] = sfgf.gapsignalup(DLength, SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Gap Signal Down"; {18}
-	Pattern[ip] = splatrf.gapsignaldown(DLength, SSegments) of Data2;
+	Pattern[ip] = sfgf.gapsignaldown(DLength, SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Snapback Reversal Up"; {19}
-	Pattern[ip] = splatrf.snapbackup(SSegments) of Data2;
+	Pattern[ip] = sfgf.snapbackup(SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Snapback Reversal Down"; {20}
-	Pattern[ip] = splatrf.snapbackdown(SSegments) of Data2;
+	Pattern[ip] = sfgf.snapbackdown(SSegments) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Gann Pullback Up"; {21}
-	Pattern[ip] = splatrf.gannpullup(GPBLength) of Data2;
+	Pattern[ip] = sfgf.gannpullup(GPBLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Gann Pullback Down"; {22}
-	Pattern[ip] = splatrf.gannpulldown(GPBLength) of Data2;
+	Pattern[ip] = sfgf.gannpulldown(GPBLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Sequential Buy Setup"; {23}
-	Pattern[ip] = splatrf.sequentialbuy(SeqL, SeqW) of Data2;
+	Pattern[ip] = sfgf.sequentialbuy(SeqL, SeqW) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Sequential Sell Setup"; {24}
-	Pattern[ip] = splatrf.sequentialsell(SeqL, SeqW) of Data2;
+	Pattern[ip] = sfgf.sequentialsell(SeqL, SeqW) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Gap Above SMA"; {25}
 	Pattern[ip] = OD0 > SMA and CD1 < SMA[1];
@@ -631,28 +644,28 @@ If Date > Date[1] Then Begin
 	Pattern[ip] = CD1 < SMA[1] and Condition1 and Condition2;
 	ip = ip + 1;
 	PatternString[ip] = "Doji"; {33}
-	Pattern[ip] = splatrf.doji(RPDoji, Open, High, Low, Close) of Data2;
+	Pattern[ip] = sfgf.doji(RPDoji, Open, High, Low, Close) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Double Doji"; {34}
-	Pattern[ip] = Pattern[ip - 1] and splatrf.doji(RPDoji, Open, High, Low, Close)[1] of Data2;
+	Pattern[ip] = Pattern[ip - 1] and sfgf.doji(RPDoji, Open, High, Low, Close)[1] of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Hammer"; {35}
-	Pattern[ip] = splatrf.hammer(RPDoji, Open, High, Low, Close) of Data2;
+	Pattern[ip] = sfgf.hammer(RPDoji, Open, High, Low, Close) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Inverted Hammer"; {36}
-	Pattern[ip] = splatrf.invertedhammer(RPDoji, Open, High, Low, Close) of Data2;
+	Pattern[ip] = sfgf.invertedhammer(RPDoji, Open, High, Low, Close) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "ID/NR4"; {37}
-	Pattern[ip] = splatrf.insidebar of Data2 and NRCount[1] >= 4;
+	Pattern[ip] = sfgf.insidebar of Data2 and NRCount[1] >= 4;
 	ip = ip + 1;
 	PatternString[ip] = "Spring"; {38}
-	Pattern[ip] = splatrf.spring(PivotStrength, WLength) of Data2;
+	Pattern[ip] = sfgf.spring(PivotStrength, WLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Upthrust"; {39}
-	Pattern[ip] = splatrf.upthrust(PivotStrength, WLength) of Data2;
+	Pattern[ip] = sfgf.upthrust(PivotStrength, WLength) of Data2;
 	ip = ip + 1;
 	PatternString[ip] = "Trend Day"; {40}
-	Pattern[ip] = splatrf.trendbar(RPTO, RPTC, DOpen, DHigh, DLow, DClose) of Data2;
+	Pattern[ip] = sfgf.trendbar(RPTO, RPTC, DOpen, DHigh, DLow, DClose) of Data2;
 	PString = "";
 	For i1 = 1 To Patterns Begin
 		PString = PString + NumToStr(IFF(Pattern[i1], 1, 0), 0) + " ";
@@ -909,4 +922,4 @@ End;
 
 BarCount = BarCount + 1;
 
-{End of splatrf.exportts2r}
+{End of sfgf.exportts2r}
