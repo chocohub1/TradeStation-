@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.butterfly
-Description	: Draw the Butterfly pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.butterfly
+Description : Draw the Butterfly pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Length(50),
@@ -26,17 +39,17 @@ Arrays:
 
 {Find Pivots}
 
-PivotCount = splatrf.pivotmap(Length, 50, PivotMap);
+PivotCount = sfgf.pivotmap(Length, 50, PivotMap);
 
 {Butterfly}
 
-Butterfly = splatrf.butterfly(PivotCount, PivotMap, Strength, Pattern, F1);
+Butterfly = sfgf.butterfly(PivotCount, PivotMap, Strength, Pattern, F1);
 If Butterfly <> 0 Then Begin
-	If splatrf.samepattern(Butterfly, Pattern, SavedPattern) = False Then Begin
+	If sfgf.samepattern(Butterfly, Pattern, SavedPattern) = False Then Begin
 		If Butterfly > 0 Then
-			Drawn = splatrf.drawpattern(Butterfly, Pattern, BullColor, Width, "B")
+			Drawn = sfgf.drawpattern(Butterfly, Pattern, BullColor, Width, "B")
 		Else
-			Drawn = splatrf.drawpattern(Butterfly, Pattern, BearColor, Width, "B");
-		Condition1 = splatrf.copypattern(Butterfly, Pattern, SavedPattern);
+			Drawn = sfgf.drawpattern(Butterfly, Pattern, BearColor, Width, "B");
+		Condition1 = sfgf.copypattern(Butterfly, Pattern, SavedPattern);
 	End;
 End;

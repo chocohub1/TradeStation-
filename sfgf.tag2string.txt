@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*****************************************************************
-Name		: splatrf.tag2string
-Description	: Convert a tag stream to its string equivalent 
-Provided By	: SplatR (c) Copyright 2013
-******************************************************************}
+{
+Function    : sfgf.tag2string
+Description : Convert a tag stream to its string equivalent
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Start(Numeric),
@@ -14,7 +27,7 @@ Inputs:
 	Precision(Numeric),
 	BitmapString[MaxSize](StringArrayRef);
 
-splatrf.tag2string = False;
+sfgf.tag2string = False;
 
 Value1 = Start;
 For Value2 = Offset To Offset + Length - 1 Begin
@@ -22,4 +35,4 @@ For Value2 = Offset To Offset + Length - 1 Begin
 	Value1 = Value1 + Increment;
 End;
 
-splatrf.tag2string = True;
+sfgf.tag2string = True;

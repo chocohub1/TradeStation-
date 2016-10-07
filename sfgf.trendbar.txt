@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.trendbar
-Description	: Identify a Trend Bar
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.trendbar
+Description : Identify a Trend Bar
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RPO(Numeric),
@@ -18,12 +31,12 @@ Variables:
 	RPOpen(0.0),
 	RPClose(0.0);
 
-splatrf.trendbar = False;
+sfgf.trendbar = False;
 
-RPOpen = splatrf.rangepct(DOpen, DHigh, DLow);
-RPClose = splatrf.rangepct(DClose, DHigh, DLow);
+RPOpen = sfgf.rangepct(DOpen, DHigh, DLow);
+RPClose = sfgf.rangepct(DClose, DHigh, DLow);
 Condition1 = RPOpen <= RPO and RPClose >= (1 - RPC);
 Condition2 = RPOpen >= (1 - RPO) and RPClose <= RPC;
 
 If Condition1 or Condition2 Then
-	splatrf.trendbar = True;
+	sfgf.trendbar = True;

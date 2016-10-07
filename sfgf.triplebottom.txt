@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.triplebottom
-Description	: Find a triple bottom formation
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.triplebottom
+Description : Find a triple bottom formation
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	LookbackBars(Numeric),
@@ -18,7 +31,7 @@ Variables:
 	HighPivot2(0.0),
 	LowPivot2(0.0);
 
-splatrf.triplebottom = -1;
+sfgf.triplebottom = -1;
 TheDelta = RangeFactor * Volatility(LookbackBars);
 HighPivot1 = PivotHighVSBar(1, High, Strength, Strength, LookbackBars);
 LowPivot1 = PivotLowVSBar(1, Low, Strength, Strength, LookbackBars);
@@ -35,4 +48,4 @@ AbsValue(Low - Lowest(Low, LowPivot2)) <= TheDelta and
 HighPivot1 < LowPivot1 and
 HighPivot2 < LowPivot2 and
 Low <= Low[1] Then
-	splatrf.triplebottom = LowPivot2;
+	sfgf.triplebottom = LowPivot2;

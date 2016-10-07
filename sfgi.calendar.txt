@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.calendar
-Description	: Display key dates
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.calendar
+Description : Display key dates
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Variables:
 	GYear(0),
@@ -39,26 +52,26 @@ Arrays:
 	EventName[100]("");	
 
 If CommentaryEnabled Then Begin
-	RDate = splatrf.tdate2rdate(Date);
-	Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+	RDate = sfgf.tdate2rdate(Date);
+	Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
 	CommentaryCL("GDate: ", NumToStr(GMonth, 0), " / ", NumToStr(GDay, 0), " / ", NumToStr(GYear, 0));
 	CommentaryCL("RDate: ", NumToStr(RDate, 0));
-	CommentaryCL("Day of Week: ", NumToStr(splatrf.dayofweek(RDate), 0));
-	bdw = splatrf.bizdayweek(RDate, FDay, LDay);
+	CommentaryCL("Day of Week: ", NumToStr(sfgf.dayofweek(RDate), 0));
+	bdw = sfgf.bizdayweek(RDate, FDay, LDay);
 	bdws = "";
 	If FDay Then bdws = " (first)";
 	If LDay Then bdws = " (last)";
 	CommentaryCL("Business Day of Week: ", NumToStr(bdw, 0), bdws);
-	CommentaryCL("Business Day of Month: ", NumToStr(splatrf.bizdaymonth(RDate), 0));
-	Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
-	HDays = splatrf.nearestholiday(RDate, Holidays, Holiday, HolidayIndex);
+	CommentaryCL("Business Day of Month: ", NumToStr(sfgf.bizdaymonth(RDate), 0));
+	Holidays = sfgf.setholidays(GYear, True, Holiday, HolidayName);
+	HDays = sfgf.nearestholiday(RDate, Holidays, Holiday, HolidayIndex);
 	NearName = HolidayName[HolidayIndex];
 	If HDays < 0 Then
 		CommentaryCL("It is ", NumToStr(-HDays, 0), " business days before ", NearName, ".");		
 	If HDays > 0 Then
 		CommentaryCL("It is ", NumToStr(HDays, 0), " business days after ", NearName, ".");		
-	Events = splatrf.setevents(GYear, GMonth, Event, EventName);
-	EDays = splatrf.nearestevent(RDate, Events, Event, EventIndex);
+	Events = sfgf.setevents(GYear, GMonth, Event, EventName);
+	EDays = sfgf.nearestevent(RDate, Events, Event, EventIndex);
 	NearName = EventName[EventIndex];
 	If EDays = 0 Then
 		CommentaryCL("Today's Event: ", NearName, ".");		
@@ -66,18 +79,17 @@ If CommentaryEnabled Then Begin
 		CommentaryCL("It is ", NumToStr(-EDays, 0), " business days before ", NearName, ".");		
 	If EDays > 0 Then
 		CommentaryCL("It is ", NumToStr(EDays, 0), " business days after ", NearName, ".");		
-	CommentaryCL("Day of Year: ", NumToStr(splatrf.daynumber(GYear, GMonth, GDay), 0));
-	CommentaryCL("Remaining: ", NumToStr(splatrf.daysremain(GYear, GMonth, GDay), 0), NewLine);
+	CommentaryCL("Day of Year: ", NumToStr(sfgf.daynumber(GYear, GMonth, GDay), 0));
+	CommentaryCL("Remaining: ", NumToStr(sfgf.daysremain(GYear, GMonth, GDay), 0), NewLine);
 	CommentaryCL(NumToStr(GYear, 0), " Holiday Calendar:", NewLine);
 	For ih = 0 to Holidays-1 Begin
-		Condition1 = splatrf.rdate2gdate(Holiday[ih], HYear, HMonth, HDay);
+		Condition1 = sfgf.rdate2gdate(Holiday[ih], HYear, HMonth, HDay);
 		CommentaryCL(HolidayName[ih], " ", NumToStr(HMonth, 0), " / ", NumToStr(HDay, 0));
 	End;
 	CommentaryCL(NewLine, "Events:", NewLine);
 	For ie = 0 to Events-1 Begin
-		Condition1 = splatrf.rdate2gdate(Event[ie], EYear, EMonth, EDay);
+		Condition1 = sfgf.rdate2gdate(Event[ie], EYear, EMonth, EDay);
 		CommentaryCL(EventName[ie], " ", NumToStr(EMonth, 0), " / ", NumToStr(EDay, 0),
 					 " / ", NumToStr(EYear, 0));
 	End;
 End;
-

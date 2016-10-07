@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.setevents
-Description	: Define this month's events
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.setevents
+Description : Define this month's events
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	GYear(Numeric),
@@ -31,22 +44,22 @@ Arrays:
 {Monthly Events}
 
 ie = 0;
-rd = splatrf.nthbday(1, GYear, GMonth);
+rd = sfgf.nthbday(1, GYear, GMonth);
 Event[ie] = rd;
 EventName[ie] = "ISM Report";
 
 ie = ie + 1;
-rd = splatrf.nthkday(1, RFriday, GYear, GMonth, 2);
+rd = sfgf.nthkday(1, RFriday, GYear, GMonth, 2);
 Event[ie] = rd;
 EventName[ie] = "Employment Report";
 
 ie = ie + 1;
-rd = splatrf.nthkday(2, RFriday, GYear, GMonth, 1);
+rd = sfgf.nthkday(2, RFriday, GYear, GMonth, 1);
 Event[ie] = rd;
 EventName[ie] = "Michigan Consumer Sentiment";
 
 ie = ie + 1;
-rd = splatrf.nthkday(3, RFriday, GYear, GMonth, 1);
+rd = sfgf.nthkday(3, RFriday, GYear, GMonth, 1);
 Event[ie] = rd;
 EventName[ie] = "Options Expiration";
 
@@ -98,7 +111,7 @@ FOMC[ix, 1] = 2000; FOMC[ix, 2] = 12; FOMC[ix, 3] = 19; ix = ix + 1;
 
 For ix = 0 To FOMCDates-1 Begin
 	ie = ie + 1;
-	rd = splatrf.gdate2rdate(FOMC[ix, 1], FOMC[ix, 2], FOMC[ix, 3]);
+	rd = sfgf.gdate2rdate(FOMC[ix, 1], FOMC[ix, 2], FOMC[ix, 3]);
 	Event[ie] = rd;
 	EventName[ie] = EString;
 End;
@@ -106,4 +119,4 @@ End;
 {Return Events}
 
 ie = ie + 1;
-splatrf.setevents = ie;
+sfgf.setevents = ie;
