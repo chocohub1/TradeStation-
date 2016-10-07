@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.pullback
-Description	: Search for a Gann Pullback Pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.pullback
+Description : Search for a Gann Pullback Pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	ADXLimit(Numeric),
@@ -19,28 +32,28 @@ Variables:
 	RangeLength(5),
 	RangeFactor(0.7);
 
-splatrf.pullback = 0;
+sfgf.pullback = 0;
 
 RangeHigh = Highest(High, RangeLength);
 RangeLow = Lowest(Low, RangeLength);
-RPClose = splatrf.rangepct(Close, RangeHigh, RangeLow);
+RPClose = sfgf.rangepct(Close, RangeHigh, RangeLow);
 
-Condition1 = splatrf.retracedown(PullbackBars) = True;
-Condition2 = splatrf.tail(Percent, RangeLength) = 1;
-Condition3 = splatrf.cobra(Percent, RangeFactor) = 1;
+Condition1 = sfgf.retracedown(PullbackBars) = True;
+Condition2 = sfgf.tail(Percent, RangeLength) = 1;
+Condition3 = sfgf.cobra(Percent, RangeFactor) = 1;
 
 If ADX(Length) >= ADXLimit and
 DMIPlus(Length) > DMIMinus(Length) and
 RPClose <= Percent and
 (Condition1 or Condition2 or Condition3) Then
-	splatrf.pullback = 1;
+	sfgf.pullback = 1;
 
-Condition1 = splatrf.retraceup(PullbackBars) = True;
-Condition2 = splatrf.tail(Percent, RangeLength) = 2;
-Condition3 = splatrf.cobra(Percent, RangeFactor) = 2;
+Condition1 = sfgf.retraceup(PullbackBars) = True;
+Condition2 = sfgf.tail(Percent, RangeLength) = 2;
+Condition3 = sfgf.cobra(Percent, RangeFactor) = 2;
 
 If ADX(Length) >= ADXLimit and
 DMIMinus(Length) > DMIPlus(Length) and
 RPClose >= (1 - Percent) and
 (Condition1 or Condition2 or Condition3) Then
-	splatrf.pullback = 2;
+	sfgf.pullback = 2;

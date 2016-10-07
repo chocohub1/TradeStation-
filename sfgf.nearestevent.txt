@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.nearestevent
-Description	: Determine the nearest event
-Provided By	: Acme Trader LLC (c) Copyright 2004
-********************************************************************}
+{
+Function    : sfgf.nearestevent
+Description : Determine the nearest event
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RDate(Numeric),
@@ -26,7 +39,7 @@ Arrays:
 	Holiday[20](0),
 	HolidayName[20]("");	
 
-Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
 diff = 32;
 For ih = 0 to Events-1 Begin
 	Value1 = Event[ih] - RDate;
@@ -46,9 +59,9 @@ End Else Begin
 	Value4 = NearRD;
 	Value5 = RDate;
 End;
-Holidays = splatrf.setholidays(GYear, True, Holiday, HolidayName);
+Holidays = sfgf.setholidays(GYear, True, Holiday, HolidayName);
 For ird = Value4 To Value5 Begin
-	Value6 = splatrf.dayofweek(ird);
+	Value6 = sfgf.dayofweek(ird);
 	If Value6 = 0 or Value6 = 6 Then
 		diff = diff - 1;
 	For ih = 0 to Holidays-1 Begin
@@ -57,6 +70,6 @@ For ird = Value4 To Value5 Begin
 	End;
 End;
 If Value3 > 0 Then
-	splatrf.nearestevent = -diff
+	sfgf.nearestevent = -diff
 Else
-	splatrf.nearestevent = diff;
+	sfgf.nearestevent = diff;

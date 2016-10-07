@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.nearestholiday
-Description	: Determine the nearest holiday
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.nearestholiday
+Description : Determine the nearest holiday
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RDate(Numeric),
@@ -21,7 +34,7 @@ Variables:
 	NearRD(0),
 	ird(0);
 
-Condition1 = splatrf.rdate2gdate(RDate, GYear, GMonth, GDay);
+Condition1 = sfgf.rdate2gdate(RDate, GYear, GMonth, GDay);
 diff = 366;
 For ih = 0 to Holidays-1 Begin
 	Value1 = Holiday[ih] - RDate;
@@ -42,11 +55,11 @@ End Else Begin
 	Value5 = RDate;
 End;
 For ird = Value4 To Value5 Begin
-	Value6 = splatrf.dayofweek(ird);
+	Value6 = sfgf.dayofweek(ird);
 	If Value6 = 0 or Value6 = 6 Then
 		diff = diff - 1;
 End;
 If Value3 > 0 Then
-	splatrf.nearestholiday = -diff
+	sfgf.nearestholiday = -diff
 Else
-	splatrf.nearestholiday = diff;
+	sfgf.nearestholiday = diff;

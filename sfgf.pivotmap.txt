@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.pivotmap
-Description	: Find the pivots in a given window
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.pivotmap
+Description : Find the pivots in a given window
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Window(NumericSimple),
@@ -21,7 +34,7 @@ Variables:
 	p(0),
 	s(0);
 
-splatrf.pivotmap = 0;
+sfgf.pivotmap = 0;
 If Window >= 3 and Pivots >= 1 Then Begin
 	{Find pivots}
 	pc = 0;
@@ -78,5 +91,5 @@ If Window >= 3 and Pivots >= 1 Then Begin
 		{Assign strength}
 		PM[ip, 2] = s;
 	End;
-	splatrf.pivotmap = pc;
+	sfgf.pivotmap = pc;
 End;

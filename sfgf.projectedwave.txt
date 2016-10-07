@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.projectedwave
-Description	: Find the Projected Wave Pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.projectedwave
+Description : Find the Projected Wave Pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Pivots(NumericSimple),
@@ -26,19 +39,19 @@ Variables:
 	p(0.0),
 	ATR(0.0);
 
-splatrf.projectedwave = 0;
+sfgf.projectedwave = 0;
 If Pivots >= PatternPivots and Strength >= 1 Then Begin
 	{Bullish ProWave}
-	p2 = splatrf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
-	p3 = splatrf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
+	p2 = sfgf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
+	p3 = sfgf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
 	If p2 >= 0 and p3 >= 0 and
 	p2 > p3 Then Begin
 		v2 = High[PM[p2, 0]];
 		v3 = Low[PM[p3, 0]];
-		p4 = splatrf.pivothigh(Pivots, PM, 0, p3, 1);
+		p4 = sfgf.pivothigh(Pivots, PM, 0, p3, 1);
 		If p4 >= 0 and v3 < v2 Then Begin
 			v4 = High[PM[p4, 0]];
-			p1 = splatrf.pivotlow(Pivots, PM, p2+1, Pivots-1, Strength);
+			p1 = sfgf.pivotlow(Pivots, PM, p2+1, Pivots-1, Strength);
 			If p1 >= 0 and v2 > v4 and v4 > v3 Then Begin
 				v1 = Low[PM[p1, 0]];
 				If v1 < v4 and v1 > v3 Then Begin
@@ -64,23 +77,23 @@ If Pivots >= PatternPivots and Strength >= 1 Then Begin
 						Pattern[4, 1] = PM[p4, 1];
 						Pattern[4, 2] = PM[p4, 2];
 						Pattern[4, 3] = PM[p4, 3];
-						splatrf.projectedwave = PatternPivots;
+						sfgf.projectedwave = PatternPivots;
 					End;
 				End;
 			End;
 		End;
 	End;
 	{Bearish ProWave}
-	p3 = splatrf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
-	p2 = splatrf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
+	p3 = sfgf.pivothigh(Pivots, PM, 0, Pivots-1, Strength);
+	p2 = sfgf.pivotlow(Pivots, PM, 0, Pivots-1, Strength);
 	If p2 >= 0 and p3 >= 0 and
 	p2 > p3 Then Begin
 		v3 = High[PM[p3, 0]];
 		v2 = Low[PM[p2, 0]];
-		p4 = splatrf.pivotlow(Pivots, PM, 0, p3, 1);
+		p4 = sfgf.pivotlow(Pivots, PM, 0, p3, 1);
 		If p4 >= 0 and v3 > v2 Then Begin
 			v4 = Low[PM[p4, 0]];
-			p1 = splatrf.pivothigh(Pivots, PM, p2+1, Pivots-1, Strength);
+			p1 = sfgf.pivothigh(Pivots, PM, p2+1, Pivots-1, Strength);
 			If p1 >= 0 and v2 < v4 and v4 < v3 Then Begin
 				v1 = High[PM[p1, 0]];
 				If v1 > v4 and v1 < v3 Then Begin
@@ -106,7 +119,7 @@ If Pivots >= PatternPivots and Strength >= 1 Then Begin
 						Pattern[4, 1] = PM[p4, 1];
 						Pattern[4, 2] = PM[p4, 2];
 						Pattern[4, 3] = PM[p4, 3];
-						splatrf.projectedwave = -PatternPivots;
+						sfgf.projectedwave = -PatternPivots;
 					End;
 				End;
 			End;
