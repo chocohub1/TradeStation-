@@ -1,31 +1,43 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.ktl
-Description	: Identify Key Technical Levels
-Provided By	: SplatR (c) Copyright 2013
+{
+Indicator   : sfgi.ktl
+Description : Identify Key Technical Levels
 
 Daily KTLs
 
-01. Typical Price (TP)
-02. Median Price (MP)
-03. Moving Average 50 (MA 50)
-04. Moving Average 20 (MA 20)
-05. Previous High (PH)
-06. Previous Low (PL)
-07. Rectangle High (RH)
-08. Rectangle Low (RL)
-09. Double Bottom (DB)
-10. Double Top (DT)
-11. Triple Bottom (TB)
-12. Triple Top (TT)
+    01. Typical Price (TP)
+    02. Median Price (MP)
+    03. Moving Average 50 (MA 50)
+    04. Moving Average 20 (MA 20)
+    05. Previous High (PH)
+    06. Previous Low (PL)
+    07. Rectangle High (RH)
+    08. Rectangle Low (RL)
+    09. Double Bottom (DB)
+    10. Double Top (DT)
+    11. Triple Bottom (TB)
+    12. Triple Top (TT)
 
 Intraday KTLs
 
-01. Opening Range High (ORH)
-02. Opening Range Low (ORL)
+    01. Opening Range High (ORH)
+    02. Opening Range Low (ORL)
 
-********************************************************************}
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	KTLDs(12),
@@ -98,9 +110,9 @@ Date of Data2 > Date[1] of Data2 Then Begin
 	KTLDText[06] = "PL";
 	KTLD[06] = Low of Data3;
  	KTLDFlag[06] = True;
-	InRectangle = splatrf.rectangular(R11, R12, R13, R14, MA2Length) of Data3;
+	InRectangle = sfgf.rectangular(R11, R12, R13, R14, MA2Length) of Data3;
 	If InRectangle = False Then Begin
-		InRectangle = splatrf.rectangular(R21, R22, R23, R24, MA2Length) of Data3;
+		InRectangle = sfgf.rectangular(R21, R22, R23, R24, MA2Length) of Data3;
 		If InRectangle Then
 			RLength = R21;
 	End Else
@@ -118,28 +130,28 @@ Date of Data2 > Date[1] of Data2 Then Begin
  		KTLDFlag[08] = True;
 	End;
 	KTLDFlag[09] = False;
-	DBBar = splatrf.doublebottom(D1, D2, D3) of Data3;
+	DBBar = sfgf.doublebottom(D1, D2, D3) of Data3;
 	If DBBar <> -1 Then Begin
 		KTLDText[09] = "DB";
 		KTLD[09] = Low[DBBar] of Data3;
 		KTLDFlag[09] = True;
 	End;
 	KTLDFlag[10] = False;
-	DTBar = splatrf.doubletop(D1, D2, D3) of Data3;
+	DTBar = sfgf.doubletop(D1, D2, D3) of Data3;
 	If DTBar <> -1 Then Begin
 		KTLDText[10] = "DT";
 		KTLD[10] = High[DTBar] of Data3;
 		KTLDFlag[10] = True;
 	End;
 	KTLDFlag[11] = False;
-	TBBar = splatrf.triplebottom(T1, T2, T3) of Data3;
+	TBBar = sfgf.triplebottom(T1, T2, T3) of Data3;
 	If TBBar <> -1 Then Begin
 		KTLDText[11] = "TB";
 		KTLD[11] = Low[TBBar] of Data3;
 		KTLDFlag[11] = True;
 	End;
 	KTLDFlag[12] = False;
-	TTBar = splatrf.tripletop(T1, T2, T3) of Data3;
+	TTBar = sfgf.tripletop(T1, T2, T3) of Data3;
 	If TTBar <> -1 Then Begin
 		KTLDText[12] = "TT";
 		KTLD[12] = High[TTBar] of Data3;
@@ -147,7 +159,7 @@ Date of Data2 > Date[1] of Data2 Then Begin
 	End;
 	For ix = 1 To KTLDs Begin
 		If KTLDFlag[ix] Then Begin
-			Result = splatrf.drawktl(Date, StartTime, EndTime, KTLD[ix], KTLDText[ix], Tool_Magenta, Width);
+			Result = sfgf.drawktl(Date, StartTime, EndTime, KTLD[ix], KTLDText[ix], Tool_Magenta, Width);
 		End;
 	End;
 End;
@@ -164,10 +176,7 @@ Date of Data2 > Date[1] of Data2 Then Begin
  	KTLIFlag[02] = True;
 	For ix = 1 To KTLIs Begin
 		If KTLIFlag[ix] Then Begin
-			Result = splatrf.drawktl(Date, StartTime, EndTime, KTLI[ix], KTLIText[ix], Tool_White, Width);
+			Result = sfgf.drawktl(Date, StartTime, EndTime, KTLI[ix], KTLIText[ix], Tool_White, Width);
 		End;
 	End;
 End;
-
-
-

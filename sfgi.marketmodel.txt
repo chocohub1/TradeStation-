@@ -1,17 +1,29 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.marketmodel
-Description	: Label bars with sentiment indicators
-Provided By	: SplatR (c) Copyright 2013
+{
+Indicator   : sfgi.marketmodel
+Description : Label bars with sentiment indicators
 
-1. VIX (V)
-2. Advancers (A)
-3. Decliners (D)
-4. Arms Index, or TRIN (T)
-5. Tick (K)
+    1. VIX (V)
+    2. Advancers (A)
+    3. Decliners (D)
+    4. Arms Index, or TRIN (T)
+    5. Tick (K)
 
-********************************************************************}
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Length(26),
@@ -43,7 +55,7 @@ Else
 
 	If Close of Data2 > 0 Then Begin
 		PatternString = "V";
-		HighLow = splatrf.highlowindex(Close of Data2, Length);
+		HighLow = sfgf.highlowindex(Close of Data2, Length);
 		If HighLow = 1 Then
 			LongString = LongString + PatternString
 		Else If HighLow = 2 Then
@@ -52,7 +64,7 @@ Else
 
 	If Close of Data3 > 0 Then Begin
 		PatternString = "A";
-		HighLow = splatrf.highlowindex(Close of Data3, Length);
+		HighLow = sfgf.highlowindex(Close of Data3, Length);
 		If HighLow = 2 Then
 			LongString = LongString + PatternString
 		Else If HighLow = 1 Then
@@ -61,7 +73,7 @@ Else
 
 	If Close of Data4 > 0 Then Begin
 		PatternString = "D";
-		HighLow = splatrf.highlowindex(Close of Data4, Length);
+		HighLow = sfgf.highlowindex(Close of Data4, Length);
 		If HighLow = 1 Then
 			LongString = LongString + PatternString
 		Else If HighLow = 2 Then
@@ -70,7 +82,7 @@ Else
 
 	If Close of Data5 > 0 Then Begin
 		PatternString = "T";
-		HighLow = splatrf.highlowindex(Average(Close of Data5, Smooth),
+		HighLow = sfgf.highlowindex(Average(Close of Data5, Smooth),
 		Length);
 		If HighLow = 1 Then
 			LongString = LongString + PatternString
@@ -80,7 +92,7 @@ Else
 
 	If Close of Data6 > 0 Then Begin
 		PatternString = "K";
-		HighLow = splatrf.highlowindex(Average(Close of Data6, Smooth), Length);
+		HighLow = sfgf.highlowindex(Average(Close of Data6, Smooth), Length);
 		If HighLow = 2 Then
 			LongString = LongString + PatternString
 		Else If HighLow = 1 Then
@@ -103,4 +115,3 @@ Else
 			Alert("Short " + ShortString);
 	End;
 End;
-

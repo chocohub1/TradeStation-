@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.levels
-Description	: Identify Key Support and Resistance Levels
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.levels
+Description : Identify Key Support and Resistance Levels
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	ATRLength(10),
@@ -59,38 +72,38 @@ If TodayStarted Then Begin
 	H3 = HighD(3);
 	L3 = LowD(3);
 	If LOn Then Begin
-		Drawn = splatrf.drawktl(Date, Time, CloseTime, H1, "H1", LColor, Width);
-		Drawn = splatrf.drawktl(Date, Time, CloseTime, L1, "L1", LColor, Width);
+		Drawn = sfgf.drawktl(Date, Time, CloseTime, H1, "H1", LColor, Width);
+		Drawn = sfgf.drawktl(Date, Time, CloseTime, L1, "L1", LColor, Width);
 		If H2 > H1 Then
-			Drawn = splatrf.drawktl(Date, Time, CloseTime, H2, "H2", LColor, Width);
+			Drawn = sfgf.drawktl(Date, Time, CloseTime, H2, "H2", LColor, Width);
 		If L2 < L1 Then
-			Drawn = splatrf.drawktl(Date, Time, CloseTime, L2, "L2", LColor, Width);
+			Drawn = sfgf.drawktl(Date, Time, CloseTime, L2, "L2", LColor, Width);
 		If H3 > H1 Then
-			Drawn = splatrf.drawktl(Date, Time, CloseTime, H3, "H3", LColor, Width);
+			Drawn = sfgf.drawktl(Date, Time, CloseTime, H3, "H3", LColor, Width);
 		If L3 < L1 Then
-			Drawn = splatrf.drawktl(Date, Time, CloseTime, L3, "L3", LColor, Width);
+			Drawn = sfgf.drawktl(Date, Time, CloseTime, L3, "L3", LColor, Width);
 	End;
 End;
 
 If OOn and
 Time = OTime Then Begin
 	OString = "o " + NumToStr(R0, 2);
-	Drawn = splatrf.drawktl(Date, Time, CloseTime, HighD(0), OString, OColor, Width);
-	Drawn = splatrf.drawktl(Date, Time, CloseTime, LowD(0), OString, OColor, Width);
+	Drawn = sfgf.drawktl(Date, Time, CloseTime, HighD(0), OString, OColor, Width);
+	Drawn = sfgf.drawktl(Date, Time, CloseTime, LowD(0), OString, OColor, Width);
 End;
 
 If DOn and
 Time = DTime Then Begin
 	DString = "H " + NumToStr(R0, 2);
-	Drawn = splatrf.drawktl(Date, Time, CloseTime, HighD(0), DString, DColor, Width);
+	Drawn = sfgf.drawktl(Date, Time, CloseTime, HighD(0), DString, DColor, Width);
 	DString = "L " + NumToStr(R0, 2);
-	Drawn = splatrf.drawktl(Date, Time, CloseTime, LowD(0), DString, DColor, Width);
+	Drawn = sfgf.drawktl(Date, Time, CloseTime, LowD(0), DString, DColor, Width);
 End;
 
 If AOn and
 A1Hit = False Then Begin
 	If H0 - L0 >= ATR Then Begin
 		A1Hit = True;
-		Drawn = splatrf.drawktl(Date, Time, CloseTime, Close, "A1", AColor, Width);
+		Drawn = sfgf.drawktl(Date, Time, CloseTime, Close, "A1", AColor, Width);
 	End;
 End;

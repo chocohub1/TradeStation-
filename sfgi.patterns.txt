@@ -1,25 +1,37 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.patterns
-Description	: Label Bar Patterns
-Provided By	: SplatR (c) Copyright 2013
+{
+Indicator   : sfgi.patterns
+Description : Label Bar Patterns
 
-1. Cobra (C)
-2. Hook (H)
-3. Inside Day 2 (I)
-4. Tail (L)
-5. Harami (M)
-6. 1-2-3 Pullback (P)
-7. Test (T)
-8. V Zone (V)
+    1. Cobra (C)
+    2. Hook (H)
+	3. Inside Day 2 (I)
+	4. Tail (L)
+	5. Harami (M)
+	6. 1-2-3 Pullback (P)
+	7. Test (T)
+	8. V Zone (V)
 
-Qualifiers
+	Qualifiers
 
-1. Average (A)
-2. Narrow Range (N)
+	1. Average (A)
+	2. Narrow Range (N)
 
-********************************************************************}
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	MinimumPrice(0),
@@ -67,7 +79,7 @@ Else
 		PriceDelta = Volatility(Length) / 4;
 		ADR = Average(Range, Length);
 
-		ReturnValue = splatrf.cobra(CPercent, CRangeFactor);
+		ReturnValue = sfgf.cobra(CPercent, CRangeFactor);
 		If ReturnValue > 0 Then Begin
 			PatternString = "C";
 			If ReturnValue = 1 Then
@@ -77,18 +89,18 @@ Else
 		End;
 
 		PatternString = "H";
-		If splatrf.hookup(ADR) Then
+		If sfgf.hookup(ADR) Then
 			LongString = LongString + PatternString;
-		If splatrf.hookdown(ADR) Then
+		If sfgf.hookdown(ADR) Then
 			ShortString = ShortString + PatternString;
 
-		If splatrf.insideday2 Then Begin
+		If sfgf.insideday2 Then Begin
 			PatternString = "I";
 			LongString = LongString + PatternString;
 			ShortString = ShortString + PatternString;
 		End;
 
-		ReturnValue = splatrf.tail(LPercent, LRangeLength);
+		ReturnValue = sfgf.tail(LPercent, LRangeLength);
 		If ReturnValue > 0 Then Begin
 			PatternString = "L";
 			If ReturnValue = 1 Then
@@ -97,7 +109,7 @@ Else
 				ShortString = ShortString + PatternString;
 		End;
 
-		ReturnValue = splatrf.harami;
+		ReturnValue = sfgf.harami;
 		If ReturnValue > 0 Then Begin
 			PatternString = "M";
 			If ReturnValue = 1 Then
@@ -106,7 +118,7 @@ Else
 				ShortString = ShortString + PatternString;
 		End;
 
-		ReturnValue = splatrf.pullback(PADX, PLength);
+		ReturnValue = sfgf.pullback(PADX, PLength);
 		If ReturnValue > 0 Then Begin
 			PatternString = "P";
 			If ReturnValue = 1 Then
@@ -116,32 +128,32 @@ Else
 		End;
 
 		PatternString = "T";
-		If splatrf.testlow(TLength, TBars, TFactor) > 0 Then
+		If sfgf.testlow(TLength, TBars, TFactor) > 0 Then
 			LongString = LongString + PatternString;
-		If splatrf.testhigh(TLength, TBars, TFactor) > 0 Then
+		If sfgf.testhigh(TLength, TBars, TFactor) > 0 Then
 			ShortString = ShortString + PatternString;
 
-		VHighZone = splatrf.vhigh(VFactor, Length);
+		VHighZone = sfgf.vhigh(VFactor, Length);
 		If High >= VHighZone and VHighZone > 0 Then
 			ShortString = ShortString + "V";
 
-		VLowZone = splatrf.vlow(VFactor, Length);
+		VLowZone = sfgf.vlow(VFactor, Length);
 		If Low <= VLowZone and VLowZone > 0 Then
 			LongString = LongString + "V";
 
 		{Qualifiers}
 
-		ACondition = splatrf.onaverage(ALength);
+		ACondition = sfgf.onaverage(ALength);
 		If ACondition Then Begin
 			PatternString = "A";
 			LongString = LongString + PatternString;
 			ShortString = ShortString + PatternString;
 		End;
 
-		Condition1 = splatrf.narrowrange(NLength1, 1) and splatrf.narrowrange(NLength1, 0)[1];
+		Condition1 = sfgf.narrowrange(NLength1, 1) and sfgf.narrowrange(NLength1, 0)[1];
 		Condition2 = Low > Low[1] and High < High[1] and Low[1] > Low[2] and High[1] < High[2];
-		Condition3 = splatrf.narrowrange(NLength2, 0);
-		Condition4 = splatrf.insidedaynarrowrange(NLength3, 0);
+		Condition3 = sfgf.narrowrange(NLength2, 0);
+		Condition4 = sfgf.insidedaynarrowrange(NLength3, 0);
 		Condition5 = Range <= CRangeFactor * ADR;
 		If (Condition1 or Condition2 or Condition3 or Condition4 or Condition5) Then Begin
 			PatternString = "N";
@@ -169,4 +181,3 @@ Else
 			Plot2(StrLen(ShortString), "Shorts");
 		End;
 	End;
-

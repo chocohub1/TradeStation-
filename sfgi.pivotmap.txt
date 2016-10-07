@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.pivotmap
-Description	: Display the Pivot Map
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.pivotmap
+Description : Display the Pivot Map
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Length(50),
@@ -36,7 +49,7 @@ Arrays:
 {Find Pivots}
 
 print(date, PivotCount);
-PivotCount = splatrf.pivotmap(Length, MaxPivots, PivotMap);
+PivotCount = sfgf.pivotmap(Length, MaxPivots, PivotMap);
 print(date, PivotCount);
 SPivotCount = 0;
 For ip = 0 To PivotCount-1 Begin
@@ -68,7 +81,7 @@ For ip = 0 To PivotCount-1 Begin
 			 		 NumToStr(YearFromDateTime(dt), 0));
 	End;
 End;
-ph = splatrf.pivothigh(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
+ph = sfgf.pivothigh(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
 If ph > 0 Then Begin
 	dt = ELDateToDateTime(Date[PivotMap[ph, 0]]);
 	CommentaryCL(NewLine, "Highest",
@@ -78,7 +91,7 @@ If ph > 0 Then Begin
 			 	 NumToStr(DayFromDateTime(dt), 0), " / ",
 			 	 NumToStr(YearFromDateTime(dt), 0));
 End;
-pl = splatrf.pivotlow(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
+pl = sfgf.pivotlow(PivotCount, PivotMap, 0, PivotCount-1, MinStrength);
 If pl > 0 Then Begin
 	dt = ELDateToDateTime(Date[PivotMap[pl, 0]]);
 	CommentaryCL("Lowest",
@@ -101,7 +114,7 @@ For ip = 0 To PivotCount-1 Begin
 			Color = HighColor;
 		If PivotMap[ip, 1] = -1 Then
 			Color = LowColor;
-		Condition1 = splatrf.drawpaintbar(Date[pb], Time[pb], PHigh, PLow, Color, PBWidth);
+		Condition1 = sfgf.drawpaintbar(Date[pb], Time[pb], PHigh, PLow, Color, PBWidth);
 		If LastBaronChart Then Begin
 			PivotText = Text_New(Date[pb], Time[pb], PHigh, NumToStr(PivotMap[ip, 2], 0));
 			Text_SetStyle(PivotText, 2, 1);
@@ -115,7 +128,3 @@ Plot1(PivotScore, "Pivot Score");
 Plot2(0, "Zero Line");
 Plot3(ScoreAlert, "High Score");
 Plot4(-ScoreAlert, "Low Score");
-
-
-
-
