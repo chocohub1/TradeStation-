@@ -1,17 +1,30 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************
-Name		: splatrp.180
-Description	: Show 180 patterns 
-Provided By	: SplatR (c) Copyright 2013
-*******************************************************}
+{
+PaintBar    : sfgp.180
+Description : Paint 180 Bars
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	Percent(.45),
 	RangeFactor(1.35),
 	Length(65);
 
-If splatrf.180(Percent, RangeFactor, Length) <> 0 Then Begin
+If sfgf.180(Percent, RangeFactor, Length) <> 0 Then Begin
  	PlotPaintBar(High, Low, "180");
 	Alert("180 Alert");
 End
@@ -20,4 +33,3 @@ Else Begin
 	NoPlot(1);
 	NoPlot(2);
 End;
-

@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrs.rectangle
-Description	: Look for Rectangle Breakouts
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+System      : sfgs.rectangle
+Description : Look for Rectangle Breakouts
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	{Position Parameters}
@@ -56,7 +69,7 @@ Variables:
 	R24(0.35);
 
 ATR = Volatility(Lookback);
-VP = splatrf.volatilitypercentage(Lookback);
+VP = sfgf.volatilitypercentage(Lookback);
 AV = Average(Volume, Lookback);
 ADXValue = ADX(ADXLength);
 DMIP = DMIPlus(RPLength);
@@ -70,11 +83,11 @@ If FiltersOn Then
 If TradeFilter Then Begin
 
 	{Calculate shares based on risk model}
-	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Lookback, 1000);
+	N = sfgf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Lookback, 1000);
 
 	{Determine whether or not we are in a rectangle}
-	R1 = splatrf.rectangular(R11, R12, R13, R14, Lookback);
-	R2 = splatrf.rectangular(R21, R22, R23, R24, Lookback);
+	R1 = sfgf.rectangular(R11, R12, R13, R14, Lookback);
+	R2 = sfgf.rectangular(R21, R22, R23, R24, Lookback);
 	InRectangle = R1 or R2;
 	If InRectangle Then Begin
 		If R1 Then RLength = R11 Else RLength = R21;
@@ -82,11 +95,11 @@ If TradeFilter Then Begin
 	    RectangleLow = Lowest(Low, RLength);
 	    BuyStop = RectangleHigh + (EntryFactor * ATR);
 	    ShortStop = RectangleLow - (EntryFactor * ATR);
-		RP = splatrf.rangepct(Close, Highest(High, RPLength), Lowest(Low, RPLength));
+		RP = sfgf.rangepct(Close, Highest(High, RPLength), Lowest(Low, RPLength));
 		If RP <= (1 - RPFactor) Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("R", BuyStop, 0, 0, 0);
+				Condition1 = sfgf.plotentrytargets("R", BuyStop, 0, 0, 0);
 			Buy("LE R") N Shares Next Bar on BuyStop Stop;
 		End;
 		If Close < MA and
@@ -94,7 +107,7 @@ If TradeFilter Then Begin
 		Close >= ShortMin Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("R", 0, 0, ShortStop, 0);
+				Condition1 = sfgf.plotentrytargets("R", 0, 0, ShortStop, 0);
 			Sell Short("SE R") N Shares Next Bar on ShortStop Stop;
 		End;
 	End;

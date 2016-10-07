@@ -1,30 +1,36 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrs.sentiment
-Description	: Look for combinations of sentiment indicators
-Provided By	: SplatR (c) Copyright 2013
+{
+System      : sfgs.sentiment
+Description : Look for combinations of sentiment indicators
 
-1. VIX (V)
-2. Advancers (A)
-3. Decliners (D)
-4. Arms Index, or TRIN (T)
-5. Tick (K)
+	1. VIX (V)
+	2. Advancers (A)
+	3. Decliners (D)
+	4. Arms Index, or TRIN (T)
+	5. Tick (K)
 
-Data1: Market Index
-Data2: $VIX.X
-Data3: $ADV
-Data4: $DECL
-Data5: $TRIN
-Data6: $TICK
+	Data1 : Market Index
+	Data2 : $VIX.X
+	Data3 : $ADV
+	Data4 : $DECL
+	Data5 : $TRIN
+	Data6 : $TICK
 
-NOTE: TradeStation 6 and 7 do not allow importing external data.
-Thus, we can only use the sentiment indicators that are provided
-by the TradeStation feed. Ask TradeStation to include more
-sentiment indicators in their feed, such as the put/call ratio
-and new highs/lows.
+Copyright 2016 Scottfree Gains LLC
 
-********************************************************************}
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	{Market Parameters}
@@ -64,7 +70,7 @@ Else Begin
 	PriceDelta = ATR / 4;
 
 	If Close of Data2 > 0 Then Begin
-		HighLow = splatrf.highlowindex(Close of Data2, Length);
+		HighLow = sfgf.highlowindex(Close of Data2, Length);
 		If HighLow = 1 Then
 			LongCount = LongCount + 1
 		Else If HighLow = 2 Then
@@ -72,7 +78,7 @@ Else Begin
 	End;
 
 	If Close of Data3 > 0 Then Begin
-		HighLow = splatrf.highlowindex(Close of Data3, Length);
+		HighLow = sfgf.highlowindex(Close of Data3, Length);
 		If HighLow = 2 Then
 			LongCount = LongCount + 1
 		Else If HighLow = 1 Then
@@ -80,7 +86,7 @@ Else Begin
 	End;
 
 	If Close of Data4 > 0 Then Begin
-		HighLow = splatrf.highlowindex(Close of Data4, Length);
+		HighLow = sfgf.highlowindex(Close of Data4, Length);
 		If HighLow = 1 Then
 			LongCount = LongCount + 1
 		Else If HighLow = 2 Then
@@ -88,7 +94,7 @@ Else Begin
 	End;
 
 	If Close of Data5 > 0 Then Begin
-		HighLow = splatrf.highlowindex(Average(Close of Data5, Smooth),
+		HighLow = sfgf.highlowindex(Average(Close of Data5, Smooth),
 		Length);
 		If HighLow = 1 Then
 			LongCount = LongCount + 1
@@ -97,7 +103,7 @@ Else Begin
 	End;
 
 	If Close of Data6 > 0 Then Begin
-		HighLow = splatrf.highlowindex(Average(Close of Data6, Smooth), Length);
+		HighLow = sfgf.highlowindex(Average(Close of Data6, Smooth), Length);
 		If HighLow = 2 Then
 			LongCount = LongCount + 1
 		Else If HighLow = 1 Then
@@ -105,14 +111,14 @@ Else Begin
 	End;
 
 	{Calculate shares based on risk model}
-	N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Length, 100);
+	N = sfgf.getshares(Equity, RiskModel, RiskPercent, RiskATR, Length, 100);
 
 	{Multiple Pattern Buy Signal}
 
 	If LongCount >= MinimumPatterns Then Begin
 		{Draw Entry Targets on the Chart}
 		If DrawTargets Then
-			Condition1 = splatrf.plotentrytargets("S", BuyStop, 0, 0, 0);
+			Condition1 = sfgf.plotentrytargets("S", BuyStop, 0, 0, 0);
 		Buy("LE S") N Shares Next Bar on BuyStop Stop;
 	End;
 
@@ -121,8 +127,7 @@ Else Begin
 	If ShortCount >= MinimumPatterns Then Begin
 		{Draw Entry Targets on the Chart}
 		If DrawTargets Then
-			Condition1 = splatrf.plotentrytargets("S", 0, 0, ShortStop, 0);
+			Condition1 = sfgf.plotentrytargets("S", 0, 0, ShortStop, 0);
 		Sell Short("SE S") N Shares Next Bar on ShortStop Stop;
 	End;
 End;
-

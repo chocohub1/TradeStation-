@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.tables
-Description	: Tables
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.tables
+Description : Table Commentary
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	BarsInDay(14),
@@ -211,7 +224,7 @@ THigh = Highest(High, TLength);
 TLow = Lowest(Low, TLength);
 TRange = IFF(ATR > 0, (THigh - TLow) / ATR, 0);
 
-TB = splatrf.tablebottom(TLength, TCount, TFactor);
+TB = sfgf.tablebottom(TLength, TCount, TFactor);
 If TB >= TCount Then Begin
 	TableBottom = True;
 	TBCount = TBCount + 1;
@@ -227,7 +240,7 @@ If TB >= TCount Then Begin
 	End;
 End;
 
-TT = splatrf.tabletop(TLength, TCount, TFactor);
+TT = sfgf.tabletop(TLength, TCount, TFactor);
 If TT >= TCount Then Begin
 	TableTop = True;
 	TTCount = TTCount + 1;

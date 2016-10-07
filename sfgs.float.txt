@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrs.float
-Description	: Look for float turnovers near the float channel lines
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+System      : sfgs.float
+Description : Look for float turnovers near the float channel lines
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	{F Parameters}
@@ -51,7 +64,7 @@ If TheFloat = 0.0 Then
 Begin
 	{Compute the number of base bars based on float turnover}
 
-	TheFloat = FloatFactor * splatrf.getfloat(GetSymbolName);
+	TheFloat = FloatFactor * sfgf.getfloat(GetSymbolName);
 
 End Else If TheFloat > 0.0 Then
 Begin
@@ -59,8 +72,8 @@ Begin
 
 	ATR = Average(Range, ATRLength);
 	MA = Average(Close, MALength);
-	FloatHigh1 = splatrf.floatchannelhigh(TheFloat);
-	FloatLow1 = splatrf.floatchannellow(TheFloat);
+	FloatHigh1 = sfgf.floatchannelhigh(TheFloat);
+	FloatLow1 = sfgf.floatchannellow(TheFloat);
 	ChannelWidth = FloatHigh1 - FloatLow1;
 
 	{Run trade filters}
@@ -71,7 +84,7 @@ Begin
 	If TradeFilter Then Begin
 
 		{Calculate shares based on risk model}
-		N = splatrf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 100);
+		N = sfgf.getshares(Equity, RiskModel, RiskPercent, RiskATR, ATRLength, 100);
 
 		{Entry Signals}
 
@@ -88,7 +101,7 @@ Begin
 	 	High > (FloatHigh1 - TableDelta) Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("F", BuyStop, 0, 0, 0);
+				Condition1 = sfgf.plotentrytargets("F", BuyStop, 0, 0, 0);
 			Buy("LE FB") N Shares Next Bar at BuyStop Stop;
 		End;
 
@@ -99,7 +112,7 @@ Begin
 		Low < (FloatLow1 + TableDelta) Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("F", 0, 0, ShortStop, 0);
+				Condition1 = sfgf.plotentrytargets("F", 0, 0, ShortStop, 0);
 			Sell Short("SE FB") N Shares Next Bar at ShortStop Stop;
 		End;
 
@@ -109,7 +122,7 @@ Begin
 		BuyStop < (FloatLow1 + ChannelDelta) Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("F", BuyStop, 0, 0, 0);
+				Condition1 = sfgf.plotentrytargets("F", BuyStop, 0, 0, 0);
 			Buy("LE FP") N Shares Next Bar on BuyStop Stop;
 		End;
 
@@ -119,7 +132,7 @@ Begin
 		ShortStop > (FloatHigh1 - ChannelDelta) Then Begin
 			{Draw Entry Targets on the Chart}
 			If DrawTargets Then
-				Condition1 = splatrf.plotentrytargets("F", 0, 0, ShortStop, 0);
+				Condition1 = sfgf.plotentrytargets("F", 0, 0, ShortStop, 0);
 			Sell Short("SE FP") N Shares Next Bar on ShortStop Stop;
 		End;
 	End;

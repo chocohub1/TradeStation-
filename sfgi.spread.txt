@@ -1,18 +1,28 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.spread
-Description	: Plot the Spread between 2 securities
-Provided By	: SplatR (c) 2013
+{
+Indicator   : sfgi.spread
+Description : Plot the Spread between 2 securities
 
-Requirements
-------------
+	Data1 : Stock 1 Intraday
+	Data2 : Stock 2 Intraday
+	Data3 : Stock 1 Daily (hidden)
+	Data4 : Stock 2 Daily (hidden)
 
-Data1:	Stock 1 Intraday
-Data2:	Stock 2 Intraday
-Data3:	Stock 1 Daily (hidden)
-Data4:	Stock 2 Daily (hidden)
-********************************************************************}
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	VolatilityFactor(1.5),
@@ -29,8 +39,8 @@ Variables:
 	Spread(0.0);
 
 If Date <> Date[1] Then Begin
-	HV1 = splatrf.volatility(Length) of Data3;
-	HV2 = splatrf.volatility(Length) of Data4;
+	HV1 = sfgf.volatility(Length) of Data3;
+	HV2 = sfgf.volatility(Length) of Data4;
 	CV = Correlation(Close[1] of Data3, Close[1] of Data4, Length);
 	VolatilityBand = VolatilityConstant * (HV1 + HV2) * (1 - CV);
 	UpperBand = VolatilityFactor * VolatilityBand;
@@ -42,5 +52,3 @@ Plot1(Spread, "Spread");
 Plot2(UpperBand, "UB");
 Plot3(0, "Zero");
 Plot4(LowerBand, "LB");
-
-

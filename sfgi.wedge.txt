@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.wedge
-Description	: Draw a wedge
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.wedge
+Description : Draw a wedge
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
  
 Inputs:
 	WedgeLength(3);
@@ -13,7 +26,7 @@ Variables:
 	UpperLine(-1),
 	LowerLine(-1);
 
-If splatrf.wedge(WedgeLength) and WedgeLength > 1 Then Begin
+If sfgf.wedge(WedgeLength) and WedgeLength > 1 Then Begin
 	UpperLine = TL_New(Date[WedgeLength], Time[WedgeLength], High[WedgeLength], Date[0], Time[0], High);
 	If UpperLine >= 0 Then Begin
 		If GetBackGroundColor = Black Then
@@ -31,4 +44,3 @@ If splatrf.wedge(WedgeLength) and WedgeLength > 1 Then Begin
 		TL_SetSize(LowerLine, 1);
 	End;
 End;
-

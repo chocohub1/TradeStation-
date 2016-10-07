@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatri.rectangle
-Description	: Draw a rectangle
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Indicator   : sfgi.rectangle
+Description : Draw a rectangle
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	RectangleLength(4),
@@ -26,7 +39,7 @@ XRectangle = False;
 If InRectangle Then
 	If High <= RectangleHigh and Low >= RectangleLow Then
 		XRectangle = True;
-InRectangle = splatrf.rectangular(RectangleLength,
+InRectangle = sfgf.rectangular(RectangleLength,
 								  RangeLength,
 								  RangeFactor,
 								  RangeRatioLimit,
@@ -54,4 +67,3 @@ If InRectangle or XRectangle Then Begin
 	End;
 	Plot1(RectangleLength, "Length");
 End;
-
