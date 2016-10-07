@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.harami
-Description	: Search for the Harami Pattern
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.harami
+Description : Identify a Harami Candlestick Pattern
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Variables:
 	RPClose(0.0),
@@ -15,10 +28,10 @@ Variables:
 	Harami2(False),
 	Harami3(False);
 
-splatrf.harami = 0;
+sfgf.harami = 0;
 
-RPClose = splatrf.rangepct(Close, High, Low);
-RPOpen = splatrf.rangepct(Open, High, Low);
+RPClose = sfgf.rangepct(Close, High, Low);
+RPOpen = sfgf.rangepct(Open, High, Low);
 
 If Range[1] > 0 and Range[2] > 0 and Range[3] > 0 Then Begin
 	Condition1 = Low >= Low[1] and High <= High[1];
@@ -43,7 +56,7 @@ If Range[1] > 0 and Range[2] > 0 and Range[3] > 0 Then Begin
 	Harami3 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5 and Condition6;
 
 	If Harami1 or Harami2 or Harami3 Then
-		splatrf.harami = 1;
+		sfgf.harami = 1;
 
 	Condition1 = Low >= Low[1] and High <= High[1];
 	Condition2 = Close < Open;
@@ -67,5 +80,5 @@ If Range[1] > 0 and Range[2] > 0 and Range[3] > 0 Then Begin
 	Harami3 = Condition1 and Condition2 and Condition3 and Condition4 and Condition5 and Condition6;
 
 	If Harami1 or Harami2 or Harami3 Then
-		splatrf.harami = 2;
+		sfgf.harami = 2;
 End;

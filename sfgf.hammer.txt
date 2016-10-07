@@ -1,10 +1,23 @@
 [LegacyColorValue = true]; 
 
-{*******************************************************************
-Name		: splatrf.hammer
-Description	: Identify a Hammer Candlestick
-Provided By	: SplatR (c) Copyright 2013
-********************************************************************}
+{
+Function    : sfgf.hammer
+Description : Identify a Hammer Candlestick
+
+Copyright 2016 Scottfree Gains LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+}
 
 Inputs:
 	tolerance(Numeric),
@@ -17,12 +30,12 @@ Variables:
 	rpopen(0.0),
 	rpclose(0.0);
 
-splatrf.hammer = False;
+sfgf.hammer = False;
 
-rpopen = splatrf.rangepct(dopen, dhigh, dlow);
-rpclose = splatrf.rangepct(dclose, dhigh, dlow);
+rpopen = sfgf.rangepct(dopen, dhigh, dlow);
+rpclose = sfgf.rangepct(dclose, dhigh, dlow);
 
 If AbsValue(rpopen - rpclose) <= tolerance and
 rpopen >= (1.0 - tolerance) and
 rpclose >= (1.0 - tolerance) Then
-	splatrf.hammer = True;
+	sfgf.hammer = True;
